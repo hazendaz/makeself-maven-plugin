@@ -20,7 +20,7 @@ Example Usage
                 <artifactId>makeself-maven-plugin</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <configuration>
-                    <archiveDir>${project.build.directory}/distro</archiveDir>
+                    <archiveDir>distro</archiveDir>
                     <fileName>installDistro.sh</fileName>
                     <label>Distro Self Extraction</label>
                     <startupScript>runDistroScript.sh</startupScript>

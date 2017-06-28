@@ -40,8 +40,8 @@ public class MakeselfMojo extends AbstractMojo {
     /**
      * archive_dir is the name of the directory that contains the files to be archived.
      */
-    @Parameter(defaultValue = "${project.build.directory}/makeself", property = "archiveDir", required = true)
-    private File    archiveDir;
+    @Parameter(defaultValue = "makeself", property = "archiveDir", required = true)
+    private String  archiveDir;
 
     /**
      * file_name is the name of the archive to be created.
@@ -272,6 +272,10 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/makeself-temp", readonly = true)
     private File    targetDirectory;
 
+    //** The build target. */
+    @Parameter(defaultValue = "${project.build.directory}/", readonly = true)
+    private String  buildTarget;
+
     /** The makeself. */
     private File    makeself;
 
@@ -293,8 +297,8 @@ public class MakeselfMojo extends AbstractMojo {
             executeMakeself(makeselfTarget + "--version");
 
             // Basic Configuration
-            String target = makeselfTarget + loadArgs() + archiveDir + " " + fileName + " " + label + " "
-                    + startupScript;
+            String target = makeselfTarget + loadArgs() + buildTarget + archiveDir + " " + buildTarget + fileName + " "
+                    + label + " " + startupScript;
 
             // Output Executed Command
             getLog().debug("### " + target);
