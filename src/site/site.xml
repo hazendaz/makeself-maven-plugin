@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+       Copyright 2011-2017 the original author or authors.
+
+       This program is free software; you can redistribute it and/or
+       modify it under the terms of the GNU General Public License
+       as published by the Free Software Foundation; either version 2
+       of the License, or (at your option) any later version.
+
+       You may obtain a copy of the License at
+
+          https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+
+       This program is distributed in the hope that it will be useful,
+       but WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+       GNU General Public License for more details.
+
+-->
+<project name="${project.name}" xmlns="http://maven.apache.org/DECORATION/1.7.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/DECORATION/1.7.0 http://maven.apache.org/xsd/decoration-1.7.0.xsd">
+    <bannerLeft>
+        <src>/images/hazendaz-banner.jpg</src>
+        <href>http://github.com/hazendaz</href>
+    </bannerLeft>
+    <bannerRight>
+        <src>/images/hazendaz.png</src>
+        <href>http://github.com/hazendaz</href>
+    </bannerRight>
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.6</version>
+    </skin>
+    <custom>
+        <fluidoSkin>
+            <topBarEnabled>true</topBarEnabled>
+            <sideBarEnabled>true</sideBarEnabled>
+        </fluidoSkin>
+    </custom>
+    <body>
+        <links>
+            <item name="Hazendaz" href="http://github.com/hazendaz" />
+        </links>
+        <menu ref="reports" />
+    </body>
+</project>
