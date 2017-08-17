@@ -67,6 +67,10 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "version", readonly = true)
     private Boolean version;
 
+    /** --help | -h : Print out this help message. */
+    @Parameter(property = "help")
+    private Boolean help;
+
     /** --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux) */
     @Parameter(property = "gzip")
     private Boolean gzip;
@@ -296,6 +300,13 @@ public class MakeselfMojo extends AbstractMojo {
             // Output version of makeself.sh
             executeMakeself(makeselfTarget + "--version");
 
+            // If help arguments supplied, write output and get out of code.
+            String helpArgs = helpArgs();
+            if (helpArgs != null) {
+                executeMakeself(makeselfTarget + helpArgs);
+                return;
+            }
+
             // Basic Configuration
             String target = makeselfTarget + loadArgs() + buildTarget + archiveDir + " " + buildTarget + fileName
                     + " \"" + label + "\" " + startupScript;
@@ -355,6 +366,21 @@ public class MakeselfMojo extends AbstractMojo {
         } catch (IOException e) {
             getLog().error("", e);
         }
+    }
+
+    /**
+     * Help args.
+     *
+     * @return the string
+     */
+    private String helpArgs() {
+        StringBuilder args = new StringBuilder();
+
+        // --help | -h : Print out this help message
+        if (isTrue(help)) {
+            args.append("--help ");
+        }
+        return args.toString();
     }
 
     /**
