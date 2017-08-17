@@ -297,8 +297,8 @@ public class MakeselfMojo extends AbstractMojo {
             executeMakeself(makeselfTarget + "--version");
 
             // Basic Configuration
-            String target = makeselfTarget + loadArgs() + buildTarget + archiveDir + " " + buildTarget + fileName + " "
-                    + label + " " + startupScript;
+            String target = makeselfTarget + loadArgs() + buildTarget + archiveDir + " " + buildTarget + fileName
+                    + " \"" + label + "\" " + startupScript;
 
             // Output Executed Command
             getLog().debug("### " + target);
