@@ -399,7 +399,7 @@ public class MakeselfMojo extends AbstractMojo {
                 try (InputStream link = classloader.getResourceAsStream("makeself-header.sh")) {
                     Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
                 }
-            tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
+                tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
             }
         } catch (IOException e) {
             getLog().error("", e);
