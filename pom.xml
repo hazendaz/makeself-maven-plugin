@@ -67,6 +67,16 @@
         </site>
     </distributionManagement>
 
+    <properties>
+        <!-- Relax we don't need to enforce Java 8 at this time. -->
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.compiler.testSource>1.7</maven.compiler.testSource>
+        <maven.compiler.testTarget>1.7</maven.compiler.testTarget>
+
+        <signature.artifact>java17</signature.artifact>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
