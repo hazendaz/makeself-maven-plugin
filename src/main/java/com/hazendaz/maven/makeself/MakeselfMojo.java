@@ -380,6 +380,7 @@ public class MakeselfMojo extends AbstractMojo {
 
             makeself = new File(targetDirectory + "/makeself.sh");
             if (!makeself.exists()) {
+                makeself.setExecutable(true, true);
                 try (InputStream link = classloader.getResourceAsStream("makeself.sh")) {
                     Files.copy(link, makeself.getAbsoluteFile().toPath());
                 }
@@ -387,6 +388,7 @@ public class MakeselfMojo extends AbstractMojo {
 
             File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
             if (!makeselfHeader.exists()) {
+                makeself.setExecutable(true, true);
                 try (InputStream link = classloader.getResourceAsStream("makeself-header.sh")) {
                     Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
                 }
