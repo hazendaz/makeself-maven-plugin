@@ -315,8 +315,11 @@ public class MakeselfMojo extends AbstractMojo {
             // Location of makeself.sh
             String makeselfTarget = "bash " + makeself.getAbsolutePath() + " ";
 
+            // Output version of bash
+            execute("bash " + "--version");
+
             // Output version of makeself.sh
-            executeMakeself(makeselfTarget + "--version");
+            execute(makeselfTarget + "--version");
 
             // If help arguments supplied, write output and get out of code.
             String helpArgs = helpArgs();
@@ -333,7 +336,7 @@ public class MakeselfMojo extends AbstractMojo {
             getLog().debug("### " + target);
 
             // Execute main run of makeself.sh
-            executeMakeself(target);
+            execute(target);
         } catch (IOException | InterruptedException e) {
             if (e.getMessage().contains("Cannot run program \"bash\"")) {
                 getLog().error(
@@ -345,7 +348,7 @@ public class MakeselfMojo extends AbstractMojo {
         }
     }
 
-    private void executeMakeself(String target) throws IOException, InterruptedException {
+    private void execute(String target) throws IOException, InterruptedException {
         Runtime rt = Runtime.getRuntime();
         Process proc = rt.exec(target);
         proc.waitFor();
