@@ -336,7 +336,9 @@ public class MakeselfMojo extends AbstractMojo {
             executeMakeself(target);
         } catch (IOException | InterruptedException e) {
             if (e.getMessage().contains("Cannot run program \"bash\"")) {
-                getLog().error("Add git's '/usr/bin' to environment variables to execute this plugin", e);
+                getLog().error(
+                        "Configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin",
+                        e);
             } else {
                 getLog().error("", e);
             }
