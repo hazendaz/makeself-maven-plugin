@@ -388,7 +388,7 @@ public class MakeselfMojo extends AbstractMojo {
 
             File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
             if (!makeselfHeader.exists()) {
-                makeself.setExecutable(true, true);
+                makeselfHeader.setExecutable(true, true);
                 try (InputStream link = classloader.getResourceAsStream("makeself-header.sh")) {
                     Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
                 }
