@@ -349,11 +349,13 @@ public class MakeselfMojo extends AbstractMojo {
     }
 
     private void execute(String target) throws IOException, InterruptedException {
-        Runtime rt = Runtime.getRuntime();
-        Process proc = rt.exec(target);
-        proc.waitFor();
+        String commands[] = target.split(" ");
+        ProcessBuilder processBuilder = new ProcessBuilder(commands);
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.start();
+        process.waitFor();
         StringBuilder output = new StringBuilder();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line = "";
         while ((line = reader.readLine()) != null) {
             output.append(line).append("\n");
