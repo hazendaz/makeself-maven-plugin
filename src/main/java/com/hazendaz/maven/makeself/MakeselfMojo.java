@@ -131,6 +131,12 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean gpgEncrypt;
 
     /**
+     * --gpg-asymmetric-encrypt-sign : Instead of compressing, asymmetrically encrypt and sign the data using GPG."
+     */
+    @Parameter(property = "gpgAsymmetricEncryptSign")
+    private Boolean gpgAsymmetricEncryptSign;
+
+    /**
      * --ssl-encrypt : Encrypt the archive using openssl aes-256-cbc -a -salt. This will prompt for a password to
      * encrypt with. Assumes that the potential users have the OpenSSL tools installed.
      */
@@ -230,6 +236,12 @@ public class MakeselfMojo extends AbstractMojo {
     private String  lsmFile;
 
     /**
+     * --gpg-extra opt : Append more options to the gpg command line.
+     */
+    @Parameter(property = "gpgExtraOpt")
+    private String  gpgExtraOpt;
+
+    /**
      * --tar-extra opt : Append more options to the tar command line.
      *
      * For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar, one
@@ -237,6 +249,12 @@ public class MakeselfMojo extends AbstractMojo {
      */
     @Parameter(property = "tarExtraOpt")
     private String  tarExtraOpt;
+
+    /**
+     * --untar-extra opt : AAppend more options to the during the extraction of the tar archive.
+     */
+    @Parameter(property = "untarExtraOpt")
+    private String  untarExtraOpt;
 
     /**
      * --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
@@ -452,6 +470,11 @@ public class MakeselfMojo extends AbstractMojo {
             args.append("--gpg-encrypt ");
         }
 
+        // --gpg-asymmetric-encrypt-sign : Instead of compressing, asymmetrically encrypt and sign the data using GPG
+        if (isTrue(gpgAsymmetricEncryptSign)) {
+            args.append("--gpg-asymmetric-encrypt-sign ");
+        }
+
         // --ssl-encrypt : Encrypt the archive using openssl aes-256-cbc -a -salt. This will prompt for a password to
         // encrypt with. Assumes that the potential users have the OpenSSL tools installed.
         if (isTrue(sslEncrypt)) {
@@ -544,12 +567,22 @@ public class MakeselfMojo extends AbstractMojo {
             args.append("--lsm ").append(lsmFile).append(" ");
         }
 
+        // --gpg-extra opt : Append more options to the gpg command line.
+        if (gpgExtraOpt != null) {
+            args.append("--gpg-extra ").append(gpgExtraOpt).append(" ");
+        }
+
         // --tar-extra opt : Append more options to the tar command line.
         //
         // For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar,
         // one can use makeself.sh --tar-extra "--exclude=.git" ...
         if (tarExtraOpt != null) {
             args.append("--tar-extra ").append(tarExtraOpt).append(" ");
+        }
+
+        // --untar-extra opt : Append more options to the during the extraction of the tar archive.
+        if (untarExtraOpt != null) {
+            args.append("--untar-extra ").append(untarExtraOpt).append(" ");
         }
 
         // --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
