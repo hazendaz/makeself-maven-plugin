@@ -323,8 +323,8 @@ public class MakeselfMojo extends AbstractMojo {
 
             // If help arguments supplied, write output and get out of code.
             String helpArgs = helpArgs();
-            if (helpArgs != null) {
-                executeMakeself(makeselfTarget + helpArgs);
+            if (!helpArgs.isEmpty()) {
+                execute(makeselfTarget + helpArgs);
                 return;
             }
 
