@@ -23,6 +23,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -372,6 +376,8 @@ public class MakeselfMojo extends AbstractMojo {
     private void extractMakeself() {
         ClassLoader classloader = this.getClass().getClassLoader();
 
+        final Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-xr--");
+
         try {
             File makeselfTemp = new File(targetDirectory.getAbsolutePath());
             if (!makeselfTemp.exists()) {
@@ -384,6 +390,7 @@ public class MakeselfMojo extends AbstractMojo {
                 try (InputStream link = classloader.getResourceAsStream("makeself.sh")) {
                     Files.copy(link, makeself.getAbsoluteFile().toPath());
                 }
+                tryPosixFilePermissions(makeself.getAbsoluteFile().toPath(), perms);
             }
 
             File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
@@ -392,9 +399,21 @@ public class MakeselfMojo extends AbstractMojo {
                 try (InputStream link = classloader.getResourceAsStream("makeself-header.sh")) {
                     Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
                 }
+            tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
             }
         } catch (IOException e) {
             getLog().error("", e);
+        }
+    }
+
+    private void tryPosixFilePermissions(Path path, Set<PosixFilePermission> perms) {
+        try {
+            Files.setPosixFilePermissions(path, perms);
+        } catch (IOException e) {
+            getLog().error("", e);
+        } catch (UnsupportedOperationException e) {
+            // Attempting but don't care about status if it fails
+            getLog().debug("", e);
         }
     }
 
