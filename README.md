@@ -35,3 +35,11 @@ Example Usage
                 </executions>
             </plugin>
 ```
+
+Executable Permissions on Shell Scripts
+
+Ensure that when makeself is updated, that the following is performed after the update commit.  This will ensures executable only from this location.  While it might not provide any benefit, it doesn't hurt.
+
+git update-index --chmod=+x makeself.sh
+git update-index --chmod=+x makeself-header.sh
+git commit -M "Force makeself to be executable"
