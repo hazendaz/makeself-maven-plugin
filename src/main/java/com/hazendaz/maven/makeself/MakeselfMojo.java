@@ -63,7 +63,7 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(defaultValue = "makeself.sh", property = "startupScript", required = true)
     private String  startupScript;
 
-    /** --version : Prints the version number on stdout, then exits immediately. Internally will display on all runs. */
+    /** --version | -v : Prints the version number on stdout, then exits immediately. Internally will display on all runs. */
     @Parameter(property = "version", readonly = true)
     private Boolean version;
 
@@ -390,11 +390,6 @@ public class MakeselfMojo extends AbstractMojo {
      */
     private String loadArgs() {
         StringBuilder args = new StringBuilder();
-
-        // --version : Prints the version number on stdout, then exits immediately
-        if (isTrue(version)) {
-            args.append("--version ");
-        }
 
         // --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
         if (isTrue(gzip)) {
