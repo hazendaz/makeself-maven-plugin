@@ -353,7 +353,10 @@ public class MakeselfMojo extends AbstractMojo {
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
-        process.waitFor();
+        int status = process.waitFor();
+        if (status > 0) {
+            getLog().info("makeself failed with error status: " + status);
+        }
         StringBuilder output = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line = "";
