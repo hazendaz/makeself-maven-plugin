@@ -63,7 +63,7 @@
         <site>
             <id>gh-pages</id>
             <name>GitHub Pages</name>
-            <url>git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git?gh-pages#</url>
+            <url>github:https://hazendaz.github.io/makeself-maven-plugin/</url>
         </site>
     </distributionManagement>
 
