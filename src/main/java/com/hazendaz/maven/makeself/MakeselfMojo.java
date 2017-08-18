@@ -394,10 +394,10 @@ public class MakeselfMojo extends AbstractMojo {
             makeself.setExecutable(true, true);
             try (InputStream link = classloader.getResourceAsStream("makeself.sh")) {
                 Files.copy(link, makeself.getAbsoluteFile().toPath());
+                tryPosixFilePermissions(makeself.getAbsoluteFile().toPath(), perms);
             } catch (IOException e) {
                 getLog().error("", e);
             }
-            tryPosixFilePermissions(makeself.getAbsoluteFile().toPath(), perms);
         }
 
         // Write makeself-header script
@@ -406,10 +406,10 @@ public class MakeselfMojo extends AbstractMojo {
             makeselfHeader.setExecutable(true, true);
             try (InputStream link = classloader.getResourceAsStream("makeself-header.sh")) {
                 Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
+                tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
             } catch (IOException e) {
                 getLog().error("", e);
             }
-            tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
         }
     }
 
