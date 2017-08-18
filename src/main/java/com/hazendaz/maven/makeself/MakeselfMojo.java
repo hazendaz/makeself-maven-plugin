@@ -268,6 +268,12 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean keepUmask;
 
     /**
+     * --export-conf : Export configuration variables to startup_script.
+     */
+    @Parameter(property = "exportConf")
+    private Boolean exportConf;
+
+    /**
      * --packaging-date date : Use provided string as the packaging date instead of the current date.
      */
     @Parameter(property = "packagingDate")
@@ -627,6 +633,11 @@ public class MakeselfMojo extends AbstractMojo {
         // archive.
         if (isTrue(keepUmask)) {
             args.append("--keep-umask ");
+        }
+
+        // --export-conf : Export configuration variables to startup_script"
+        if (isTrue(exportConf)) {
+            args.append("--export-conf ");
         }
 
         // --packaging-date date : Use provided string as the packaging date instead of the current date.
