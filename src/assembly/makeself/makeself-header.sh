@@ -22,7 +22,9 @@ filesizes="$filesizes"
 keep="$KEEP"
 nooverwrite="$NOOVERWRITE"
 quiet="n"
+accept="n"
 nodiskspace="n"
+export_conf="$EXPORT_CONF"
 
 print_cmd_arg=""
 if type printf > /dev/null; then
@@ -31,6 +33,11 @@ elif test -x /usr/ucb/echo; then
     print_cmd="/usr/ucb/echo"
 else
     print_cmd="echo"
+fi
+	
+if test -d /usr/xpg4/bin; then
+    PATH=/usr/xpg4/bin:\$PATH
+    export PATH
 fi
 
 unset CDPATH
@@ -44,27 +51,26 @@ MS_PrintLicense()
 {
   if test x"\$licensetxt" != x; then
     echo "\$licensetxt"
-    while true
-    do
-      MS_Printf "Please type y to accept, n otherwise: "
-      read yn
-      if test x"\$yn" = xn; then
-        keep=n
-	eval \$finish; exit 1
-        break;
-      elif test x"\$yn" = xy; then
-        break;
-      fi
-    done
+    if test x"\$accept" != xy; then
+      while true
+      do
+        MS_Printf "Please type y to accept, n otherwise: "
+        read yn
+        if test x"\$yn" = xn; then
+          keep=n
+          eval \$finish; exit 1
+          break;
+        elif test x"\$yn" = xy; then
+          break;
+        fi
+      done
+    fi
   fi
 }
 
 MS_diskspace()
 {
 	(
-	if test -d /usr/xpg4/bin; then
-		PATH=/usr/xpg4/bin:\$PATH
-	fi
 	df -kP "\$1" | tail -1 | awk '{ if (\$4 ~ /%/) {print \$3} else {print \$4} }'
 	)
 }
@@ -138,6 +144,7 @@ MS_Help()
   with following options (in that order)
   --confirm             Ask before running embedded script
   --quiet		Do not print anything except error messages
+  --accept              Accept the license
   --noexec              Do not run embedded script
   --keep                Do not erase target directory after running
 			the embedded script
@@ -211,10 +218,9 @@ MS_Check()
 UnTAR()
 {
     if test x"\$quiet" = xn; then
-		tar \$1vf - 2>&1 || { echo Extraction failed. > /dev/tty; kill -15 \$$; }
+		tar \$1vf - $UNTAR_EXTRA 2>&1 || { echo " ... Extraction failed." > /dev/tty; kill -15 \$$; }
     else
-
-		tar \$1f - 2>&1 || { echo Extraction failed. > /dev/tty; kill -15 \$$; }
+		tar \$1f - $UNTAR_EXTRA 2>&1 || { echo Extraction failed. > /dev/tty; kill -15 \$$; }
     fi
 }
 
@@ -238,6 +244,10 @@ do
     -q | --quiet)
 	quiet=y
 	noprogress=y
+	shift
+	;;
+	--accept)
+	accept=y
 	shift
 	;;
     --info)
@@ -493,7 +503,7 @@ for s in \$filesizes
 do
     if MS_dd_Progress "\$0" \$offset \$s | eval "$GUNZIP_CMD" | ( cd "\$tmpdir"; umask \$ORIG_UMASK ; UnTAR xp ) 1>/dev/null; then
 		if test x"\$ownership" = xy; then
-			(PATH=/usr/xpg4/bin:\$PATH; cd "\$tmpdir"; chown -R \`id -u\` .;  chgrp -R \`id -g\` .)
+			(cd "\$tmpdir"; chown -R \`id -u\` .;  chgrp -R \`id -g\` .)
 		fi
     else
 		echo >&2
@@ -509,6 +519,19 @@ fi
 cd "\$tmpdir"
 res=0
 if test x"\$script" != x; then
+    if test x"\$export_conf" = x"y"; then
+        MS_BUNDLE="\$0"
+        MS_LABEL="\$label"
+        MS_SCRIPT="\$script"
+        MS_SCRIPTARGS="\$scriptargs"
+        MS_ARCHDIRNAME="\$archdirname"
+        MS_KEEP="\$KEEP"
+        MS_NOOVERWRITE="\$NOOVERWRITE"
+        MS_COMPRESS="\$COMPRESS"
+        export MS_BUNDLE MS_LABEL MS_SCRIPT MS_SCRIPTARGS
+        export MS_ARCHDIRNAME MS_KEEP MS_NOOVERWRITE MS_COMPRESS
+    fi
+
     if test x"\$verbose" = x"y"; then
 		MS_Printf "OK to execute: \$script \$scriptargs \$* ? [Y/n] "
 		read yn
