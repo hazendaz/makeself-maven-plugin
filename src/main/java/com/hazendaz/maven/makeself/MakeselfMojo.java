@@ -295,7 +295,7 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean skip;
 
     /** The target directory. */
-    @Parameter(defaultValue = "${project.build.directory}/makeself-temp", readonly = true)
+    @Parameter(defaultValue = "${project.build.directory}/makeself-tmp", readonly = true)
     private File    targetDirectory;
 
     //** The build target. */
