@@ -25,8 +25,8 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2011 - 2017 hazendaz</copyright>
     <item>
-      <title>File: 2,
-             Errors: 121,
+      <title>File: 3,
+             Errors: 618,
              Warnings: 0,
              Infos: 0
       </title>
@@ -44,6 +44,20 @@ under the License.
             </tr>
           </thead>
           <tbody>
+                          <tr>
+                <td>
+                  <a href="http://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.HelpMojo.java">com/hazendaz/maven/makeself/HelpMojo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  497
+                </td>
+              </tr>
                           <tr>
                 <td>
                   <a href="http://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.MakeselfMojo.java">com/hazendaz/maven/makeself/MakeselfMojo.java</a>
