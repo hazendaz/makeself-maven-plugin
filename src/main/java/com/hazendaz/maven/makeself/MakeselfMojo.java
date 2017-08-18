@@ -379,31 +379,34 @@ public class MakeselfMojo extends AbstractMojo {
 
         final Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-xr--");
 
-        try {
-            File makeselfTemp = new File(targetDirectory.getAbsolutePath());
-            if (!makeselfTemp.exists()) {
-                makeselfTemp.mkdir();
-            }
+        // Create makeself directory
+        File makeselfTemp = new File(targetDirectory.getAbsolutePath());
+        if (!makeselfTemp.exists()) {
+            makeselfTemp.mkdir();
+        }
 
-            makeself = new File(targetDirectory + "/makeself.sh");
-            if (!makeself.exists()) {
-                makeself.setExecutable(true, true);
-                try (InputStream link = classloader.getResourceAsStream("makeself.sh")) {
-                    Files.copy(link, makeself.getAbsoluteFile().toPath());
-                }
-                tryPosixFilePermissions(makeself.getAbsoluteFile().toPath(), perms);
+        // Write makeself script
+        makeself = new File(targetDirectory + "/makeself.sh");
+        if (!makeself.exists()) {
+            makeself.setExecutable(true, true);
+            try (InputStream link = classloader.getResourceAsStream("makeself.sh")) {
+                Files.copy(link, makeself.getAbsoluteFile().toPath());
+            } catch (IOException e) {
+                getLog().error("", e);
             }
+            tryPosixFilePermissions(makeself.getAbsoluteFile().toPath(), perms);
+        }
 
-            File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
-            if (!makeselfHeader.exists()) {
-                makeselfHeader.setExecutable(true, true);
-                try (InputStream link = classloader.getResourceAsStream("makeself-header.sh")) {
-                    Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
-                }
-                tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
+        // Write makeself-header script
+        File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
+        if (!makeselfHeader.exists()) {
+            makeselfHeader.setExecutable(true, true);
+            try (InputStream link = classloader.getResourceAsStream("makeself-header.sh")) {
+                Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
+            } catch (IOException e) {
+                getLog().error("", e);
             }
-        } catch (IOException e) {
-            getLog().error("", e);
+            tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
         }
     }
 
