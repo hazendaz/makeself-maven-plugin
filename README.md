@@ -38,8 +38,19 @@ Example Usage
 
 Executable Permissions on Shell Scripts
 
-Ensure that when makeself is updated, that the following is performed after the update commit.  This will ensures executable only from this location.  While it might not provide any benefit, it doesn't hurt.
+When makeself is updated, performed the following commands after the update commit.  This will ensure executable only from this location.
+While it might not provide any benefit, it doesn't hurt.
 
-git update-index --chmod=+x makeself.sh
-git update-index --chmod=+x makeself-header.sh
-git commit -M "Force makeself to be executable"
+```git
+    git update-index --chmod=+x makeself.sh
+    git update-index --chmod=+x makeself-header.sh
+    git commit -m "Force makeself to be executable"
+```
+
+To check the files are of right permissions
+
+```stat
+    stat -c "%a %n" *
+```
+
+Note: It seems no matter the change makself-header.sh wants to stay 644.  Regardless, with all other protections this is handled on *nix now and line endings are addressed.
