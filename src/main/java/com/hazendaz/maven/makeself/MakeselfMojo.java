@@ -307,8 +307,9 @@ public class MakeselfMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // Check if plugin run should be skipped
         if (this.skip) {
-            getLog().info("Formatting is skipped");
+            getLog().info("Makeself is skipped");
             return;
         }
 
