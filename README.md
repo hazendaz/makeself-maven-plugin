@@ -36,6 +36,8 @@ Example Usage
             </plugin>
 ```
 
+Special note: Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
+
 Executable Permissions on Shell Scripts
 
 When makeself is updated, performed the following commands after the update commit.  This will ensure executable only from this location.
