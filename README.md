@@ -37,6 +37,7 @@ Example Usage
             </plugin>
 ```
 
+*** Special note: *** Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
 
 Executable Permissions on Shell Scripts
 
@@ -55,3 +56,4 @@ To check the files are of right permissions
     stat -c "%a %n" *
 ```
 
+*** Note: *** It seems no matter the change makself-header.sh wants to stay 644.  Regardless, with all other protections this is handled on *nix now and line endings are addressed.
