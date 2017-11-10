@@ -26,6 +26,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -323,25 +326,27 @@ public class MakeselfMojo extends AbstractMojo {
         this.extractMakeself();
 
         try {
-            // Location of makeself.sh
-            String makeselfTarget = "bash " + makeself.getAbsolutePath() + " ";
-
             // Output version of bash
-            execute("bash " + "--version");
+            execute(Arrays.asList("bash", "--version"));
 
             // Output version of makeself.sh
-            execute(makeselfTarget + "--version");
+            execute(Arrays.asList("bash", makeself.getAbsolutePath(), "--version"));
 
             // If help arguments supplied, write output and get out of code.
             String helpArgs = helpArgs();
             if (!helpArgs.isEmpty()) {
-                execute(makeselfTarget + helpArgs);
+                execute(Arrays.asList("bash", makeself.getAbsolutePath(), helpArgs));
                 return;
             }
 
             // Basic Configuration
-            String target = makeselfTarget + loadArgs() + buildTarget + archiveDir + " " + buildTarget + fileName
-                    + " \"" + label + "\" " + startupScript;
+            List<String> target = new ArrayList<>();
+            target.addAll(Arrays.asList("bash", makeself.getAbsolutePath()));
+            target.addAll(loadArgs());
+            target.add(buildTarget.concat(archiveDir));
+            target.add(buildTarget.concat(fileName));
+            target.add(label);
+            target.add(startupScript);
 
             // Output Executed Command
             getLog().debug("### " + target);
@@ -359,9 +364,8 @@ public class MakeselfMojo extends AbstractMojo {
         }
     }
 
-    private void execute(String target) throws IOException, InterruptedException {
-        String[] commands = target.split(" ");
-        ProcessBuilder processBuilder = new ProcessBuilder(commands);
+    private void execute(List<String> target) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(target);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
         int status = process.waitFor();
@@ -452,12 +456,12 @@ public class MakeselfMojo extends AbstractMojo {
      *
      * @return the string
      */
-    private String loadArgs() {
-        StringBuilder args = new StringBuilder();
+    private List<String> loadArgs() {
+        List<String> args = new ArrayList<>();
 
         // --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
         if (isTrue(gzip)) {
-            args.append("--gzip ");
+            args.add("--gzip");
         }
 
         // --bzip2 : Use bzip2 instead of gzip for better compression. The bzip2 command must be available in the
@@ -465,7 +469,7 @@ public class MakeselfMojo extends AbstractMojo {
         // is recommended that the archive prefix be set to something like '.bz2.run', so that potential users know that
         // they'll need bzip2 to extract it.
         if (isTrue(bzip2)) {
-            args.append("--bzip2 ");
+            args.add("--bzip2");
         }
 
         // --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs. The
@@ -473,7 +477,7 @@ public class MakeselfMojo extends AbstractMojo {
         // command must be available in the command path. It is recommended that the archive prefix be set to something
         // like '.bz2.run', so that potential users know that they'll need bzip2 to extract it.
         if (isTrue(pbzip2)) {
-            args.append("--pbzip2 ");
+            args.add("--pbzip2");
         }
 
         // --xz : Use xz instead of gzip for better compression. The xz command must be available in the command path.
@@ -481,7 +485,7 @@ public class MakeselfMojo extends AbstractMojo {
         // recommended that the archive prefix be set to something like '.xz.run' for the archive, so that potential
         // users know that they'll need xz to extract it.
         if (isTrue(xz)) {
-            args.append("--xz ");
+            args.add("--xz");
         }
 
         // --lzo : Use lzop instead of gzip for better compression. The lzop command must be available in the command
@@ -489,7 +493,7 @@ public class MakeselfMojo extends AbstractMojo {
         // is recommended that the archive prefix be set to something like '.lzo.run' for the archive, so that potential
         // users know that they'll need lzop to extract it.
         if (isTrue(lzo)) {
-            args.append("--lzo ");
+            args.add("--lzo");
         }
 
         // --lz4 : Use lz4 instead of gzip for better compression. The lz4 command must be available in the command
@@ -497,83 +501,85 @@ public class MakeselfMojo extends AbstractMojo {
         // recommended that the archive prefix be set to something like '.lz4.run' for the archive, so that potential
         // users know that they'll need lz4 to extract it.
         if (isTrue(lz4)) {
-            args.append("--lz4 ");
+            args.add("--lz4");
         }
 
         // --pigz : Use pigz for compression.
         if (isTrue(pigz)) {
-            args.append("--pigz ");
+            args.add("--pigz");
         }
 
         // --base64 : Encode the archive to ASCII in Base64 format (base64 command required).
         if (isTrue(base64)) {
-            args.append("--base64 ");
+            args.add("--base64");
         }
 
         // --gpg-encrypt : Encrypt the archive using gpg -ac -z $COMPRESS_LEVEL. This will prompt for a password to
         // encrypt with. Assumes that potential users have gpg installed.
         if (isTrue(gpgEncrypt)) {
-            args.append("--gpg-encrypt ");
+            args.add("--gpg-encrypt");
         }
 
         // --gpg-asymmetric-encrypt-sign : Instead of compressing, asymmetrically encrypt and sign the data using GPG
         if (isTrue(gpgAsymmetricEncryptSign)) {
-            args.append("--gpg-asymmetric-encrypt-sign ");
+            args.add("--gpg-asymmetric-encrypt-sign");
         }
 
         // --ssl-encrypt : Encrypt the archive using openssl aes-256-cbc -a -salt. This will prompt for a password to
         // encrypt with. Assumes that the potential users have the OpenSSL tools installed.
         if (isTrue(sslEncrypt)) {
-            args.append("--ssl-encrypt ");
+            args.add("--ssl-encrypt");
         }
 
         // --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms
         // that don't have gzip available.
         if (isTrue(compress)) {
-            args.append("--compress ");
+            args.add("--compress");
         }
 
         // --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
         if (isTrue(nocomp)) {
-            args.append("--nocomp ");
+            args.add("--nocomp");
         }
 
         // --complevel : Specify the compression level for gzip, bzip2, pbzip2, xz, lzo or lz4. (defaults to 9)
         if (complevel != null) {
-            args.append("--complevel ").append(complevel).append(" ");
+            args.add("--complevel");
+            args.add(complevel.toString());
         }
 
         // --notemp : The generated archive will not extract the files to a temporary directory, but in a new directory
         // created in the current directory. This is better to distribute software packages that may extract and compile
         // by themselves (i.e. launch the compilation through the embedded script).
         if (isTrue(notemp)) {
-            args.append("--notemp ");
+            args.add("--notemp");
         }
 
         // --current : Files will be extracted to the current directory, instead of in a subdirectory. This option
         // implies --notemp above.
         if (isTrue(current)) {
-            args.append("--current ");
+            args.add("--current");
         }
 
         // --follow : Follow the symbolic links inside of the archive directory, i.e. store the files that are being
         // pointed to instead of the links themselves.
         if (isTrue(follow)) {
-            args.append("--follow ");
+            args.add("--follow");
         }
 
         // --append (new in 2.1.x): Append data to an existing archive, instead of creating a new one. In this mode, the
         // settings from the original archive are reused (compression type, label, embedded script), and thus don't need
         // to be specified again on the command line.
         if (isTrue(append)) {
-            args.append("--append ");
+            args.add("--append");
         }
 
         // --header : Makeself 2.0 uses a separate file to store the header stub, called makeself-header.sh. By default,
         // it is assumed that it is stored in the same location as makeself.sh. This option can be used to specify its
         // actual location if it is stored someplace else.
         if (headerFile != null) {
-            args.append("--header ").append(headerFile).append(" ");
+            args.add("--header");
+            args.add(headerFile.toString());
         }
 
         // --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main
@@ -581,41 +587,43 @@ public class MakeselfMojo extends AbstractMojo {
         // installer program will later need to unmount the CD and allow a new one to be inserted. This prevents
         // "Filesystem busy" errors for installers that span multiple CDs.
         if (isTrue(copy)) {
-            args.append("--copy ");
+            args.add("--copy");
         }
 
         // --nox11 : Disable the automatic spawning of a new terminal in X11.
         if (isTrue(nox11)) {
-            args.append("--nox11 ");
+            args.add("--nox11");
         }
 
         // --nowait : When executed from a new X11 terminal, disable the user prompt at the end of the script execution.
         if (isTrue(nowait)) {
-            args.append("--nowait ");
+            args.add("--nowait");
         }
 
         // --nomd5 : Disable the creation of a MD5 checksum for the archive. This speeds up the extraction process if
         // integrity checking is not necessary.
         if (isTrue(nomd5)) {
-            args.append("--nomd5 ");
+            args.add("--nomd5");
         }
 
         // --nocrc : Disable the creation of a CRC checksum for the archive. This speeds up the extraction process if
         // integrity checking is not necessary.
         if (isTrue(nocrc)) {
-            args.append("--nocrc ");
+            args.add("--nocrc");
         }
 
         // --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
         // describing a software package in a way that is easily parseable. The LSM entry can then be later retrieved
         // using the --lsm argument to the archive. An example of a LSM file is provided with Makeself.
         if (lsmFile != null) {
-            args.append("--lsm ").append(lsmFile).append(" ");
+            args.add("--lsm");
+            args.add(lsmFile);
         }
 
         // --gpg-extra opt : Append more options to the gpg command line.
         if (gpgExtraOpt != null) {
-            args.append("--gpg-extra ").append(gpgExtraOpt).append(" ");
+            args.add("--gpg-extra");
+            args.add(gpgExtraOpt);
         }
 
         // --tar-extra opt : Append more options to the tar command line.
@@ -623,46 +631,51 @@ public class MakeselfMojo extends AbstractMojo {
         // For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar,
         // one can use makeself.sh --tar-extra "--exclude=.git" ...
         if (tarExtraOpt != null) {
-            args.append("--tar-extra ").append(tarExtraOpt).append(" ");
+            args.add("--tar-extra");
+            args.add(tarExtraOpt);
         }
 
         // --untar-extra opt : Append more options to the during the extraction of the tar archive.
         if (untarExtraOpt != null) {
-            args.append("--untar-extra ").append(untarExtraOpt).append(" ");
+            args.add("--untar-extra");
+            args.add(untarExtraOpt);
         }
 
         // --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
         // archive.
         if (isTrue(keepUmask)) {
-            args.append("--keep-umask ");
+            args.add("--keep-umask");
         }
 
         // --export-conf : Export configuration variables to startup_script"
         if (isTrue(exportConf)) {
-            args.append("--export-conf ");
+            args.add("--export-conf");
         }
 
         // --packaging-date date : Use provided string as the packaging date instead of the current date.
         if (packagingDate != null) {
-            args.append("--packaging-date ").append(packagingDate).append(" ");
+            args.add("--packaging-date");
+            args.add(packagingDate);
         }
 
         // --license : Append a license file.
         if (licenseFile != null) {
-            args.append("--license ").append(licenseFile).append(" ");
+            args.add("--license");
+            args.add(licenseFile);
         }
 
         // --nooverwrite : Do not extract the archive if the specified target directory already exists.
         if (isTrue(nooverwrite)) {
-            args.append("--nooverwrite ");
+            args.add("--nooverwrite");
         }
 
         // --help-header file : Add a header to the archive's --help output.
         if (helpHeaderFile != null) {
-            args.append("--helpHeaderFile ").append(helpHeaderFile).append(" ");
+            args.add("--helpHeaderFile");
+            args.add(helpHeaderFile);
         }
 
-        return args.toString();
+        return args;
     }
 
     private boolean isTrue(Boolean value) {
