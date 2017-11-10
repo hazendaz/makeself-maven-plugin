@@ -360,7 +360,7 @@ public class MakeselfMojo extends AbstractMojo {
     }
 
     private void execute(String target) throws IOException, InterruptedException {
-        String commands[] = target.split(" ");
+        String[] commands = target.split(" ");
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
@@ -387,17 +387,17 @@ public class MakeselfMojo extends AbstractMojo {
 
         // Create makeself directory
         File makeselfTemp = new File(targetDirectory.getAbsolutePath());
-        if (!makeselfTemp.exists()) {
-            if (!makeselfTemp.mkdir()) {
-                getLog().error("Unable to make directory" + targetDirectory.getAbsolutePath());
-                return;
-            }
+        if (!makeselfTemp.exists() && !makeselfTemp.mkdir()) {
+            getLog().error("Unable to make directory" + targetDirectory.getAbsolutePath());
+            return;
         }
 
         // Write makeself script
         makeself = new File(targetDirectory + "/makeself.sh");
         if (!makeself.exists()) {
-            makeself.setExecutable(true, true);
+            if (!makeself.setExecutable(true, true)) {
+                getLog().error("Unable to set executable: " + makeself.getName());
+            }
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
                 Files.copy(link, makeself.getAbsoluteFile().toPath());
                 tryPosixFilePermissions(makeself.getAbsoluteFile().toPath(), perms);
@@ -409,7 +409,9 @@ public class MakeselfMojo extends AbstractMojo {
         // Write makeself-header script
         File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
         if (!makeselfHeader.exists()) {
-            makeselfHeader.setExecutable(true, true);
+            if (!makeselfHeader.setExecutable(true, true)) {
+                getLog().error("Unable to set executable: " + makeselfHeader.getName());
+            }
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
                 Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
                 tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
