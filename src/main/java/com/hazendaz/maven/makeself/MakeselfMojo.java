@@ -70,7 +70,10 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(defaultValue = "makeself.sh", property = "startupScript", required = true)
     private String  startupScript;
 
-    /** --version | -v : Prints the version number on stdout, then exits immediately. Internally will display on all runs. */
+    /**
+     * --version | -v : Prints the version number on stdout, then exits immediately. Internally will display on all
+     * runs.
+     */
     @Parameter(property = "version", readonly = true)
     private Boolean version;
 
@@ -307,7 +310,7 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/makeself-tmp", readonly = true)
     private File    targetDirectory;
 
-    //** The build target. */
+    // ** The build target. */
     @Parameter(defaultValue = "${project.build.directory}/", readonly = true)
     private String  buildTarget;
 
