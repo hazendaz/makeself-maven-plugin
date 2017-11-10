@@ -218,7 +218,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>23.0-android</version>
+            <version>23.3-android</version>
             <scope>compile</scope>
         </dependency>
 
