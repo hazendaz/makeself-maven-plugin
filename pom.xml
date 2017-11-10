@@ -67,6 +67,10 @@
         </site>
     </distributionManagement>
 
+    <prerequisites>
+        <maven>3.0.1</maven>
+    </prerequisites>
+
     <properties>
         <!-- Relax we don't need to enforce Java 8 at this time. -->
         <maven.compiler.source>1.7</maven.compiler.source>
