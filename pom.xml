@@ -30,7 +30,7 @@
 
     <groupId>com.github.hazendaz.maven</groupId>
     <artifactId>makeself-maven-plugin</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-beta4</version>
     <packaging>maven-plugin</packaging>
 
     <name>Makeself Maven plugin</name>
@@ -49,7 +49,7 @@
         <url>http://github.com/hazendaz/makeself-maven-plugin</url>
         <connection>scm:git:ssh://github.com/hazendaz/makeself-maven-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>makeself-maven-plugin-1.0.0-beta4</tag>
     </scm>
     <issueManagement>
         <system>GitHub Issue Management</system>
