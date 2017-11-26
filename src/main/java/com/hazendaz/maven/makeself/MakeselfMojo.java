@@ -154,6 +154,12 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean sslEncrypt;
 
     /**
+     * --ssl-passwd : Use the given password to encrypt the data using OpenSSL.
+     */
+    @Parameter(property = "sslPasswd")
+    private String sslPasswd;
+
+    /**
      * --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms that
      * don't have gzip available.
      */
@@ -532,6 +538,12 @@ public class MakeselfMojo extends AbstractMojo {
         // encrypt with. Assumes that the potential users have the OpenSSL tools installed.
         if (isTrue(sslEncrypt)) {
             args.add("--ssl-encrypt");
+        }
+
+        // --ssl-passwd pass : Use the given password to encrypt the data using OpenSSL.
+        if (sslPasswd != null) {
+            args.add("--ssl-passwd");
+            args.add(sslPasswd);
         }
 
         // --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms
