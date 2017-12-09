@@ -157,7 +157,7 @@ public class MakeselfMojo extends AbstractMojo {
      * --ssl-passwd : Use the given password to encrypt the data using OpenSSL.
      */
     @Parameter(property = "sslPasswd")
-    private String sslPasswd;
+    private String  sslPasswd;
 
     /**
      * --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms that
