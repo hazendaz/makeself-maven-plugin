@@ -394,8 +394,6 @@ public class MakeselfMojo extends AbstractMojo {
      * Extract makeself.
      */
     private void extractMakeself() {
-        ClassLoader classloader = this.getClass().getClassLoader();
-
         final Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-xr--");
 
         // Create makeself directory
@@ -404,6 +402,8 @@ public class MakeselfMojo extends AbstractMojo {
             getLog().error("Unable to make directory" + targetDirectory.getAbsolutePath());
             return;
         }
+
+        ClassLoader classloader = this.getClass().getClassLoader();
 
         // Write makeself script
         makeself = new File(targetDirectory + "/makeself.sh");
