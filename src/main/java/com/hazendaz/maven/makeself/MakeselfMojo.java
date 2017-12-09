@@ -399,6 +399,8 @@ public class MakeselfMojo extends AbstractMojo {
         if (!makeselfTemp.exists() && !makeselfTemp.mkdir()) {
             getLog().error("Unable to make directory" + targetDirectory.getAbsolutePath());
             return;
+        } else {
+            getLog().debug("Created directory for " + targetDirectory.getAbsolutePath());
         }
 
         ClassLoader classloader = this.getClass().getClassLoader();
@@ -437,11 +439,12 @@ public class MakeselfMojo extends AbstractMojo {
 
         try {
             Files.setPosixFilePermissions(path, permissions);
+            getLog().debug("Set Posix File Permissions for " + path + " as " + permissions);
         } catch (IOException e) {
-            getLog().error("", e);
+            getLog().error("Failed attempted Posix permissions", e);
         } catch (UnsupportedOperationException e) {
             // Attempting but don't care about status if it fails
-            getLog().debug("", e);
+            getLog().debug("Failed attempted Posix permissions", e);
         }
     }
 
