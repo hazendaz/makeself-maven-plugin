@@ -408,11 +408,13 @@ public class MakeselfMojo extends AbstractMojo {
         // Write makeself script
         makeself = new File(targetDirectory + "/makeself.sh");
         if (!makeself.exists()) {
-            if (!makeself.setExecutable(true, true)) {
-                getLog().error("Unable to set executable: " + makeself.getName());
-            }
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
                 Files.copy(link, makeself.getAbsoluteFile().toPath());
+                if (!makeself.setExecutable(true, true)) {
+                    getLog().error("Unable to set executable: " + makeself.getName());
+                } else {
+                    getLog().debug("Set executable for " + makeself.getName());
+                }
                 setPosixFilePermissions(makeself.getAbsoluteFile().toPath());
             } catch (IOException e) {
                 getLog().error("", e);
@@ -422,11 +424,13 @@ public class MakeselfMojo extends AbstractMojo {
         // Write makeself-header script
         File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
         if (!makeselfHeader.exists()) {
-            if (!makeselfHeader.setExecutable(true, true)) {
-                getLog().error("Unable to set executable: " + makeselfHeader.getName());
-            }
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
                 Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
+                if (!makeselfHeader.setExecutable(true, true)) {
+                    getLog().error("Unable to set executable: " + makeselfHeader.getName());
+                } else {
+                    getLog().debug("Set executable for " + makeselfHeader.getName());
+                }
                 setPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath());
             } catch (IOException e) {
                 getLog().error("", e);
