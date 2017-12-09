@@ -394,8 +394,6 @@ public class MakeselfMojo extends AbstractMojo {
      * Extract makeself.
      */
     private void extractMakeself() {
-        final Set<PosixFilePermission> perms = PosixFilePermissions.fromString("rwxr-xr--");
-
         // Create makeself directory
         File makeselfTemp = new File(targetDirectory.getAbsolutePath());
         if (!makeselfTemp.exists() && !makeselfTemp.mkdir()) {
@@ -413,7 +411,7 @@ public class MakeselfMojo extends AbstractMojo {
             }
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
                 Files.copy(link, makeself.getAbsoluteFile().toPath());
-                tryPosixFilePermissions(makeself.getAbsoluteFile().toPath(), perms);
+                setPosixFilePermissions(makeself.getAbsoluteFile().toPath());
             } catch (IOException e) {
                 getLog().error("", e);
             }
@@ -427,16 +425,18 @@ public class MakeselfMojo extends AbstractMojo {
             }
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
                 Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
-                tryPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath(), perms);
+                setPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath());
             } catch (IOException e) {
                 getLog().error("", e);
             }
         }
     }
 
-    private void tryPosixFilePermissions(Path path, Set<PosixFilePermission> perms) {
+    private void setPosixFilePermissions(Path path) {
+        final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr--");
+
         try {
-            Files.setPosixFilePermissions(path, perms);
+            Files.setPosixFilePermissions(path, permissions);
         } catch (IOException e) {
             getLog().error("", e);
         } catch (UnsupportedOperationException e) {
