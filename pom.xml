@@ -35,8 +35,7 @@
 
     <name>makeself-maven-plugin</name>
     <description>Makeself is a self-extracting archiving tool for Unix systems, in 100% shell script.</description>
-    <url>http://github.com/hazendaz/makeself-maven-plugin</url>
-
+    <url>https://github.com/hazendaz/makeself-maven-plugin</url>
     <licenses>
         <license>
             <name>GNU General Public License, version 2</name>
@@ -46,7 +45,7 @@
     </licenses>
 
     <scm>
-        <url>http://github.com/hazendaz/makeself-maven-plugin</url>
+        <url>https://github.com/hazendaz/makeself-maven-plugin</url>
         <connection>scm:git:ssh://github.com/hazendaz/makeself-maven-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</developerConnection>
         <tag>HEAD</tag>
