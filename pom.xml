@@ -143,9 +143,9 @@
 
         <!-- Junit -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>4.12.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
