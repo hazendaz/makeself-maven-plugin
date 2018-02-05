@@ -34,9 +34,12 @@ import java.util.Set;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 
 /**
  * The Class MakeselfMojo.
@@ -328,6 +331,13 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/makeself-tmp", readonly = true)
     private File targetDirectory;
 
+    /** Maven ProjectHelper. */
+    @Component
+    private MavenProjectHelper projectHelper;
+
+    /** Maven Project. */
+    @Parameter(defaultValue = "${project}", readonly = true, required = true)
+    private MavenProject project;
 
     /** The makeself. */
     private File makeself;
@@ -397,6 +407,11 @@ public class MakeselfMojo extends AbstractMojo {
             output.append(line).append("\n");
         }
         getLog().info("### " + output);
+
+        // Attach artifact to maven build for install/deploy/release on success
+        if (status == 0) {
+            projectHelper.attachArtifact(project, "sh", new File(buildTarget.concat(fileName)));
+        }
     }
 
     /**
