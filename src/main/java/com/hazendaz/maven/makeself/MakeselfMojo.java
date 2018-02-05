@@ -1,5 +1,5 @@
 /**
- *    Copyright 2011-2017 the original author or authors.
+ *    Copyright 2011-2018 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -48,19 +48,19 @@ public class MakeselfMojo extends AbstractMojo {
      * archive_dir is the name of the directory that contains the files to be archived.
      */
     @Parameter(defaultValue = "makeself", property = "archiveDir", required = true)
-    private String  archiveDir;
+    private String archiveDir;
 
     /**
      * file_name is the name of the archive to be created.
      */
     @Parameter(defaultValue = "makeself", property = "fileName", required = true)
-    private String  fileName;
+    private String fileName;
 
     /**
      * label is an arbitrary text string describing the package. It will be displayed while extracting the files.
      */
     @Parameter(defaultValue = "Make self-extrabable archives", property = "label", required = true)
-    private String  label;
+    private String label;
 
     /**
      * startup_script is the command to be executed from within the directory of extracted files. Thus, if you wish to
@@ -68,7 +68,7 @@ public class MakeselfMojo extends AbstractMojo {
      * will be fine. The script_args are additional arguments for this command.
      */
     @Parameter(defaultValue = "makeself.sh", property = "startupScript", required = true)
-    private String  startupScript;
+    private String startupScript;
 
     /**
      * --version | -v : Prints the version number on stdout, then exits immediately. Internally will display on all
@@ -81,7 +81,9 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "help")
     private Boolean help;
 
-    /** --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux) */
+    /**
+     * --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
+     */
     @Parameter(property = "gzip")
     private Boolean gzip;
 
@@ -129,7 +131,9 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "pigz")
     private Boolean pigz;
 
-    /** --base64 : Encode the archive to ASCII in Base64 format (base64 command required). */
+    /**
+     * --base64 : Encode the archive to ASCII in Base64 format (base64 command required).
+     */
     @Parameter(property = "base64")
     private Boolean base64;
 
@@ -157,7 +161,7 @@ public class MakeselfMojo extends AbstractMojo {
      * --ssl-passwd : Use the given password to encrypt the data using OpenSSL.
      */
     @Parameter(property = "sslPasswd")
-    private String  sslPasswd;
+    private String sslPasswd;
 
     /**
      * --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms that
@@ -166,11 +170,15 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "compress")
     private Boolean compress;
 
-    /** --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR. */
+    /**
+     * --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
+     */
     @Parameter(property = "nocomp")
     private Boolean nocomp;
 
-    /** --complevel : Specify the compression level for gzip, bzip2, pbzip2, xz, lzo or lz4. (defaults to 9). */
+    /**
+     * --complevel : Specify the compression level for gzip, bzip2, pbzip2, xz, lzo or lz4. (defaults to 9).
+     */
     @Parameter(property = "complevel")
     private Integer complevel;
 
@@ -249,13 +257,13 @@ public class MakeselfMojo extends AbstractMojo {
      * the --lsm argument to the archive. An example of a LSM file is provided with Makeself.
      */
     @Parameter(property = "lsmFile")
-    private String  lsmFile;
+    private String lsmFile;
 
     /**
      * --gpg-extra opt : Append more options to the gpg command line.
      */
     @Parameter(property = "gpgExtraOpt")
-    private String  gpgExtraOpt;
+    private String gpgExtraOpt;
 
     /**
      * --tar-extra opt : Append more options to the tar command line.
@@ -264,13 +272,13 @@ public class MakeselfMojo extends AbstractMojo {
      * can use makeself.sh --tar-extra "--exclude=.git" ...
      */
     @Parameter(property = "tarExtraOpt")
-    private String  tarExtraOpt;
+    private String tarExtraOpt;
 
     /**
      * --untar-extra opt : AAppend more options to the during the extraction of the tar archive.
      */
     @Parameter(property = "untarExtraOpt")
-    private String  untarExtraOpt;
+    private String untarExtraOpt;
 
     /**
      * --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
@@ -289,13 +297,13 @@ public class MakeselfMojo extends AbstractMojo {
      * --packaging-date date : Use provided string as the packaging date instead of the current date.
      */
     @Parameter(property = "packagingDate")
-    private String  packagingDate;
+    private String packagingDate;
 
     /**
      * --license : Append a license file.
      */
     @Parameter(property = "licenseFile")
-    private String  licenseFile;
+    private String licenseFile;
 
     /**
      * --nooverwrite : Do not extract the archive if the specified target directory already exists.
@@ -307,21 +315,22 @@ public class MakeselfMojo extends AbstractMojo {
      * --help-header file : Add a header to the archive's --help output.
      */
     @Parameter(property = "helpHeaderFile")
-    private String  helpHeaderFile;
+    private String helpHeaderFile;
 
     @Parameter(defaultValue = "false", alias = "skip", property = "skip")
     private Boolean skip;
 
+    /** The build target. */
+    @Parameter(defaultValue = "${project.build.directory}/", readonly = true)
+    private String buildTarget;
+
     /** The target directory. */
     @Parameter(defaultValue = "${project.build.directory}/makeself-tmp", readonly = true)
-    private File    targetDirectory;
+    private File targetDirectory;
 
-    // ** The build target. */
-    @Parameter(defaultValue = "${project.build.directory}/", readonly = true)
-    private String  buildTarget;
 
     /** The makeself. */
-    private File    makeself;
+    private File makeself;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -481,41 +490,36 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // --bzip2 : Use bzip2 instead of gzip for better compression. The bzip2 command must be available in the
-        // command path. It
-        // is recommended that the archive prefix be set to something like '.bz2.run', so that potential users know that
-        // they'll need bzip2 to extract it.
+        // command path. It is recommended that the archive prefix be set to something like '.bz2.run', so that
+        // potential users know that they'll need bzip2 to extract it.
         if (isTrue(bzip2)) {
             args.add("--bzip2");
         }
 
-        // --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs. The
-        // pbzip2
-        // command must be available in the command path. It is recommended that the archive prefix be set to something
-        // like '.bz2.run', so that potential users know that they'll need bzip2 to extract it.
+        // --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs.
+        // The pbzip2 command must be available in the command path. It is recommended that the archive prefix be
+        // set to something like '.bz2.run', so that potential users know that they'll need bzip2 to extract it.
         if (isTrue(pbzip2)) {
             args.add("--pbzip2");
         }
 
         // --xz : Use xz instead of gzip for better compression. The xz command must be available in the command path.
-        // It is
-        // recommended that the archive prefix be set to something like '.xz.run' for the archive, so that potential
-        // users know that they'll need xz to extract it.
+        // It is recommended that the archive prefix be set to something like '.xz.run' for the archive, so that
+        // potential users know that they'll need xz to extract it.
         if (isTrue(xz)) {
             args.add("--xz");
         }
 
         // --lzo : Use lzop instead of gzip for better compression. The lzop command must be available in the command
-        // path. It
-        // is recommended that the archive prefix be set to something like '.lzo.run' for the archive, so that potential
-        // users know that they'll need lzop to extract it.
+        // path. It is recommended that the archive prefix be set to something like '.lzo.run' for the archive, so
+        // that potential users know that they'll need lzop to extract it.
         if (isTrue(lzo)) {
             args.add("--lzo");
         }
 
         // --lz4 : Use lz4 instead of gzip for better compression. The lz4 command must be available in the command
-        // path. It is
-        // recommended that the archive prefix be set to something like '.lz4.run' for the archive, so that potential
-        // users know that they'll need lz4 to extract it.
+        // path. It is recommended that the archive prefix be set to something like '.lz4.run' for the archive, so
+        // that potential users know that they'll need lz4 to extract it.
         if (isTrue(lz4)) {
             args.add("--lz4");
         }
@@ -577,7 +581,7 @@ public class MakeselfMojo extends AbstractMojo {
             args.add("--notemp");
         }
 
-        // --current : Files will be extracted to the current directory, instead of in a subdirectory. This option
+        // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option
         // implies --notemp above.
         if (isTrue(current)) {
             args.add("--current");
@@ -607,7 +611,7 @@ public class MakeselfMojo extends AbstractMojo {
         // --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main
         // application of this is to allow self-contained installers stored in a Makeself archive on a CD, when the
         // installer program will later need to unmount the CD and allow a new one to be inserted. This prevents
-        // "Filesystem busy" errors for installers that span multiple CDs.
+        // "File system busy" errors for installers that span multiple CDs.
         if (isTrue(copy)) {
             args.add("--copy");
         }
@@ -636,7 +640,8 @@ public class MakeselfMojo extends AbstractMojo {
 
         // --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
         // describing a software package in a way that is easily parseable. The LSM entry can then be later retrieved
-        // using the --lsm argument to the archive. An example of a LSM file is provided with Makeself.
+        // using the --lsm argument to the archive. An example of a LSM file is provided
+        // with Makeself.
         if (lsmFile != null) {
             args.add("--lsm");
             args.add(lsmFile);
@@ -649,7 +654,6 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // --tar-extra opt : Append more options to the tar command line.
-        //
         // For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar,
         // one can use makeself.sh --tar-extra "--exclude=.git" ...
         if (tarExtraOpt != null) {
