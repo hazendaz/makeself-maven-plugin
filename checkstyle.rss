@@ -19,20 +19,20 @@ under the License.
 -->
 <rss version="0.91">
   <channel>
-    <title>Makeself Maven plugin - Checkstyle report</title>
-    <link>http://github.com/hazendaz/makeself-maven-plugin</link>
-    <description>Makeself Maven plugin - Checkstyle report</description>
+    <title>makeself-maven-plugin - Checkstyle report</title>
+    <link>https://github.com/hazendaz/makeself-maven-plugin</link>
+    <description>makeself-maven-plugin - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2011 - 2017 hazendaz</copyright>
+    <copyright>&#169;2011 - 2018 hazendaz</copyright>
     <item>
       <title>File: 3,
-             Errors: 620,
-             Warnings: 0,
+             Errors: 0,
+             Warnings: 1008,
              Infos: 0
       </title>
-            <link>http://github.com/hazendaz/makeself-maven-plugin/checkstyle.html</link>
+            <link>https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html</link>
       <description>
-        <p>Click <a href="http://github.com/hazendaz/makeself-maven-plugin/checkstyle.html">here</a> for the full Checkstyle report.</p>
+        <p>Click <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html">here</a> for the full Checkstyle report.</p>
 
         <table summary="Files" boder="1">
           <thead>
@@ -46,35 +46,35 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="http://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.HelpMojo.java">com/hazendaz/maven/makeself/HelpMojo.java</a>
+                  <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.HelpMojo.java">com/hazendaz/maven/makeself/HelpMojo.java</a>
                 </td>
                 <td>
                   0
                 </td>
                 <td>
-                  0
+                  727
                 </td>
                 <td>
-                  497
+                  0
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="http://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.MakeselfMojo.java">com/hazendaz/maven/makeself/MakeselfMojo.java</a>
+                  <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.MakeselfMojo.java">com/hazendaz/maven/makeself/MakeselfMojo.java</a>
                 </td>
                 <td>
                   0
                 </td>
                 <td>
-                  0
+                  281
                 </td>
                 <td>
-                  123
+                  0
                 </td>
               </tr>
                           <tr>
                 <td>
-                  <a href="http://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.package-info.java">com/hazendaz/maven/makeself/package-info.java</a>
+                  <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.package-info.java">com/hazendaz/maven/makeself/package-info.java</a>
                 </td>
                 <td>
                   0

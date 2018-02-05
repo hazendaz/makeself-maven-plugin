@@ -1,0 +1,1 @@
+typeSearchIndex = [{"p":"com.hazendaz.maven.makeself","l":"HelpMojo"},{"p":"com.hazendaz.maven.makeself","l":"MakeselfMojo"}]

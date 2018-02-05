@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"com.hazendaz.maven.makeself"}]
