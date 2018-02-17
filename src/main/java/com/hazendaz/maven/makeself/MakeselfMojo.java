@@ -324,6 +324,10 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(defaultValue = "false", alias = "skip", property = "skip")
     private Boolean skip;
 
+    /** Auto run : When set to true, resulting shell will be run. This is useful for testing purposes. */
+    @Parameter(defaultValue = "false", property = "autoRun")
+    private Boolean autoRun;
+
     /** The build target. */
     @Parameter(defaultValue = "${project.build.directory}/", readonly = true)
     private String buildTarget;
@@ -382,6 +386,12 @@ public class MakeselfMojo extends AbstractMojo {
 
             // Execute main run of makeself.sh
             execute(target, true);
+
+            // auto run script
+            if (this.autoRun) {
+                getLog().info("Auto-run created shell (this may take a few minutes)");
+                execute(Arrays.asList("bash", buildTarget.concat(fileName)), false);
+            }
         } catch (IOException | InterruptedException e) {
             if (e.getMessage().contains("Cannot run program \"bash\"")) {
                 getLog().error(
