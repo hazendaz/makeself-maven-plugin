@@ -356,15 +356,15 @@ public class MakeselfMojo extends AbstractMojo {
 
         try {
             // Output version of bash
-            execute(Arrays.asList("bash", "--version"));
+            execute(Arrays.asList("bash", "--version"), false);
 
             // Output version of makeself.sh
-            execute(Arrays.asList("bash", makeself.getAbsolutePath(), "--version"));
+            execute(Arrays.asList("bash", makeself.getAbsolutePath(), "--version"), false);
 
             // If help arguments supplied, write output and get out of code.
             String helpArgs = helpArgs();
             if (!helpArgs.isEmpty()) {
-                execute(Arrays.asList("bash", makeself.getAbsolutePath(), helpArgs));
+                execute(Arrays.asList("bash", makeself.getAbsolutePath(), helpArgs), false);
                 return;
             }
 
@@ -381,7 +381,7 @@ public class MakeselfMojo extends AbstractMojo {
             getLog().debug("### " + target);
 
             // Execute main run of makeself.sh
-            execute(target);
+            execute(target, true);
         } catch (IOException | InterruptedException e) {
             if (e.getMessage().contains("Cannot run program \"bash\"")) {
                 getLog().error(
@@ -393,7 +393,7 @@ public class MakeselfMojo extends AbstractMojo {
         }
     }
 
-    private void execute(List<String> target) throws IOException, InterruptedException {
+    private void execute(List<String> target, boolean attach) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(target);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
@@ -410,7 +410,7 @@ public class MakeselfMojo extends AbstractMojo {
         getLog().info("### " + output);
 
         // Attach artifact to maven build for install/deploy/release on success
-        if (status == 0) {
+        if (status == 0 && attach) {
             projectHelper.attachArtifact(project, "sh", new File(buildTarget.concat(fileName)));
         }
     }
