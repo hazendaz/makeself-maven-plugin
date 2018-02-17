@@ -320,6 +320,7 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "helpHeaderFile")
     private String helpHeaderFile;
 
+    /** Skip run of plugin. */
     @Parameter(defaultValue = "false", alias = "skip", property = "skip")
     private Boolean skip;
 
