@@ -24,7 +24,7 @@ Example Usage
                     <archiveDir>distro</archiveDir>
                     <fileName>installDistro.sh</fileName>
                     <label>Distro Self Extraction</label>
-                    <startupScript>runDistroScript.sh</startupScript>
+                    <startupScript>./runDistroScript.sh</startupScript>
                 </configuration>
                 <executions>
                     <execution>
