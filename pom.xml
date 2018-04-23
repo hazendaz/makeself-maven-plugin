@@ -182,6 +182,7 @@
                         <exclude>**/*.lck</exclude>
                         <exclude>**/*.log</exclude>
                         <exclude>**/*maven-wrapper.properties</exclude>
+                        <exclude>**/*MavenWrapperDownloader.java</exclude>
                         <exclude>.factorypath</exclude>
                         <exclude>.gitattributes</exclude>
                         <exclude>LICENSE</exclude>
