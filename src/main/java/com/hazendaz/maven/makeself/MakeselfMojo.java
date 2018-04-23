@@ -68,10 +68,16 @@ public class MakeselfMojo extends AbstractMojo {
     /**
      * startup_script is the command to be executed from within the directory of extracted files. Thus, if you wish to
      * execute a program contain in this directory, you must prefix your command with './'. For example, './program'
-     * will be fine. The script_args are additional arguments for this command.
+     * will be fine.
      */
     @Parameter(defaultValue = "makeself.sh", property = "startupScript", required = true)
     private String startupScript;
+
+    /**
+     * script_args are additional arguments for startup_script.
+     */
+    @Parameter(property = "scriptArgs")
+    private String scriptArgs;
 
     /**
      * --version | -v : Prints the version number on stdout, then exits immediately. Internally will display on all
@@ -380,6 +386,9 @@ public class MakeselfMojo extends AbstractMojo {
             target.add(buildTarget.concat(fileName));
             target.add(label);
             target.add(startupScript);
+            if (scriptArgs != null) {
+                target.addAll(Arrays.asList(scriptArgs.split("\\s+")));
+            }
 
             // Output Executed Command
             getLog().debug("### " + target);
