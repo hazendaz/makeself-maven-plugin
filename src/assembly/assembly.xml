@@ -18,8 +18,8 @@
        GNU General Public License for more details.
 
 -->
-<assembly xmlns="https://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="https://maven.apache.org/plugins/maven-assembly-plugin/assembly/2.0.0 https://maven.apache.org/xsd/assembly-2.0.0.xsd">
+<assembly xmlns="https://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://maven.apache.org/ASSEMBLY/2.0.0 https://maven.apache.org/xsd/assembly-2.0.0.xsd">
 
     <id>makeself</id>
 
