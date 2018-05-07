@@ -1,7 +1,8 @@
 language: java
 sudo: false
 
-jdk:
+matrix:
+  include:
 # 10
     - env: JDK='Oracle JDK 10'
       install: . ./install-jdk.sh -F 10 -L BCL
