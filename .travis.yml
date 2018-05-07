@@ -18,6 +18,12 @@ jdk:
     - env: JDK='OpenJDK 8'
       jdk: openjdk8
 
+before_install:
+  - wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
+  - ./mvnw install -q -DskipTests=true
+
+install: true
+      
 after_success:
   - chmod -R 777 ./travis/after_success.sh
   - ./travis/after_success.sh
