@@ -155,7 +155,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.5</version>
+                <version>3.5.1</version>
                 <executions>
                     <execution>
                         <id>default-descriptor</id>
@@ -226,7 +226,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.5</version>
+                <version>3.5.1</version>
             </plugin>
         </plugins>
     </reporting>
@@ -255,7 +255,7 @@
                                             <pluginExecutionFilter>
                                                 <groupId>org.apache.maven.plugins</groupId>
                                                 <artifactId>maven-plugin-plugin</artifactId>
-                                                <versionRange>[3.5,)</versionRange>
+                                                <versionRange>[3.5.1,)</versionRange>
                                                 <goals>
                                                     <goal>helpmojo</goal>
                                                     <goal>descriptor</goal>
