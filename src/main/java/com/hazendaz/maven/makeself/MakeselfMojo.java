@@ -167,10 +167,23 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean sslEncrypt;
 
     /**
-     * --ssl-passwd : Use the given password to encrypt the data using OpenSSL.
+     * --ssl-passwd pass : Use the given password to encrypt the data using OpenSSL.
      */
     @Parameter(property = "sslPasswd")
     private String sslPasswd;
+
+    /**
+     * --ssl-pass-src : Use the given src as the source of password to encrypt the data using OpenSSL. See \"PASS PHRASE
+     * ARGUMENTS\" in man openssl."
+     */
+    @Parameter(property = "sslPassSrc")
+    private String sslPassSrc;
+
+    /**
+     * --ssl-no-md : Do not use \"-md\" option not supported by older OpenSSL.
+     */
+    @Parameter(property = "sslNoMd")
+    private Boolean sslNoMd;
 
     /**
      * --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms that
@@ -259,6 +272,12 @@ public class MakeselfMojo extends AbstractMojo {
      */
     @Parameter(property = "nocrc")
     private Boolean nocrc;
+
+    /**
+     * --sha256 : Compute a SHA256 checksum for the archive.
+     */
+    @Parameter(property = "sha256")
+    private Boolean sha256;
 
     /**
      * --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
@@ -592,6 +611,18 @@ public class MakeselfMojo extends AbstractMojo {
             args.add(sslPasswd);
         }
 
+        // --ssl-pass-src src : Use the given src as the source of password to encrypt the data using OpenSSL. See
+        // \"PASS PHRASE ARGUMENTS\" in man openssl.
+        if (sslPasswd != null) {
+            args.add("--ssl-pass-src");
+            args.add(sslPassSrc);
+        }
+
+        // --ssl-no-md : Do not use \"-md\" option not supported by older OpenSSL.
+        if (isTrue(sslNoMd)) {
+            args.add("--ssl-no-md");
+        }
+
         // --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms
         // that don't have gzip available.
         if (isTrue(compress)) {
@@ -671,6 +702,11 @@ public class MakeselfMojo extends AbstractMojo {
         // integrity checking is not necessary.
         if (isTrue(nocrc)) {
             args.add("--nocrc");
+        }
+
+        // --sha256 : Compute a SHA256 checksum for the archive.
+        if (isTrue(sha256)) {
+            args.add("--sha256");
         }
 
         // --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
