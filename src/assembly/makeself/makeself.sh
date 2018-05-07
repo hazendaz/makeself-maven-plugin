@@ -67,14 +67,16 @@
 #           Added --target dir to allow extracting directly to a target directory (Guy Baconniere)
 # - 2.2.0 : Many bugfixes, updates and contributions from users. Check out the project page on Github for the details.
 # - 2.3.0 : Option to specify packaging date to enable byte-for-byte reproducibility. (Marc Pawlowsky)
+# - 2.4.0 : Optional support for SHA256 checksums in archives.
 #
-# (C) 1998-2017 by Stephane Peter <megastep@megastep.org>
+# (C) 1998-2018 by Stephane Peter <megastep@megastep.org>
 #
 # This software is released under the terms of the GNU GPL version 2 and above
 # Please read the license at http://www.gnu.org/copyleft/gpl.html
+# Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.3.1
+MS_VERSION=2.4.0
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -114,6 +116,10 @@ MS_Usage()
     echo "                       : Instead of compressing, asymmetrically encrypt and sign the data using GPG"
     echo "    --gpg-extra opt    : Append more options to the gpg command line"
     echo "    --ssl-encrypt      : Instead of compressing, encrypt the data using OpenSSL"
+    echo "    --ssl-passwd pass  : Use the given password to encrypt the data using OpenSSL"
+    echo "    --ssl-pass-src src : Use the given src as the source of password to encrypt the data"
+    echo "                         using OpenSSL. See \"PASS PHRASE ARGUMENTS\" in man openssl."
+    echo "    --ssl-no-md        : Do not use \"-md\" option not supported by older OpenSSL."
     echo "    --nocomp           : Do not compress the data"
     echo "    --notemp           : The archive will create archive_dir in the"
     echo "                         current directory and uncompress in ./archive_dir"
@@ -131,6 +137,7 @@ MS_Usage()
     echo "    --untar-extra opt  : Append more options to the during the extraction of the tar archive"
     echo "    --nomd5            : Don't calculate an MD5 for archive"
     echo "    --nocrc            : Don't calculate a CRC for archive"
+    echo "    --sha256           : Compute a SHA256 checksum for the archive"
     echo "    --header file      : Specify location of the header script"
     echo "    --follow           : Follow the symlinks in the archive"
     echo "    --noprogress       : Do not show the progress during the decompression"
@@ -158,6 +165,10 @@ if type gzip 2>&1 > /dev/null; then
 else
     COMPRESS=Unix
 fi
+ENCRYPT=n
+PASSWD=""
+PASSWD_SRC=""
+OPENSSL_NO_MD=n
 COMPRESS_LEVEL=9
 KEEP=n
 CURRENT=n
@@ -179,6 +190,7 @@ TARGETDIR=""
 NOOVERWRITE=n
 DATE=`LC_ALL=C date`
 EXPORT_CONF=n
+SHA256=n
 
 # LSM file stuff
 LSM_CMD="echo No LSM. >> \"\$archname\""
@@ -231,17 +243,30 @@ do
 	shift
 	;;
     --gpg-asymmetric-encrypt-sign)
-  COMPRESS=gpg-asymmetric
-  shift
-  ;;
+	COMPRESS=gpg-asymmetric
+	shift
+	;;
     --gpg-extra)
-  GPG_EXTRA="$2"
-  if ! shift 2; then MS_Help; exit 1; fi
-  ;;
+	GPG_EXTRA="$2"
+	if ! shift 2; then MS_Help; exit 1; fi
+	;;
     --ssl-encrypt)
-  COMPRESS=openssl
-  shift
-  ;;
+	COMPRESS=openssl
+	ENCRYPT=y
+ 	shift
+	;;
+    --ssl-passwd)
+	PASSWD=$2
+	if ! shift 2; then MS_Help; exit 1; fi
+	;;
+    --ssl-pass-src)
+	PASSWD_SRC=$2
+	if ! shift 2; then MS_Help; exit 1; fi
+	;;
+    --ssl-no-md)
+	OPENSSL_NO_MD=y
+	shift
+	;;
     --nocomp)
 	COMPRESS=none
 	shift
@@ -289,7 +314,8 @@ do
         if ! shift 2; then MS_Help; exit 1; fi
 	;;
     --license)
-        LICENSE=`cat $2`
+        # We need to escape all characters having a special meaning in double quotes
+        LICENSE=$(sed 's/\\/\\\\/g; s/"/\\\"/g; s/`/\\\`/g; s/\$/\\\$/g' $2)
         if ! shift 2; then MS_Help; exit 1; fi
 	;;
     --follow)
@@ -313,6 +339,10 @@ do
 	NOMD5=y
 	shift
 	;;
+    --sha256)
+        SHA256=y
+        shift
+        ;;
     --nocrc)
 	NOCRC=y
 	shift
@@ -406,7 +436,7 @@ else
     # We don't want to create an absolute directory unless a target directory is defined
     if test "$CURRENT" = y; then
 	archdirname="."
-    elif test x$TARGETDIR != x; then
+    elif test x"$TARGETDIR" != x; then
 	archdirname="$TARGETDIR"
     else
 	archdirname=`basename "$1"`
@@ -459,7 +489,7 @@ lz4)
     ;;
 base64)
     GZIP_CMD="base64"
-    GUNZIP_CMD="base64 -d -i"
+    GUNZIP_CMD="base64 --decode -i -"
     ;;
 gpg)
     GZIP_CMD="gpg $GPG_EXTRA -ac -z$COMPRESS_LEVEL"
@@ -472,6 +502,17 @@ gpg-asymmetric)
 openssl)
     GZIP_CMD="openssl aes-256-cbc -a -salt"
     GUNZIP_CMD="openssl aes-256-cbc -d -a"
+    
+    if test x"$OPENSSL_NO_MD" != xy; then
+        GZIP_CMD="$GZIP_CMD -md sha256"
+        GUNZIP_CMD="$GUNZIP_CMD -md sha256"
+    fi
+
+    if test -n "$PASSWD_SRC"; then
+        GZIP_CMD="$GZIP_CMD -pass $PASSWD_SRC"
+    elif test -n "$PASSWD"; then 
+        GZIP_CMD="$GZIP_CMD -pass pass:$PASSWD"
+    fi
     ;;
 Unix)
     GZIP_CMD="compress -cf"
@@ -537,6 +578,7 @@ fsize=`cat "$tmpfile" | wc -c | tr -d " "`
 
 # Compute the checksums
 
+shasum=0000000000000000000000000000000000000000000000000000000000000000
 md5sum=00000000000000000000000000000000
 crcsum=0000000000
 
@@ -551,9 +593,25 @@ else
 	fi
 fi
 
+if test "$SHA256" = y; then
+	SHA_PATH=`exec <&- 2>&-; which shasum || command -v shasum || type shasum`
+	if test -x "$SHA_PATH"; then
+		shasum=`cat "$tmpfile" | eval "$SHA_PATH -a 256" | cut -b-64`
+	else
+		SHA_PATH=`exec <&- 2>&-; which sha256sum || command -v sha256sum || type sha256sum`
+		shasum=`cat "$tmpfile" | eval "$SHA_PATH" | cut -b-64`
+	fi
+	if test "$QUIET" = "n"; then
+		if test -x "$SHA_PATH"; then
+			echo "SHA256: $shasum"
+		else
+			echo "SHA256: none, SHA command not found"
+		fi
+	fi
+fi
 if test "$NOMD5" = y; then
 	if test "$QUIET" = "n";then
-		echo "skipping md5sum at user request"
+		echo "Skipping md5sum at user request"
 	fi
 else
 	# Try to locate a MD5 binary
@@ -568,7 +626,7 @@ else
 		if test `basename ${MD5_PATH}`x = digestx; then
 			MD5_ARG="-a md5"
 		fi
-		md5sum=`cat "$tmpfile" | eval "$MD5_PATH $MD5_ARG" | cut -b-32`;
+		md5sum=`cat "$tmpfile" | eval "$MD5_PATH $MD5_ARG" | cut -b-32`
 		if test "$QUIET" = "n";then
 			echo "MD5: $md5sum"
 		fi
@@ -586,6 +644,7 @@ if test "$APPEND" = y; then
     filesizes="$filesizes $fsize"
     CRCsum="$CRCsum $crcsum"
     MD5sum="$MD5sum $md5sum"
+    SHAsum="$SHAsum $shasum"
     USIZE=`expr $USIZE + $OLDUSIZE`
     # Generate the header
     . "$HEADER"
@@ -603,6 +662,7 @@ else
     filesizes="$fsize"
     CRCsum="$crcsum"
     MD5sum="$md5sum"
+    SHAsum="$shasum"
 
     # Generate the header
     . "$HEADER"

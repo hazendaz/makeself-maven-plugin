@@ -1,6 +1,7 @@
 cat << EOF  > "$archname"
 #!/bin/sh
 # This script was generated using Makeself $MS_VERSION
+# The license covering this archive and its contents, if any, is wholly independent of the Makeself license (GPL)
 
 ORIG_UMASK=\`umask\`
 if test "$KEEP_UMASK" = n; then
@@ -9,6 +10,7 @@ fi
 
 CRCsum="$CRCsum"
 MD5="$MD5sum"
+SHA="$SHAsum"
 TMPROOT=\${TMPDIR:=/tmp}
 USER_PWD="\$PWD"; export USER_PWD
 
@@ -34,9 +36,14 @@ elif test -x /usr/ucb/echo; then
 else
     print_cmd="echo"
 fi
-	
+
 if test -d /usr/xpg4/bin; then
     PATH=/usr/xpg4/bin:\$PATH
+    export PATH
+fi
+
+if test -d /usr/sfw/bin; then
+    PATH=\$PATH:/usr/sfw/bin
     export PATH
 fi
 
@@ -50,7 +57,7 @@ MS_Printf()
 MS_PrintLicense()
 {
   if test x"\$licensetxt" != x; then
-    echo "\$licensetxt"
+    echo "\$licensetxt" | more
     if test x"\$accept" != xy; then
       while true
       do
@@ -152,8 +159,8 @@ MS_Help()
   --nox11               Do not spawn an xterm
   --nochown             Do not give the extracted files to the current user
   --nodiskspace         Do not check for available disk space
-  --target dir          Extract directly to a target directory
-                        directory path can be either absolute or relative
+  --target dir          Extract directly to a target directory (absolute or relative)
+                        This directory may undergo recursive chown (see --nochown).
   --tar arg1 [arg2 ...] Access the contents of the archive through the tar command
   --                    Following arguments will be passed to the embedded script
 EOH
@@ -166,8 +173,11 @@ MS_Check()
 	MD5_ARG=""
     MD5_PATH=\`exec <&- 2>&-; which md5sum || command -v md5sum || type md5sum\`
     test -x "\$MD5_PATH" || MD5_PATH=\`exec <&- 2>&-; which md5 || command -v md5 || type md5\`
-	test -x "\$MD5_PATH" || MD5_PATH=\`exec <&- 2>&-; which digest || command -v digest || type digest\`
+    test -x "\$MD5_PATH" || MD5_PATH=\`exec <&- 2>&-; which digest || command -v digest || type digest\`
     PATH="\$OLD_PATH"
+
+    SHA_PATH=\`exec <&- 2>&-; which shasum || command -v shasum || type shasum\`
+    test -x "\$SHA_PATH" || SHA_PATH=\`exec <&- 2>&-; which sha256sum || command -v sha256sum || type sha256sum\`
 
     if test x"\$quiet" = xn; then
 		MS_Printf "Verifying archive integrity..."
@@ -178,6 +188,24 @@ MS_Check()
     for s in \$filesizes
     do
 		crc=\`echo \$CRCsum | cut -d" " -f\$i\`
+		if test -x "\$SHA_PATH"; then
+			if test x"\`basename \$SHA_PATH\`" = xshasum; then
+				SHA_ARG="-a 256"
+			fi
+			sha=\`echo \$SHA | cut -d" " -f\$i\`
+			if test x"\$sha" = x0000000000000000000000000000000000000000000000000000000000000000; then
+				test x"\$verb" = xy && echo " \$1 does not contain an embedded SHA256 checksum." >&2
+			else
+				shasum=\`MS_dd_Progress "\$1" \$offset \$s | eval "\$SHA_PATH \$SHA_ARG" | cut -b-64\`;
+				if test x"\$shasum" != x"\$sha"; then
+					echo "Error in SHA256 checksums: \$shasum is different from \$sha" >&2
+					exit 2
+				else
+					test x"\$verb" = xy && MS_Printf " SHA256 checksums are OK." >&2
+				fi
+				crc="0000000000";
+			fi
+		fi
 		if test -x "\$MD5_PATH"; then
 			if test x"\`basename \$MD5_PATH\`" = xdigest; then
 				MD5_ARG="-a md5"
@@ -337,7 +365,7 @@ EOLSM
 	;;
     --target)
 	keep=y
-	targetdir=\${2:-.}
+	targetdir="\${2:-.}"
     if ! shift 2; then MS_Help; exit 1; fi
 	;;
     --noprogress)
@@ -396,7 +424,7 @@ fi
 
 case "\$copy" in
 copy)
-    tmpdir=\$TMPROOT/makeself.\$RANDOM.\`date +"%y%m%d%H%M%S"\`.\$\$
+    tmpdir="\$TMPROOT"/makeself.\$RANDOM.\`date +"%y%m%d%H%M%S"\`.\$\$
     mkdir "\$tmpdir" || {
 	echo "Could not create temporary directory \$tmpdir" >&2
 	exit 1
@@ -454,7 +482,7 @@ else
 	tmpdir="\$TMPROOT/selfgz\$\$\$RANDOM"
 	dashp=""
     fi
-    mkdir \$dashp \$tmpdir || {
+    mkdir \$dashp "\$tmpdir" || {
 	echo 'Cannot create target directory' \$tmpdir >&2
 	echo 'You should try option --target dir' >&2
 	eval \$finish
@@ -478,14 +506,20 @@ fi
 
 if test x"\$quiet" = xn; then
 	MS_Printf "Uncompressing \$label"
+	
+    # Decrypting with openssl will ask for password,
+    # the prompt needs to start on new line
+	if test x"$ENCRYPT" = xy; then
+	    echo
+	fi
 fi
 res=3
 if test x"\$keep" = xn; then
-    trap 'echo Signal caught, cleaning up >&2; cd \$TMPROOT; /bin/rm -rf \$tmpdir; eval \$finish; exit 15' 1 2 3 15
+    trap 'echo Signal caught, cleaning up >&2; cd \$TMPROOT; /bin/rm -rf "\$tmpdir"; eval \$finish; exit 15' 1 2 3 15
 fi
 
 if test x"\$nodiskspace" = xn; then
-    leftspace=\`MS_diskspace \$tmpdir\`
+    leftspace=\`MS_diskspace "\$tmpdir"\`
     if test -n "\$leftspace"; then
         if test "\$leftspace" -lt $USIZE; then
             echo
@@ -546,8 +580,8 @@ if test x"\$script" != x; then
     fi
 fi
 if test x"\$keep" = xn; then
-    cd \$TMPROOT
-    /bin/rm -rf \$tmpdir
+    cd "\$TMPROOT"
+    /bin/rm -rf "\$tmpdir"
 fi
 eval \$finish; exit \$res
 EOF
