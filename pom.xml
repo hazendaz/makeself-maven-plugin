@@ -79,6 +79,19 @@
 
         <signature.artifact>java17</signature.artifact>
 
+        <!-- Maven Artifacts -->
+        <lifecycle.version>1.0.0</lifecycle.version>
+        <maven.version>3.5.3</maven.version>
+        <maven-plugin.version>3.5.2</maven-plugin.version>
+        <plexus-utils.version>3.1.0</plexus-utils.version>
+        <shared-utils.version>3.2.1</shared-utils.version>
+
+        <!-- Guava -->
+        <guava.version>25.1-android</guava.version>
+
+        <!-- Junit -->
+        <junit.version>5.2.0</junit.version>
+
         <!-- Targeted patches -->
         <io.version>2.6</io.version>
         <lang3.version>3.7</lang3.version>
@@ -89,31 +102,31 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>3.5.3</version>
+            <version>${maven.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>3.5.3</version>
+            <version>${maven.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.5.2</version>
+            <version>${maven-plugin.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-resolver-provider</artifactId>
-            <version>3.5.3</version>
+            <version>${maven.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-shared-utils</artifactId>
-            <version>3.2.1</version>
+            <version>${shared-utils.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -121,7 +134,7 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>3.1.0</version>
+            <version>${plexus-utils.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -129,7 +142,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>25.0-android</version>
+            <version>${guava.version}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -137,7 +150,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.2.0</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -161,7 +174,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>${maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>default-descriptor</id>
@@ -232,7 +245,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.5.2</version>
+                <version>${maven-plugin.version}</version>
             </plugin>
         </plugins>
     </reporting>
@@ -253,7 +266,7 @@
                         <plugin>
                             <groupId>org.eclipse.m2e</groupId>
                             <artifactId>lifecycle-mapping</artifactId>
-                            <version>1.0.0</version>
+                            <version>${lifecycle.version}</version>
                             <configuration>
                                 <lifecycleMappingMetadata>
                                     <pluginExecutions>
@@ -261,7 +274,7 @@
                                             <pluginExecutionFilter>
                                                 <groupId>org.apache.maven.plugins</groupId>
                                                 <artifactId>maven-plugin-plugin</artifactId>
-                                                <versionRange>[3.5.2,)</versionRange>
+                                                <versionRange>[${maven-plugin.version},)</versionRange>
                                                 <goals>
                                                     <goal>helpmojo</goal>
                                                     <goal>descriptor</goal>
