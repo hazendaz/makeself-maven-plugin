@@ -409,11 +409,17 @@ public class MakeselfMojo extends AbstractMojo {
                 target.addAll(Arrays.asList(scriptArgs.split("\\s+")));
             }
 
-            // Output Executed Command
-            getLog().debug("### " + target);
+            // Indicate makeself running
+            getLog().info("### Running makeself build...");
 
             // Execute main run of makeself.sh
             execute(target, true);
+
+            // Output info on file makeself created
+            execute(Arrays.asList("bash", buildTarget.concat(fileName), "--info"), false);
+
+            // Output list on file makeself created
+            execute(Arrays.asList("bash", buildTarget.concat(fileName), "--list"), false);
 
             // auto run script
             if (this.autoRun) {
