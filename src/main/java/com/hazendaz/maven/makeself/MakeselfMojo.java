@@ -174,7 +174,8 @@ public class MakeselfMojo extends AbstractMojo {
 
     /**
      * --ssl-pass-src : Use the given src as the source of password to encrypt the data using OpenSSL. See \"PASS PHRASE
-     * ARGUMENTS\" in man openssl."
+     * ARGUMENTS\" in man openssl. If this option is not supplied, the user wil be asked to enter encryption pasword on
+     * the current terminal.
      */
     @Parameter(property = "sslPassSrc")
     private String sslPassSrc;
@@ -639,7 +640,8 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // --ssl-pass-src src : Use the given src as the source of password to encrypt the data using OpenSSL. See
-        // \"PASS PHRASE ARGUMENTS\" in man openssl.
+        // \"PASS PHRASE ARGUMENTS\" in man openssl. If this option is not supplied, the user wil be asked to enter
+        // encryption pasword on the current terminal.
         if (sslPasswd != null) {
             args.add("--ssl-pass-src");
             args.add(sslPassSrc);
