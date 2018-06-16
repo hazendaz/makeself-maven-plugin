@@ -385,19 +385,23 @@ public class MakeselfMojo extends AbstractMojo {
 
         try {
             // Output version of bash
+            getLog().debug("Execute Bash Version");
             execute(Arrays.asList("bash", "--version"), false);
 
             // Output version of makeself.sh
+            getLog().debug("Execute Makeself Version");
             execute(Arrays.asList("bash", makeself.getAbsolutePath(), "--version"), false);
 
             // If help arguments supplied, write output and get out of code.
             String helpArgs = helpArgs();
             if (!helpArgs.isEmpty()) {
+                getLog().debug("Execute Makeself Help");
                 execute(Arrays.asList("bash", makeself.getAbsolutePath(), helpArgs), false);
                 return;
             }
 
             // Basic Configuration
+            getLog().debug("Loading Makeself Basic Configuration");
             List<String> target = new ArrayList<>();
             target.addAll(Arrays.asList("bash", makeself.getAbsolutePath()));
             target.addAll(loadArgs());
@@ -413,12 +417,15 @@ public class MakeselfMojo extends AbstractMojo {
             getLog().info("### Running makeself build...");
 
             // Execute main run of makeself.sh
+            getLog().debug("Execute Makeself Build");
             execute(target, true);
 
             // Output info on file makeself created
+            getLog().debug("Execute Makeself Info on Resulting Shell Script");
             execute(Arrays.asList("bash", buildTarget.concat(fileName), "--info"), false);
 
             // Output list on file makeself created
+            getLog().debug("Execute Makeself List on Resulting Shell Script");
             execute(Arrays.asList("bash", buildTarget.concat(fileName), "--list"), false);
 
             // auto run script
@@ -463,6 +470,8 @@ public class MakeselfMojo extends AbstractMojo {
      * Extract makeself.
      */
     private void extractMakeself() {
+        getLog().debug("Extracting Makeself");
+
         // Create makeself directory
         File makeselfTemp = new File(targetDirectory.getAbsolutePath());
         if (!makeselfTemp.exists() && !makeselfTemp.mkdir()) {
@@ -477,6 +486,7 @@ public class MakeselfMojo extends AbstractMojo {
         // Write makeself script
         makeself = new File(targetDirectory + "/makeself.sh");
         if (!makeself.exists()) {
+            getLog().debug("Writing makeself.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
                 Files.copy(link, makeself.getAbsoluteFile().toPath());
                 setFilePermissions(makeself);
@@ -489,6 +499,7 @@ public class MakeselfMojo extends AbstractMojo {
         // Write makeself-header script
         File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
         if (!makeselfHeader.exists()) {
+            getLog().debug("Writing makeself-header.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
                 Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
                 setFilePermissions(makeselfHeader);
@@ -527,6 +538,8 @@ public class MakeselfMojo extends AbstractMojo {
      * @return the string
      */
     private String helpArgs() {
+        getLog().debug("Loading help arguments");
+
         StringBuilder args = new StringBuilder();
 
         // --help | -h : Print out this help message
@@ -542,6 +555,8 @@ public class MakeselfMojo extends AbstractMojo {
      * @return the string
      */
     private List<String> loadArgs() {
+        getLog().debug("Loading arguments");
+
         List<String> args = new ArrayList<>();
 
         // --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
