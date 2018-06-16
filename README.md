@@ -11,6 +11,10 @@ Makeself Maven Plugin provides maven integration for megastep makeself script.
 
 Makeself is a self-extracting archiving tool for Unix systems, in 100% shell script.
 
+With help of Cygwin, git for windows or other tools supplying bash for windows, this tool is fully functional with windows.
+
+To use in windows, configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin.
+
 See [makeself](https://github.com/megastep/makeself)
 
 Example Usage
