@@ -414,7 +414,7 @@ public class MakeselfMojo extends AbstractMojo {
             }
 
             // Indicate makeself running
-            getLog().info("### Running makeself build...");
+            getLog().info("Running makeself build");
 
             // Execute main run of makeself.sh
             getLog().debug("Execute Makeself Build");
@@ -445,20 +445,26 @@ public class MakeselfMojo extends AbstractMojo {
     }
 
     private void execute(List<String> target, boolean attach) throws IOException, InterruptedException {
+        // Create Process Builder
         ProcessBuilder processBuilder = new ProcessBuilder(target);
         processBuilder.redirectErrorStream(true);
+
+        // Create Process
         Process process = processBuilder.start();
+
+        // Wait for process completion
         int status = process.waitFor();
         if (status > 0) {
             getLog().error("makeself failed with error status: " + status);
         }
+
+        // Write process output
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        StringBuilder output = new StringBuilder();
         String line = "";
         while ((line = reader.readLine()) != null) {
-            output.append(line).append("\n");
+            getLog().info(line);
         }
-        getLog().info("### " + output);
+        getLog().info("");
 
         // Attach artifact to maven build for install/deploy/release on success
         if (status == 0 && attach) {
