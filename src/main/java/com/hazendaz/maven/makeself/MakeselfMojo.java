@@ -460,12 +460,13 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // Write process output
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        String line = "";
-        while ((line = reader.readLine()) != null) {
-            getLog().info(line);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                getLog().info(line);
+            }
+            getLog().info("");
         }
-        getLog().info("");
 
         // Attach artifact to maven build for install/deploy/release on success
         if (status == 0 && attach) {
