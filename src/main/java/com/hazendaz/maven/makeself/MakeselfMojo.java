@@ -84,6 +84,7 @@ public class MakeselfMojo extends AbstractMojo {
      * --version | -v : Prints the version number on stdout, then exits immediately. Internally will display on all
      * runs.
      */
+    // TODO Should I get rid of this one since we do this always.
     @Parameter(property = "version", readonly = true)
     private Boolean version;
 
