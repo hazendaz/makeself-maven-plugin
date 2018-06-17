@@ -438,14 +438,16 @@ public class MakeselfMojo extends AbstractMojo {
                 getLog().info("Auto-run created shell (this may take a few minutes)");
                 execute(Arrays.asList("bash", buildTarget.concat(fileName)), !ATTACH_ARTIFACT);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
+            getLog().error("", e);
             if (e.getMessage().contains("Cannot run program \"bash\"")) {
-                getLog().error(
-                        "Configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin",
-                        e);
-            } else {
-                getLog().error("", e);
+                throw new MojoFailureException(
+                        "Configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin");
             }
+        } catch (InterruptedException e) {
+            getLog().error("", e);
+            // restore interruption status of the corresponding thread
+            Thread.currentThread().interrupt();
         }
     }
 
