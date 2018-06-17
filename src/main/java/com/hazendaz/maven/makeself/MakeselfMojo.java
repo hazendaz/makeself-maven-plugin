@@ -575,7 +575,7 @@ public class MakeselfMojo extends AbstractMojo {
     private List<String> loadArgs() {
         getLog().debug("Loading arguments");
 
-        List<String> args = new ArrayList<>();
+        List<String> args = new ArrayList<>(50);
 
         // --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
         if (isTrue(gzip)) {
