@@ -85,7 +85,7 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean help;
 
     /**
-     * --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
+     * --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux).
      */
     @Parameter(property = "gzip")
     private Boolean gzip;
@@ -291,6 +291,7 @@ public class MakeselfMojo extends AbstractMojo {
     /**
      * --tar-extra opt : Append more options to the tar command line.
      *
+     * <p>
      * For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar, one
      * can use makeself.sh --tar-extra "--exclude=.git" ...
      */
