@@ -373,6 +373,9 @@ public class MakeselfMojo extends AbstractMojo {
     /** The makeself. */
     private File makeself;
 
+    /** Static ATTACH_ARTIFACT to maven lifecycle. */
+    private static final boolean ATTACH_ARTIFACT = true;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         // Check if plugin run should be skipped
@@ -387,17 +390,17 @@ public class MakeselfMojo extends AbstractMojo {
         try {
             // Output version of bash
             getLog().debug("Execute Bash Version");
-            execute(Arrays.asList("bash", "--version"), false);
+            execute(Arrays.asList("bash", "--version"), !ATTACH_ARTIFACT);
 
             // Output version of makeself.sh
             getLog().debug("Execute Makeself Version");
-            execute(Arrays.asList("bash", makeself.getAbsolutePath(), "--version"), false);
+            execute(Arrays.asList("bash", makeself.getAbsolutePath(), "--version"), !ATTACH_ARTIFACT);
 
             // If help arguments supplied, write output and get out of code.
             String helpArgs = helpArgs();
             if (!helpArgs.isEmpty()) {
                 getLog().debug("Execute Makeself Help");
-                execute(Arrays.asList("bash", makeself.getAbsolutePath(), helpArgs), false);
+                execute(Arrays.asList("bash", makeself.getAbsolutePath(), helpArgs), !ATTACH_ARTIFACT);
                 return;
             }
 
@@ -419,20 +422,20 @@ public class MakeselfMojo extends AbstractMojo {
 
             // Execute main run of makeself.sh
             getLog().debug("Execute Makeself Build");
-            execute(target, true);
+            execute(target, ATTACH_ARTIFACT);
 
             // Output info on file makeself created
             getLog().debug("Execute Makeself Info on Resulting Shell Script");
-            execute(Arrays.asList("bash", buildTarget.concat(fileName), "--info"), false);
+            execute(Arrays.asList("bash", buildTarget.concat(fileName), "--info"), !ATTACH_ARTIFACT);
 
             // Output list on file makeself created
             getLog().debug("Execute Makeself List on Resulting Shell Script");
-            execute(Arrays.asList("bash", buildTarget.concat(fileName), "--list"), false);
+            execute(Arrays.asList("bash", buildTarget.concat(fileName), "--list"), !ATTACH_ARTIFACT);
 
             // auto run script
             if (this.autoRun) {
                 getLog().info("Auto-run created shell (this may take a few minutes)");
-                execute(Arrays.asList("bash", buildTarget.concat(fileName)), false);
+                execute(Arrays.asList("bash", buildTarget.concat(fileName)), !ATTACH_ARTIFACT);
             }
         } catch (IOException | InterruptedException e) {
             if (e.getMessage().contains("Cannot run program \"bash\"")) {
