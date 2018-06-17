@@ -382,6 +382,9 @@ public class MakeselfMojo extends AbstractMojo {
         // Setup make self files
         this.extractMakeself();
 
+        // Get OS Name
+        boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+
         try {
             // Output version of bash
             getLog().debug("Execute Bash Version");
@@ -423,9 +426,11 @@ public class MakeselfMojo extends AbstractMojo {
             getLog().debug("Execute Makeself Info on Resulting Shell Script");
             execute(Arrays.asList("bash", buildTarget.concat(fileName), "--info"), !ATTACH_ARTIFACT);
 
-            // Output list on file makeself created
-            getLog().debug("Execute Makeself List on Resulting Shell Script");
-            execute(Arrays.asList("bash", buildTarget.concat(fileName), "--list"), !ATTACH_ARTIFACT);
+            // Output list on file makeself created (non windows need)
+            if (!isWindows) {
+                getLog().debug("Execute Makeself List on Resulting Shell Script");
+                execute(Arrays.asList("bash", buildTarget.concat(fileName), "--list"), !ATTACH_ARTIFACT);
+            }
 
             // auto run script
             if (this.autoRun) {
