@@ -441,8 +441,11 @@ public class MakeselfMojo extends AbstractMojo {
             getLog().error("", e);
             if (e.getMessage().contains("Cannot run program \"bash\"")) {
                 // Note: we printed the full stack trace already so don't do it again.
-                throw new MojoFailureException(
-                        "Configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin");
+                if (isWindows) {
+                    throw new MojoFailureException(
+                            "Configure Bash with Cygwin or Git for Windows by adding '/usr/bin' to environment 'Path' variable to execute this plugin");
+                }
+                throw new MojoFailureException("Configure Bash to execute this plugin");
             }
         } catch (InterruptedException e) {
             getLog().error("", e);
