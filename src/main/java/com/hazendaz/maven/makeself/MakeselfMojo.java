@@ -503,9 +503,10 @@ public class MakeselfMojo extends AbstractMojo {
         if (!makeself.exists()) {
             getLog().debug("Writing makeself.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
-                Files.copy(link, makeself.getAbsoluteFile().toPath());
+                Path path = makeself.getAbsoluteFile().toPath();
+                Files.copy(link, path);
                 setFilePermissions(makeself);
-                setPosixFilePermissions(makeself.getAbsoluteFile().toPath());
+                setPosixFilePermissions(path);
             } catch (IOException e) {
                 getLog().error("", e);
             }
@@ -516,9 +517,10 @@ public class MakeselfMojo extends AbstractMojo {
         if (!makeselfHeader.exists()) {
             getLog().debug("Writing makeself-header.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
-                Files.copy(link, makeselfHeader.getAbsoluteFile().toPath());
+                Path path = makeselfHeader.getAbsoluteFile().toPath();
+                Files.copy(link, path);
                 setFilePermissions(makeselfHeader);
-                setPosixFilePermissions(makeselfHeader.getAbsoluteFile().toPath());
+                setPosixFilePermissions(path);
             } catch (IOException e) {
                 getLog().error("", e);
             }
