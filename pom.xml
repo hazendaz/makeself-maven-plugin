@@ -97,7 +97,7 @@
 
         <!-- Targeted patches -->
         <io.version>2.6</io.version>
-        <lang3.version>3.7</lang3.version>
+        <lang3.version>3.8</lang3.version>
     </properties>
 
     <dependencies>
