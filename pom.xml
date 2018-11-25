@@ -199,22 +199,7 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <configuration>
                     <header>${license.header}</header>
-                    <excludes>
-                        <!-- Retain excludes from parent -->
-                        <exclude>**/*.lck</exclude>
-                        <exclude>**/*.log</exclude>
-                        <exclude>**/*maven-wrapper.properties</exclude>
-                        <exclude>**/*MavenWrapperDownloader.java</exclude>
-                        <exclude>.factorypath</exclude>
-                        <exclude>.gitattributes</exclude>
-                        <exclude>LICENSE</exclude>
-                        <exclude>LICENSE_HEADER</exclude>
-                        <exclude>license.txt</exclude>
-                        <exclude>mvnw</exclude>
-                        <exclude>mvnw.cmd</exclude>
-                        <!-- End retaining -->
-
-                        <!-- Ignore re-license on makeself -->
+                    <excludes combine.children="append">
                         <exclude>**/*makeself-header.sh</exclude>
                         <exclude>**/*makeself.sh</exclude>
                     </excludes>
