@@ -98,6 +98,7 @@
         <!-- Targeted patches -->
         <io.version>2.6</io.version>
         <lang3.version>3.8.1</lang3.version>
+        <slf4j.version>1.8.0-beta2</slf4j.version>
     </properties>
 
     <dependencies>
@@ -168,6 +169,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${lang3.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.8.0-beta2</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
