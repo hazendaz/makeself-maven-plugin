@@ -86,7 +86,7 @@
         <lifecycle.version>1.0.0</lifecycle.version>
         <maven.version>3.6.0</maven.version>
         <maven-plugin.version>3.6.0</maven-plugin.version>
-        <plexus-utils.version>3.1.0</plexus-utils.version>
+        <plexus-utils.version>3.1.1</plexus-utils.version>
         <shared-utils.version>3.2.1</shared-utils.version>
 
         <!-- Guava -->
