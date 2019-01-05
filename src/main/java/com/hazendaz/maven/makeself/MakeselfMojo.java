@@ -1,5 +1,5 @@
 /**
- *    Copyright 2011-2018 the original author or authors.
+ *    Copyright 2011-2019 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -462,12 +462,6 @@ public class MakeselfMojo extends AbstractMojo {
         // Create Process
         Process process = processBuilder.start();
 
-        // Wait for process completion
-        int status = process.waitFor();
-        if (status > 0) {
-            getLog().error("makeself failed with error status: " + status);
-        }
-
         // Write process output
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
@@ -476,6 +470,12 @@ public class MakeselfMojo extends AbstractMojo {
                 getLog().info(line);
             }
             getLog().info("");
+        }
+
+        // Wait for process completion
+        int status = process.waitFor();
+        if (status > 0) {
+            getLog().error("makeself failed with error status: " + status);
         }
 
         // Attach artifact to maven build for install/deploy/release on success
