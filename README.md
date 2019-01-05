@@ -41,16 +41,20 @@ Example Usage
             </plugin>
 ```
 
-*** Special note: *** Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
+*** Special notes: ***
+
+Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
+Use version 1.1.4 to avoid dead lock when buffer is overrun.
+
+## Contributor Consideration ##
 
 Executable Permissions on Shell Scripts
 
-When makeself is updated, performed the following commands after the update commit.  This will ensure executable only from this location.
-While it might not provide any benefit, it doesn't hurt.
+When makeself is updated on this repository, perform the following commands after the update commit.  This will ensure shell files are executable within project.
+While it might not provide any benefit upon build, it doesn't hurt.
 
 ```git
-    git update-index --chmod=+x makeself.sh
-    git update-index --chmod=+x makeself-header.sh
+    git add --chmod=+x *.sh; \
     git commit -m "Force makeself to be executable"
 ```
 
