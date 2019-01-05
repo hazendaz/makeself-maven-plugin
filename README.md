@@ -43,8 +43,8 @@ Example Usage
 
 *** Special notes: ***
 
-Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
-Use version 1.1.4 to avoid dead lock when buffer is overrun.
+- Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
+- Use version 1.1.4 to avoid dead lock when buffer is overrun.
 
 ## Contributor Consideration ##
 
