@@ -33,6 +33,8 @@
         <fileSet>
             <directory>${project.basedir}/src/sample</directory>
             <outputDirectory />
+            <fileMode>0755</fileMode>
+            <lineEnding>unix</lineEnding>
             <includes>
                 <include>**/*</include>
             </includes>
