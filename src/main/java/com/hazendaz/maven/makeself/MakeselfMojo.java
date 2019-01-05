@@ -17,6 +17,8 @@
  */
 package com.hazendaz.maven.makeself;
 
+import com.google.common.base.Joiner;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -475,7 +477,7 @@ public class MakeselfMojo extends AbstractMojo {
         // Wait for process completion
         int status = process.waitFor();
         if (status > 0) {
-            getLog().error("makeself failed with error status: " + status);
+            getLog().error(Joiner.on(" ").join("makeself failed with error status:", status));
         }
 
         // Attach artifact to maven build for install/deploy/release on success
@@ -493,16 +495,16 @@ public class MakeselfMojo extends AbstractMojo {
         // Create makeself directory
         File makeselfTemp = new File(targetDirectory.getAbsolutePath());
         if (!makeselfTemp.exists() && !makeselfTemp.mkdir()) {
-            getLog().error("Unable to make directory" + targetDirectory.getAbsolutePath());
+            getLog().error(Joiner.on(" ").join("Unable to make directory", targetDirectory.getAbsolutePath()));
             return;
         } else {
-            getLog().debug("Created directory for " + targetDirectory.getAbsolutePath());
+            getLog().debug(Joiner.on(" ").join("Created directory for", targetDirectory.getAbsolutePath()));
         }
 
         ClassLoader classloader = this.getClass().getClassLoader();
 
         // Write makeself script
-        makeself = new File(targetDirectory + "/makeself.sh");
+        makeself = new File(Joiner.on("").join(targetDirectory, "/makeself.sh"));
         if (!makeself.exists()) {
             getLog().debug("Writing makeself.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
@@ -516,7 +518,7 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // Write makeself-header script
-        File makeselfHeader = new File(targetDirectory + "/makeself-header.sh");
+        File makeselfHeader = new File(Joiner.on("").join(targetDirectory, "/makeself-header.sh"));
         if (!makeselfHeader.exists()) {
             getLog().debug("Writing makeself-header.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
@@ -532,9 +534,9 @@ public class MakeselfMojo extends AbstractMojo {
 
     private void setFilePermissions(File file) {
         if (!file.setExecutable(true, true)) {
-            getLog().error("Unable to set executable: " + file.getName());
+            getLog().error(Joiner.on(" ").join("Unable to set executable:", file.getName()));
         } else {
-            getLog().debug("Set executable for " + file.getName());
+            getLog().debug(Joiner.on(" ").join("Set executable for", file.getName()));
         }
     }
 
@@ -543,7 +545,7 @@ public class MakeselfMojo extends AbstractMojo {
 
         try {
             Files.setPosixFilePermissions(path, permissions);
-            getLog().debug("Set Posix File Permissions for " + path + " as " + permissions);
+            getLog().debug(Joiner.on(" ").join("Set Posix File Permissions for", path, "as", permissions));
         } catch (IOException e) {
             getLog().error("Failed attempted Posix permissions", e);
         } catch (UnsupportedOperationException e) {
