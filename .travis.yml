@@ -6,7 +6,7 @@ jdk:
   - oraclejdk8
 
 script:
-  - ./mvnw verify -B -P run-its
+  - ./mvnw verify -B -P run-it
 
 after_success:
   - chmod -R 777 ./travis/after_success.sh
