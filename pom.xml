@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2011-2018 the original author or authors.
+       Copyright 2011-2019 the original author or authors.
 
        This program is free software; you can redistribute it and/or
        modify it under the terms of the GNU General Public License
@@ -84,6 +84,7 @@
 
         <!-- Maven Artifacts -->
         <lifecycle.version>1.0.0</lifecycle.version>
+        <invoker-plugin.version>3.1.0</invoker-plugin.version>
         <maven.version>3.6.0</maven.version>
         <maven-plugin.version>3.6.0</maven-plugin.version>
         <plexus-utils.version>3.1.1</plexus-utils.version>
@@ -246,6 +247,38 @@
     </reporting>
 
     <profiles>
+        <profile>
+            <id>run-it</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <version>${invoker-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>integration-test-run</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <projectsDirectory>${project.basedir}/src/it</projectsDirectory>
+                                    <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                                    <showVersion>true</showVersion>
+                                    <pomIncludes>
+                                        <pomInclude>*/pom.xml</pomInclude>
+                                    </pomIncludes>
+                                    <postBuildHookScript>verify</postBuildHookScript>
+                                    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                                    <settingsFile>${project.basedir}/src/it/settings.xml</settingsFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>eclipse</id>
             <activation>
