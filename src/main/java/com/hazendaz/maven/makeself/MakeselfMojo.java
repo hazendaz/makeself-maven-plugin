@@ -301,7 +301,7 @@ public class MakeselfMojo extends AbstractMojo {
     private String tarExtraOpt;
 
     /**
-     * --untar-extra opt : AAppend more options to the during the extraction of the tar archive.
+     * --untar-extra opt : Append more options to the during the extraction of the tar archive.
      */
     @Parameter(property = "untarExtraOpt")
     private String untarExtraOpt;
