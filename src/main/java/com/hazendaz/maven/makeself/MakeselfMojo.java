@@ -812,7 +812,7 @@ public class MakeselfMojo extends AbstractMojo {
 
         // --help-header file : Add a header to the archive's --help output.
         if (helpHeaderFile != null) {
-            args.add("--helpHeaderFile");
+            args.add("--help-header");
             args.add(helpHeaderFile);
         }
 
