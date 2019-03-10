@@ -197,6 +197,20 @@
 
         <plugins>
             <plugin>
+                <groupId>com.github.hazendaz.maven</groupId>
+                <artifactId>jautodoc-maven-plugin</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>jautodoc</id>
+                        <goals>
+                            <goal>jautodoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>${maven-plugin.version}</version>
