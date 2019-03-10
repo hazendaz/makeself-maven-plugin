@@ -58,7 +58,11 @@ MS_Printf()
 MS_PrintLicense()
 {
   if test x"\$licensetxt" != x; then
-    echo "\$licensetxt" | more
+    if test x"\$accept" = xy; then
+      echo "\$licensetxt"
+    else
+      echo "\$licensetxt" | more
+    fi
     if test x"\$accept" != xy; then
       while true
       do
@@ -158,7 +162,8 @@ MS_Help()
                         the embedded script
   --noprogress          Do not show the progress during the decompression
   --nox11               Do not spawn an xterm
-  --nochown             Do not give the extracted files to the current user
+  --nochown             Do not give the target folder to the current user
+  --chown               Give the target folder to the current user recursively
   --nodiskspace         Do not check for available disk space
   --target dir          Extract directly to a target directory (absolute or relative)
                         This directory may undergo recursive chown (see --nochown).
@@ -275,7 +280,7 @@ xterm_loop=
 noprogress=$NOPROGRESS
 nox11=$NOX11
 copy=$COPY
-ownership=y
+ownership=$OWNERSHIP
 verbose=n
 
 initargs="\$@"
@@ -402,6 +407,10 @@ EOLSM
 	ownership=n
 	shift
 	;;
+    --chown)
+        ownership=y
+        shift
+        ;;
     --nodiskspace)
 	nodiskspace=y
 	shift
