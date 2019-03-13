@@ -91,7 +91,7 @@
         <shared-utils.version>3.2.1</shared-utils.version>
 
         <!-- Guava -->
-        <guava.version>27.0.1-android</guava.version>
+        <guava.version>27.1-android</guava.version>
 
         <!-- Junit -->
         <junit.version>5.4.0</junit.version>
