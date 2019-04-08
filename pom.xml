@@ -94,7 +94,7 @@
         <guava.version>27.1-android</guava.version>
 
         <!-- Junit -->
-        <junit.version>5.4.1</junit.version>
+        <junit.version>5.4.2</junit.version>
 
         <!-- Targeted patches -->
         <io.version>2.6</io.version>
