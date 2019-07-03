@@ -86,7 +86,7 @@
         <guava.version>28.0-android</guava.version>
 
         <!-- Junit -->
-        <junit.version>5.4.2</junit.version>
+        <junit.version>5.5.0</junit.version>
 
         <!-- Targeted patches -->
         <io.version>2.6</io.version>
