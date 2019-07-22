@@ -86,7 +86,7 @@
         <guava.version>28.0-jre</guava.version>
 
         <!-- Junit -->
-        <junit.version>5.5.0</junit.version>
+        <junit.version>5.5.1</junit.version>
 
         <!-- Targeted patches -->
         <io.version>2.6</io.version>
