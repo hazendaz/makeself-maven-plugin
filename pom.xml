@@ -83,7 +83,7 @@
         <shared-utils.version>3.2.1</shared-utils.version>
 
         <!-- Guava -->
-        <guava.version>28.0-jre</guava.version>
+        <guava.version>28.1-jre</guava.version>
 
         <!-- Junit -->
         <junit.version>5.5.1</junit.version>
