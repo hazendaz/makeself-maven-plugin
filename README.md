@@ -23,7 +23,7 @@ Example Usage
             <plugin>
                 <groupId>com.github.hazendaz.maven</groupId>
                 <artifactId>makeself-maven-plugin</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.1.6-SNAPSHOT</version>
                 <configuration>
                     <archiveDir>distro</archiveDir>
                     <fileName>installDistro.sh</fileName>
