@@ -76,7 +76,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.4.1.prerelease
+MS_VERSION=2.4.1.prerelease.2019-10-22
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -253,7 +253,7 @@ do
 	;;
     --gpg-extra)
 	GPG_EXTRA="$2"
-	if ! shift 2; then MS_Help; exit 1; fi
+	if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --ssl-encrypt)
 	ENCRYPT=openssl
@@ -261,11 +261,11 @@ do
 	;;
     --ssl-passwd)
 	PASSWD=$2
-	if ! shift 2; then MS_Help; exit 1; fi
+	if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --ssl-pass-src)
 	PASSWD_SRC=$2
-	if ! shift 2; then MS_Help; exit 1; fi
+	if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --ssl-no-md)
 	OPENSSL_NO_MD=y
@@ -277,7 +277,7 @@ do
 	;;
     --complevel)
 	COMPRESS_LEVEL="$2"
-	if ! shift 2; then MS_Help; exit 1; fi
+	if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --nochown)
 	OWNERSHIP=n
@@ -302,16 +302,16 @@ do
 	;;
     --tar-extra)
 	TAR_EXTRA="$2"
-        if ! shift 2; then MS_Help; exit 1; fi
+        if ! shift 2; then MS_Usage; exit 1; fi
         ;;
     --untar-extra)
         UNTAR_EXTRA="$2"
-        if ! shift 2; then MS_Help; exit 1; fi
+        if ! shift 2; then MS_Usage; exit 1; fi
         ;;
     --target)
 	TARGETDIR="$2"
 	KEEP=y
-        if ! shift 2; then MS_Help; exit 1; fi
+        if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --nooverwrite)
         NOOVERWRITE=y
@@ -323,12 +323,12 @@ do
 	;;
     --header)
 	HEADER="$2"
-        if ! shift 2; then MS_Help; exit 1; fi
+        if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --license)
         # We need to escape all characters having a special meaning in double quotes
-        LICENSE=$(sed 's/\\/\\\\/g; s/"/\\\"/g; s/`/\\\`/g; s/\$/\\\$/g' $2)
-        if ! shift 2; then MS_Help; exit 1; fi
+        LICENSE="$(echo "$2" | sed 's/./\\&/g' | xargs)"
+        if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --follow)
 	TAR_ARGS=rvhf
@@ -365,15 +365,15 @@ do
 	;;
     --lsm)
 	LSM_CMD="cat \"$2\" >> \"\$archname\""
-    if ! shift 2; then MS_Help; exit 1; fi
+    if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --packaging-date)
 	DATE="$2"
-	if ! shift 2; then MS_Help; exit 1; fi
+	if ! shift 2; then MS_Usage; exit 1; fi
         ;;
     --help-header)
-	HELPHEADER=`sed -e "s/'/'\\\\\''/g" $2`
-    if ! shift 2; then MS_Help; exit 1; fi
+	HELPHEADER=`sed -e "s/'/'\\\\''/g" $2`
+    if ! shift 2; then MS_Usage; exit 1; fi
 	[ -n "$HELPHEADER" ] && HELPHEADER="$HELPHEADER
 "
     ;;
@@ -420,42 +420,42 @@ archname="$2"
 
 if test "$QUIET" = "y" || test "$TAR_QUIETLY" = "y"; then
     if test "$TAR_ARGS" = "rvf"; then
-	TAR_ARGS="rf"
+	    TAR_ARGS="rf"
     elif test "$TAR_ARGS" = "rvhf";then
-	TAR_ARGS="rhf"
+	    TAR_ARGS="rhf"
     fi
 fi
 
 if test "$APPEND" = y; then
     if test $# -lt 2; then
-	MS_Usage
+    	MS_Usage
     fi
 
     # Gather the info from the original archive
     OLDENV=`sh "$archname" --dumpconf`
     if test $? -ne 0; then
-	echo "Unable to update archive: $archname" >&2
-	exit 1
+	    echo "Unable to update archive: $archname" >&2
+	    exit 1
     else
-	eval "$OLDENV"
+	    eval "$OLDENV"
     fi
 else
     if test "$KEEP" = n -a $# = 3; then
-	echo "ERROR: Making a temporary archive with no embedded command does not make sense!" >&2
-	echo >&2
-	MS_Usage
+	    echo "ERROR: Making a temporary archive with no embedded command does not make sense!" >&2
+    	echo >&2
+    	MS_Usage
     fi
     # We don't want to create an absolute directory unless a target directory is defined
     if test "$CURRENT" = y; then
-	archdirname="."
+	    archdirname="."
     elif test x"$TARGETDIR" != x; then
-	archdirname="$TARGETDIR"
+	    archdirname="$TARGETDIR"
     else
-	archdirname=`basename "$1"`
+	    archdirname=`basename "$1"`
     fi
 
     if test $# -lt 3; then
-	MS_Usage
+	    MS_Usage
     fi
 
     LABEL="$3"
@@ -591,6 +591,9 @@ fi
 
 tmparch="${TMPDIR:-/tmp}/mkself$$.tar"
 (
+    if test "$APPEND" = "y"; then
+        tail -n +$OLDSKIP "$archname" | $GUNZIP_CMD > "$tmparch"
+    fi
     cd "$archdir"
     find . ! -type d \
         | LC_ALL=C sort \
@@ -601,6 +604,8 @@ tmparch="${TMPDIR:-/tmp}/mkself$$.tar"
     rm -f "$tmparch" "$tmpfile"
     exit 1
 }
+
+USIZE=`du $DU_ARGS "$tmparch" | awk '{print $1}'`
 
 eval "$GZIP_CMD" <"$tmparch" >"$tmpfile" || {
     echo "ERROR: failed to create temporary file: $tmpfile"
@@ -682,15 +687,12 @@ if test "$APPEND" = y; then
     mv "$archname" "$archname".bak || exit
 
     # Prepare entry for new archive
-    filesizes="$filesizes $fsize"
-    CRCsum="$CRCsum $crcsum"
-    MD5sum="$MD5sum $md5sum"
-    SHAsum="$SHAsum $shasum"
-    USIZE=`expr $USIZE + $OLDUSIZE`
+    filesizes="$fsize"
+    CRCsum="$crcsum"
+    MD5sum="$md5sum"
+    SHAsum="$shasum"
     # Generate the header
     . "$HEADER"
-    # Append the original data
-    tail -n +$OLDSKIP "$archname".bak >> "$archname"
     # Append the new data
     cat "$tmpfile" >> "$archname"
 
