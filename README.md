@@ -45,6 +45,7 @@ Example Usage
 
 - Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
 - Use version 1.1.4 to avoid dead lock when buffer is overrun.
+- For jdk 7 usage, use version 1.1.5
 
 ## Contributor Consideration ##
 
