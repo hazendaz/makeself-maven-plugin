@@ -77,10 +77,19 @@ public class MakeselfMojo extends AbstractMojo {
     private String startupScript;
 
     /**
-     * script_args are additional arguments for startup_script.
+     * script_args are additional arguments for startup_script passed as an array.
+     *
+     * <pre>
+     * {@code
+     * <scriptArgs>
+     *   <scriptArg>arg1</scriptArg>
+     *   <scriptArg>arg2</scriptArg>
+     * </scriptArgs>
+     * }
+     * </pre>
      */
     @Parameter(property = "scriptArgs")
-    private String scriptArgs;
+    private List<String> scriptArgs;
 
     /** --help | -h : Print out this help message. */
     @Parameter(property = "help")
@@ -414,7 +423,7 @@ public class MakeselfMojo extends AbstractMojo {
             target.add(label);
             target.add(startupScript);
             if (scriptArgs != null) {
-                target.addAll(Arrays.asList(scriptArgs.split("\\s+")));
+                target.addAll(scriptArgs);
             }
 
             // Indicate makeself running
