@@ -318,7 +318,6 @@
                         <plugin>
                             <groupId>org.eclipse.m2e</groupId>
                             <artifactId>lifecycle-mapping</artifactId>
-                            <version>${lifecycle.version}</version>
                             <configuration>
                                 <lifecycleMappingMetadata>
                                     <pluginExecutions>
