@@ -454,9 +454,10 @@ public class MakeselfMojo extends AbstractMojo {
                 // Note: we printed the full stack trace already so don't do it again.
                 if (isWindows) {
                     throw new MojoFailureException(
-                            "Configure Bash with Cygwin or Git for Windows by adding '/usr/bin' to environment 'Path' variable to execute this plugin");
+                            "Configure Bash with Cygwin or Git for Windows by adding '/usr/bin' to environment 'Path' variable to execute this plugin",
+                            e);
                 }
-                throw new MojoFailureException("Configure Bash to execute this plugin");
+                throw new MojoFailureException("Configure Bash to execute this plugin", e);
             }
         } catch (InterruptedException e) {
             getLog().error("", e);
