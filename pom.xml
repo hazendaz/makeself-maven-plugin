@@ -75,7 +75,6 @@
         <checkstyle.config>checkstyle-4space.xml</checkstyle.config>
 
         <!-- Maven Artifacts -->
-        <lifecycle.version>1.0.0</lifecycle.version>
         <invoker-plugin.version>3.2.1</invoker-plugin.version>
         <maven.version>3.6.3</maven.version>
         <maven-plugin.version>3.6.0</maven-plugin.version>
