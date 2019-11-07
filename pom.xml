@@ -242,6 +242,8 @@
                     <archive>
                         <manifestFile>${project.build.directory}/classes/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
+                    <!-- We do not need to attach again as the jar cycle did it for us -->
+                    <attach>false</attach>
                     <descriptors>
                         <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
                     </descriptors>
