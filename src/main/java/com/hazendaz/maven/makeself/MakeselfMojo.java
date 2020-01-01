@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -492,7 +493,7 @@ public class MakeselfMojo extends AbstractMojo {
 
         // Attach artifact to maven build for install/deploy/release on success
         if (status == 0 && attach) {
-            projectHelper.attachArtifact(project, "sh", new File(buildTarget.concat(fileName)));
+            projectHelper.attachArtifact(project, "sh", new File(buildTarget, FilenameUtils.getName(fileName)));
         }
     }
 
