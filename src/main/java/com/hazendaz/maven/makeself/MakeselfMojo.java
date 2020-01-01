@@ -365,7 +365,7 @@ public class MakeselfMojo extends AbstractMojo {
     private String buildTarget;
 
     /** The target directory. */
-    @Parameter(defaultValue = "${project.build.directory}/makeself-tmp", readonly = true)
+    @Parameter(defaultValue = "${project.build.directory}/makeself-tmp/", readonly = true)
     private File targetDirectory;
 
     /** Maven ProjectHelper. */
@@ -514,7 +514,7 @@ public class MakeselfMojo extends AbstractMojo {
         ClassLoader classloader = this.getClass().getClassLoader();
 
         // Write makeself script
-        makeself = new File(Joiner.on("").join(targetDirectory, "/makeself.sh"));
+        makeself = new File(targetDirectory, "makeself.sh");
         if (!makeself.exists()) {
             getLog().debug("Writing makeself.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
@@ -528,7 +528,7 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // Write makeself-header script
-        File makeselfHeader = new File(Joiner.on("").join(targetDirectory, "/makeself-header.sh"));
+        File makeselfHeader = new File(targetDirectory, "makeself-header.sh");
         if (!makeselfHeader.exists()) {
             getLog().debug("Writing makeself-header.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
