@@ -76,7 +76,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.4.1.prerelease.2019-10-22
+MS_VERSION=2.4.1.prerelease.2019-11-20
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -595,7 +595,7 @@ tmparch="${TMPDIR:-/tmp}/mkself$$.tar"
         tail -n +$OLDSKIP "$archname" | $GUNZIP_CMD > "$tmparch"
     fi
     cd "$archdir"
-    find . ! -type d \
+    find . ! -type d -o -links 2 \
         | LC_ALL=C sort \
         | sed 's/./\\&/g' \
         | xargs tar $TAR_EXTRA -$TAR_ARGS "$tmparch"
