@@ -23,11 +23,11 @@ under the License.
     <link>https://github.com/hazendaz/makeself-maven-plugin</link>
     <description>makeself-maven-plugin - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2011 - 2019 hazendaz</copyright>
+    <copyright>&#169;2011 - 2020 hazendaz</copyright>
     <item>
       <title>File: 3,
              Errors: 0,
-             Warnings: 435,
+             Warnings: 440,
              Infos: 0
       </title>
             <link>https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html</link>
@@ -66,7 +66,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  2
+                  6
                 </td>
                 <td>
                   0
@@ -80,7 +80,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  0
+                  1
                 </td>
                 <td>
                   0
