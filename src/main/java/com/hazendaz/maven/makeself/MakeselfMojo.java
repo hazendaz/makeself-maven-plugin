@@ -92,6 +92,21 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "scriptArgs")
     private List<String> scriptArgs;
 
+    /**
+     * cleanup_script_args are additional arguments for cleanup_script passed as an array.
+     *
+     * <pre>
+     * {@code
+     * <cleanupArgs>
+     *   <cleanupArg>arg1</cleanupArg>
+     *   <cleanupArg>arg2</cleanupArg>
+     * </cleanupArg>
+     * }
+     * </pre>
+     */
+    @Parameter(property = "cleanupArgs")
+    private List<String> cleanupArgs;
+
     /** --help | -h : Print out this help message. */
     @Parameter(property = "help")
     private Boolean help;
@@ -257,6 +272,13 @@ public class MakeselfMojo extends AbstractMojo {
      */
     @Parameter(property = "headerFile", readonly = true)
     private Boolean headerFile;
+
+    /**
+     * .--cleanup: Specify a script that is run when execution is interrupted or finishes successfully. The script is
+     * executed with the same environment and initial `script_agrs` as `startup_script`.
+     */
+    @Parameter(property = "cleanupScript")
+    private String cleanupScript;
 
     /**
      * --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main application of
@@ -434,6 +456,17 @@ public class MakeselfMojo extends AbstractMojo {
             target.add(startupScript);
             if (scriptArgs != null) {
                 target.addAll(scriptArgs);
+            }
+            if (cleanupScript != null) {
+                target.add(cleanupScript);
+                // Pass original arguments again
+                if (scriptArgs != null) {
+                    target.addAll(scriptArgs);
+                }
+                // Pass cleanup arguments
+                if (cleanupArgs != null) {
+                    target.addAll(cleanupArgs);
+                }
             }
 
             // Indicate makeself running
