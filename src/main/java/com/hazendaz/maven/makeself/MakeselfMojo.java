@@ -212,6 +212,15 @@ public class MakeselfMojo extends AbstractMojo {
     private Integer complevel;
 
     /**
+     * --threads : Specify the number of threads to be used by compressors that support parallelization.
+     * Omit to use compressor's default. Most useful (and required) for opting into xz's threading, usually
+     * with --threads=0 for all available cores. pbzip2 and pigz are parallel by default, and setting this
+     * value allows limiting the number of threads they use.
+     */
+    @Parameter(property = "threads")
+    private Integer threads;
+
+    /**
      * --notemp : The generated archive will not extract the files to a temporary directory, but in a new directory
      * created in the current directory. This is better to distribute software packages that may extract and compile by
      * themselves (i.e. launch the compilation through the embedded script).
@@ -693,6 +702,15 @@ public class MakeselfMojo extends AbstractMojo {
         if (complevel != null) {
             args.add("--complevel");
             args.add(complevel.toString());
+        }
+
+        // --threads thds : Number of threads to be used by compressors that support parallelization.
+        // Omit to use compressor's default. Most useful (and required) for opting into xz's threading,
+        // usually with '--threads=0' for all available cores.pbzip2 and pigz are parallel by default,
+        // and setting this value allows limiting the number of threads they use.
+        if (threads != null) {
+            args.add("--threads");
+            args.add(threads.toString());
         }
 
         // --notemp : The generated archive will not extract the files to a temporary directory, but in a new directory
