@@ -68,19 +68,21 @@
 # - 2.2.0 : Many bugfixes, updates and contributions from users. Check out the project page on Github for the details.
 # - 2.3.0 : Option to specify packaging date to enable byte-for-byte reproducibility. (Marc Pawlowsky)
 # - 2.4.0 : Optional support for SHA256 checksums in archives.
+# - 2.4.1 : ?
+# - 2.4.2 : Add support for threads for several compressors. (M. Limber)
 #
-# (C) 1998-2018 by Stephane Peter <megastep@megastep.org>
+# (C) 1998-2020 by Stephane Peter <megastep@megastep.org>
 #
 # This software is released under the terms of the GNU GPL version 2 and above
 # Please read the license at http://www.gnu.org/copyleft/gpl.html
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.4.1.prerelease.2019-11-20
+MS_VERSION=2.4.2.prerelease.2020-04-03
 MS_COMMAND="$0"
 unset CDPATH
 
-for f in "${1+"$@"}"; do
+for f in ${1+"$@"}; do
     MS_COMMAND="$MS_COMMAND \\\\
     \\\"$f\\\""
 done
@@ -110,6 +112,11 @@ MS_Usage()
     echo "    --lz4              : Compress using lz4 instead of gzip"
     echo "    --compress         : Compress using the UNIX 'compress' command"
     echo "    --complevel lvl    : Compression level for gzip pigz xz lzo lz4 bzip2 and pbzip2 (default 9)"
+    echo "    --threads thds     : Number of threads to be used by compressors that support parallelization."
+    echo "                         Omit to use compressor's default. Most useful (and required) for opting"
+    echo "                         into xz's threading, usually with '--threads=0' for all available cores."
+    echo "                         pbzip2 and pigz are parallel by default, and setting this value allows"
+    echo "                         limiting the number of threads they use."
     echo "    --base64           : Instead of compressing, encode the data using base64"
     echo "    --gpg-encrypt      : Instead of compressing, encrypt the data using GPG"
     echo "    --gpg-asymmetric-encrypt-sign"
@@ -143,6 +150,7 @@ MS_Usage()
     echo "    --nocrc            : Don't calculate a CRC for archive"
     echo "    --sha256           : Compute a SHA256 checksum for the archive"
     echo "    --header file      : Specify location of the header script"
+    echo "    --cleanup file     : Specify a cleanup script that executes on interrupt and when finished successfully."
     echo "    --follow           : Follow the symlinks in the archive"
     echo "    --noprogress       : Do not show the progress during the decompression"
     echo "    --nox11            : Disable automatic spawn of a xterm"
@@ -164,7 +172,7 @@ MS_Usage()
 }
 
 # Default settings
-if type gzip 2>&1 > /dev/null; then
+if type gzip > /dev/null 2>&1; then
     COMPRESS=gzip
 else
     COMPRESS=Unix
@@ -174,6 +182,8 @@ PASSWD=""
 PASSWD_SRC=""
 OPENSSL_NO_MD=n
 COMPRESS_LEVEL=9
+DEFAULT_THREADS=123456 # Sentinel value
+THREADS=$DEFAULT_THREADS
 KEEP=n
 CURRENT=n
 NOX11=n
@@ -279,6 +289,10 @@ do
 	COMPRESS_LEVEL="$2"
 	if ! shift 2; then MS_Usage; exit 1; fi
 	;;
+    --threads)
+	THREADS="$2"
+	if ! shift 2; then MS_Usage; exit 1; fi
+	;;
     --nochown)
 	OWNERSHIP=n
 	shift
@@ -325,9 +339,13 @@ do
 	HEADER="$2"
         if ! shift 2; then MS_Usage; exit 1; fi
 	;;
+    --cleanup)
+    CLEANUP_SCRIPT="$2"
+        if ! shift 2; then MS_Usage; exit 1; fi
+    ;;
     --license)
         # We need to escape all characters having a special meaning in double quotes
-        LICENSE="$(echo "$2" | sed 's/./\\&/g' | xargs)"
+        LICENSE=$(sed 's/\\/\\\\/g; s/"/\\\"/g; s/`/\\\`/g; s/\$/\\\$/g' "$2")
         if ! shift 2; then MS_Usage; exit 1; fi
 	;;
     --follow)
@@ -477,10 +495,16 @@ gzip)
     ;;
 pigz) 
     GZIP_CMD="pigz -$COMPRESS_LEVEL"
+    if test $THREADS -ne $DEFAULT_THREADS; then # Leave as the default if threads not indicated
+        GZIP_CMD="$GZIP_CMD --processes $THREADS"
+    fi
     GUNZIP_CMD="gzip -cd"
     ;;
 pbzip2)
     GZIP_CMD="pbzip2 -c$COMPRESS_LEVEL"
+    if test $THREADS -ne $DEFAULT_THREADS; then # Leave as the default if threads not indicated
+        GZIP_CMD="$GZIP_CMD -p$THREADS"
+    fi
     GUNZIP_CMD="bzip2 -d"
     ;;
 bzip2)
@@ -489,6 +513,10 @@ bzip2)
     ;;
 xz)
     GZIP_CMD="xz -c$COMPRESS_LEVEL"
+    # Must opt-in by specifying a value since not all versions of xz support threads
+    if test $THREADS -ne $DEFAULT_THREADS; then 
+        GZIP_CMD="$GZIP_CMD --threads=$THREADS"
+    fi
     GUNZIP_CMD="xz -d"
     ;;
 lzo)
@@ -556,7 +584,7 @@ if test -f "$HEADER"; then
 	SKIP=`expr $SKIP`
 	rm -f "$tmpfile"
     if test "$QUIET" = "n";then
-    	echo Header is $SKIP lines long >&2
+    	echo "Header is $SKIP lines long" >&2
     fi
 
 	archname="$oldarchname"
@@ -585,14 +613,14 @@ fi
 
 test -d "$archdir" || { echo "Error: $archdir does not exist."; rm -f "$tmpfile"; exit 1; }
 if test "$QUIET" = "n"; then
-   echo About to compress $USIZE KB of data...
-   echo Adding files to archive named \"$archname\"...
+   echo "About to compress $USIZE KB of data..."
+   echo "Adding files to archive named \"$archname\"..."
 fi
 
 tmparch="${TMPDIR:-/tmp}/mkself$$.tar"
 (
     if test "$APPEND" = "y"; then
-        tail -n +$OLDSKIP "$archname" | $GUNZIP_CMD > "$tmparch"
+        tail -n "+$OLDSKIP" "$archname" | $GUNZIP_CMD > "$tmparch"
     fi
     cd "$archdir"
     find . ! -type d -o -links 2 \
@@ -615,7 +643,7 @@ eval "$GZIP_CMD" <"$tmparch" >"$tmpfile" || {
 rm -f "$tmparch"
 
 if test x"$ENCRYPT" = x"openssl"; then
-    echo About to encrypt archive \"$archname\"...
+    echo "About to encrypt archive \"$archname\"..."
     { eval "$ENCRYPT_CMD -in $tmpfile -out ${tmpfile}.enc" && mv -f ${tmpfile}.enc $tmpfile; } || \
         { echo Aborting: could not encrypt temporary file: "$tmpfile".; rm -f "$tmpfile"; exit 1; }
 fi
@@ -633,7 +661,7 @@ if test "$NOCRC" = y; then
 		echo "skipping crc at user request"
 	fi
 else
-	crcsum=`cat "$tmpfile" | CMD_ENV=xpg4 cksum | sed -e 's/ /Z/' -e 's/	/Z/' | cut -dZ -f1`
+	crcsum=`CMD_ENV=xpg4 cksum < "$tmpfile" | sed -e 's/ /Z/' -e 's/	/Z/' | cut -dZ -f1`
 	if test "$QUIET" = "n";then
 		echo "CRC: $crcsum"
 	fi
@@ -642,10 +670,10 @@ fi
 if test "$SHA256" = y; then
 	SHA_PATH=`exec <&- 2>&-; which shasum || command -v shasum || type shasum`
 	if test -x "$SHA_PATH"; then
-		shasum=`cat "$tmpfile" | eval "$SHA_PATH -a 256" | cut -b-64`
+		shasum=`eval "$SHA_PATH -a 256" < "$tmpfile" | cut -b-64`
 	else
 		SHA_PATH=`exec <&- 2>&-; which sha256sum || command -v sha256sum || type sha256sum`
-		shasum=`cat "$tmpfile" | eval "$SHA_PATH" | cut -b-64`
+		shasum=`eval "$SHA_PATH" < "$tmpfile" | cut -b-64`
 	fi
 	if test "$QUIET" = "n"; then
 		if test -x "$SHA_PATH"; then
@@ -672,7 +700,7 @@ else
 		if test `basename ${MD5_PATH}`x = digestx; then
 			MD5_ARG="-a md5"
 		fi
-		md5sum=`cat "$tmpfile" | eval "$MD5_PATH $MD5_ARG" | cut -b-32`
+		md5sum=`eval "$MD5_PATH $MD5_ARG" < "$tmpfile" | cut -b-32`
 		if test "$QUIET" = "n";then
 			echo "MD5: $md5sum"
 		fi
@@ -699,7 +727,7 @@ if test "$APPEND" = y; then
     chmod +x "$archname"
     rm -f "$archname".bak
     if test "$QUIET" = "n";then
-    	echo Self-extractable archive \"$archname\" successfully updated.
+    	echo "Self-extractable archive \"$archname\" successfully updated."
     fi
 else
     filesizes="$fsize"
