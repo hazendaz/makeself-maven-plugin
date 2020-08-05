@@ -79,7 +79,7 @@
         <maven.version>3.6.3</maven.version>
         <maven-plugin.version>3.6.0</maven-plugin.version>
         <plexus-utils.version>3.3.0</plexus-utils.version>
-        <shared-utils.version>3.2.1</shared-utils.version>
+        <shared-utils.version>3.3.3</shared-utils.version>
 
         <!-- Guava -->
         <guava.version>29.0-jre</guava.version>
