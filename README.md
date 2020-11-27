@@ -1,7 +1,7 @@
 Makeself Maven Plugin
 =====================
 
-[![Build Status](https://travis-ci.org/hazendaz/makeself-maven-plugin.svg?branch=master)](https://travis-ci.org/hazendaz/makeself-maven-plugin)
+[![Java CI](https://github.com/hazendaz/makeself-maven-plugin/workflows/Java%20CI/badge.svg)](https://github.com/hazendaz/makeself-maven-plugin/actions?query=workflow%3A%22Java+CI%22)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.hazendaz.maven/makeself-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.hazendaz.maven/makeself-maven-plugin)
 [![License](http://img.shields.io/:license-glp-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
