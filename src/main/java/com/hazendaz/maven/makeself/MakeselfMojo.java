@@ -227,10 +227,10 @@ public class MakeselfMojo extends AbstractMojo {
     private Integer complevel;
 
     /**
-     * --threads : Specify the number of threads to be used by compressors that support parallelization.
-     * Omit to use compressor's default. Most useful (and required) for opting into xz's threading, usually
-     * with --threads=0 for all available cores. pbzip2 and pigz are parallel by default, and setting this
-     * value allows limiting the number of threads they use.
+     * --threads : Specify the number of threads to be used by compressors that support parallelization. Omit to use
+     * compressor's default. Most useful (and required) for opting into xz's threading, usually with --threads=0 for all
+     * available cores. pbzip2 and pigz are parallel by default, and setting this value allows limiting the number of
+     * threads they use.
      */
     @Parameter(property = "threads")
     private Integer threads;
