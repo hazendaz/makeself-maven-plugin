@@ -510,6 +510,10 @@ public class MakeselfMojo extends AbstractMojo {
     }
 
     private void execute(List<String> target, boolean attach) throws IOException, InterruptedException {
+
+        // Log execution target
+        getLog().debug(target.toString());
+
         // Create Process Builder
         ProcessBuilder processBuilder = new ProcessBuilder(target);
         processBuilder.redirectErrorStream(true);
