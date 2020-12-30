@@ -19,6 +19,7 @@ package com.hazendaz.maven.makeself;
 
 import com.google.common.base.Joiner;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -27,14 +28,22 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -44,12 +53,23 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.repository.RepositorySystem;
 
 /**
  * The Class MakeselfMojo.
  */
 @Mojo(name = "makeself", defaultPhase = LifecyclePhase.VERIFY, requiresProject = false)
 public class MakeselfMojo extends AbstractMojo {
+
+    /**
+     * isWindows is detected at start of plugin to ensure windows needs.
+     */
+    private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Windows");
+
+    /**
+     * The path to git which is left blank unless portable git is used.
+     */
+    private String gitPath = "";
 
     /**
      * archive_dir is the name of the directory that contains the files to be archived.
@@ -386,11 +406,11 @@ public class MakeselfMojo extends AbstractMojo {
 
     /** Skip run of plugin. */
     @Parameter(defaultValue = "false", alias = "skip", property = "skip")
-    private Boolean skip;
+    private boolean skip;
 
     /** Auto run : When set to true, resulting shell will be run. This is useful for testing purposes. */
     @Parameter(defaultValue = "false", property = "autoRun")
-    private Boolean autoRun;
+    private boolean autoRun;
 
     /** The build target. */
     @Parameter(defaultValue = "${project.build.directory}/", readonly = true)
@@ -404,9 +424,21 @@ public class MakeselfMojo extends AbstractMojo {
     @Component
     private MavenProjectHelper projectHelper;
 
+    /** Maven Artifact Factory. */
+    @Component
+    private RepositorySystem repositorySystem;
+
     /** Maven Project. */
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
+
+    /** Maven Local Repository. */
+    @Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
+    private ArtifactRepository localRepository;
+
+    /** Maven Remote Artifacts Repositories. */
+    @Parameter(property = "project.remoteArtifactRepositories")
+    private List<ArtifactRepository> remoteRepositories;
 
     /** The makeself. */
     private File makeself;
@@ -425,30 +457,32 @@ public class MakeselfMojo extends AbstractMojo {
         // Setup make self files
         this.extractMakeself();
 
-        // Get OS Name
-        boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+        // Check git setup
+        if (MakeselfMojo.WINDOWS) {
+            this.checkGitSetup();
+        }
 
         try {
             // Output version of bash
             getLog().debug("Execute Bash Version");
-            execute(Arrays.asList("bash", "--version"), !ATTACH_ARTIFACT);
+            execute(Arrays.asList(gitPath + "bash", "--version"), !ATTACH_ARTIFACT);
 
             // Output version of makeself.sh
             getLog().debug("Execute Makeself Version");
-            execute(Arrays.asList("bash", makeself.getAbsolutePath(), "--version"), !ATTACH_ARTIFACT);
+            execute(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath(), "--version"), !ATTACH_ARTIFACT);
 
             // If help arguments supplied, write output and get out of code.
             String helpArgs = helpArgs();
             if (!helpArgs.isEmpty()) {
                 getLog().debug("Execute Makeself Help");
-                execute(Arrays.asList("bash", makeself.getAbsolutePath(), helpArgs), !ATTACH_ARTIFACT);
+                execute(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath(), helpArgs), !ATTACH_ARTIFACT);
                 return;
             }
 
             // Basic Configuration
             getLog().debug("Loading Makeself Basic Configuration");
             List<String> target = new ArrayList<>();
-            target.addAll(Arrays.asList("bash", makeself.getAbsolutePath()));
+            target.addAll(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath()));
             target.addAll(loadArgs());
             target.add(buildTarget.concat(archiveDir));
             target.add(buildTarget.concat(fileName));
@@ -478,30 +512,21 @@ public class MakeselfMojo extends AbstractMojo {
 
             // Output info on file makeself created
             getLog().debug("Execute Makeself Info on Resulting Shell Script");
-            execute(Arrays.asList("bash", buildTarget.concat(fileName), "--info"), !ATTACH_ARTIFACT);
+            execute(Arrays.asList(gitPath + "bash", buildTarget.concat(fileName), "--info"), !ATTACH_ARTIFACT);
 
             // Output list on file makeself created (non windows need)
-            if (!isWindows) {
+            if (!MakeselfMojo.WINDOWS) {
                 getLog().debug("Execute Makeself List on Resulting Shell Script");
-                execute(Arrays.asList("bash", buildTarget.concat(fileName), "--list"), !ATTACH_ARTIFACT);
+                execute(Arrays.asList(gitPath + "bash", buildTarget.concat(fileName), "--list"), !ATTACH_ARTIFACT);
             }
 
             // auto run script
             if (this.autoRun) {
                 getLog().info("Auto-run created shell (this may take a few minutes)");
-                execute(Arrays.asList("bash", buildTarget.concat(fileName)), !ATTACH_ARTIFACT);
+                execute(Arrays.asList(gitPath + "bash", buildTarget.concat(fileName)), !ATTACH_ARTIFACT);
             }
         } catch (IOException e) {
             getLog().error("", e);
-            if (e.getMessage().contains("Cannot run program \"bash\"")) {
-                // Note: we printed the full stack trace already so don't do it again.
-                if (isWindows) {
-                    throw new MojoFailureException(
-                            "Configure Bash with Cygwin or Git for Windows by adding '/usr/bin' to environment 'Path' variable to execute this plugin",
-                            e);
-                }
-                throw new MojoFailureException("Configure Bash to execute this plugin", e);
-            }
         } catch (InterruptedException e) {
             getLog().error("", e);
             // restore interruption status of the corresponding thread
@@ -517,6 +542,12 @@ public class MakeselfMojo extends AbstractMojo {
         // Create Process Builder
         ProcessBuilder processBuilder = new ProcessBuilder(target);
         processBuilder.redirectErrorStream(true);
+
+        // Add portable git to windows environment
+        if (MakeselfMojo.WINDOWS) {
+            Map<String, String> envs = processBuilder.environment();
+            envs.put("Path", localRepository.getBasedir() + "/PortableGit/usr/bin/");
+        }
 
         // Create Process
         Process process = processBuilder.start();
@@ -586,6 +617,85 @@ public class MakeselfMojo extends AbstractMojo {
             } catch (IOException e) {
                 getLog().error("", e);
             }
+        }
+    }
+
+    /**
+     * Check Git Setup.
+     */
+    private void checkGitSetup() {
+        // Windows detection for 'bash' output is questionable and not detecting well for windows 10, just use onboard
+        // git for now.
+        this.extractPortableGit();
+    }
+
+    /**
+     * Extract Portable Git.
+     */
+    private void extractPortableGit() {
+        if (new File(localRepository.getBasedir() + "/PortableGit").exists()) {
+            getLog().debug("Existing 'PortableGit' folder found at {}" + localRepository.getBasedir());
+            gitPath = localRepository.getBasedir() + "/PortableGit/usr/bin/";
+            return;
+        }
+
+        final String groupId = "com.github.hazendaz.git";
+        final String artifactId = "git-for-windows";
+        final String version = "2.30.0.1";
+        final String type = "tar.gz";
+        final String classifier = "portable";
+        Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, type,
+                classifier);
+
+        final ArtifactResolutionRequest artifactResolutionRequest = new ArtifactResolutionRequest();
+        artifactResolutionRequest.setArtifact(artifact);
+        artifactResolutionRequest.setResolveTransitively(true);
+        artifactResolutionRequest.setLocalRepository(localRepository);
+        artifactResolutionRequest.setRemoteRepositories(remoteRepositories);
+        repositorySystem.resolve(artifactResolutionRequest);
+
+        this.installGit(artifact);
+    }
+
+    /**
+     * Install Git extracts git to .m2/repository under PortableGit.
+     *
+     * @param artifact
+     *            the maven artifact representation for git
+     */
+    private void installGit(final Artifact artifact) {
+        File currentFile = null;
+        try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(
+                new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
+            TarArchiveEntry entry;
+            while ((entry = tarArchiveInputStream.getNextTarEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                currentFile = new File(localRepository.getBasedir(), entry.getName());
+                File parent = currentFile.getParentFile();
+                if (!parent.exists()) {
+                    parent.mkdirs();
+                }
+                Files.copy(tarArchiveInputStream, currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException e) {
+            getLog().error("", e);
+        }
+
+        try {
+            if (currentFile != null) {
+                // Extract Portable Git
+                getLog().debug("Extract Portable Git");
+                execute(Arrays.asList(currentFile.toPath().toString(), "-y"), !ATTACH_ARTIFACT);
+                gitPath = localRepository.getBasedir() + "/PortableGit/usr/bin/";
+            }
+        } catch (IOException e) {
+            getLog().error("", e);
+        } catch (InterruptedException e) {
+            getLog().error("", e);
+            // restore interruption status of the corresponding thread
+            Thread.currentThread().interrupt();
         }
     }
 

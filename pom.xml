@@ -81,6 +81,9 @@
         <plexus-utils.version>3.3.0</plexus-utils.version>
         <shared-utils.version>3.3.3</shared-utils.version>
 
+        <!-- Compress -->
+        <compress.version>1.20</compress.version>
+
         <!-- Guava -->
         <guava.version>30.1-jre</guava.version>
 
@@ -131,6 +134,14 @@
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
             <version>${plexus-utils.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Commons Compress -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${compress.version}</version>
             <scope>compile</scope>
         </dependency>
 

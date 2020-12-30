@@ -15,6 +15,8 @@ With help of Cygwin, git for windows or other tools supplying bash for windows, 
 
 To use in windows, configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin.
 
+Alternatively in windows, if bash is not found on the path, the plugin will download the portable copy of git-for-windows and install it into maven home under 'PortableGit' and will use that version to run necessary bash steps.
+
 See [makeself](https://github.com/megastep/makeself)
 
 Example Usage
@@ -43,6 +45,7 @@ Example Usage
 
 *** Special notes: ***
 
+- Use version 1.3.0 or better for full windows support without having to pre-install bash.
 - Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
 - Use version 1.1.4 to avoid dead lock when buffer is overrun.
 - For jdk 7 usage, use version 1.1.5
