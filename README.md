@@ -13,6 +13,10 @@ Makeself is a self-extracting archiving tool for Unix systems, in 100% shell scr
 
 With help of Cygwin, git for windows or other tools supplying bash for windows, this tool is fully functional with windows.
 
+## Windows ##
+
+[12/30/2020] Original windows logic to confirm bash is currently disabled as it detects incorrectly on recent windows 10.  Instead for windows, it will always use the portable git distribution.
+
 To use in windows, configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin.
 
 Alternatively in windows, if bash is not found on the path, the plugin will download the portable copy of git-for-windows and install it into maven home under 'PortableGit' and will use that version to run necessary bash steps.
