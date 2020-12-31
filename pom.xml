@@ -332,7 +332,7 @@
                                     <goal>wget</goal>
                                 </goals>
                                 <configuration>
-                                    <url>https://github.com/megastep/makeself/blob/master/makeself.sh</url>
+                                    <url>https://raw.githubusercontent.com/megastep/makeself/master/makeself.sh</url>
                                     <outputDirectory>${project.basedir}/src/assembly/makeself</outputDirectory>
                                     <skipCache>true</skipCache>
                                     <overwrite>true</overwrite>
@@ -345,7 +345,7 @@
                                     <goal>wget</goal>
                                 </goals>
                                 <configuration>
-                                    <url>https://github.com/megastep/makeself/blob/master/makeself-header.sh</url>
+                                    <url>https://raw.githubusercontent.com/megastep/makeself/master/makeself-header.sh</url>
                                     <outputDirectory>${project.basedir}/src/assembly/makeself</outputDirectory>
                                     <skipCache>true</skipCache>
                                     <overwrite>true</overwrite>
