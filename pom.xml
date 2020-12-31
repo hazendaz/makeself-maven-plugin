@@ -64,9 +64,9 @@
     </ciManagement>
     <distributionManagement>
         <site>
-            <id>gh-pages</id>
+            <id>gh-pages-scm</id>
             <name>GitHub Pages</name>
-            <url>github:https://hazendaz.github.io/makeself-maven-plugin/</url>
+            <url>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</url></url>
         </site>
     </distributionManagement>
 
