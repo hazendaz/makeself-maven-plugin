@@ -14,7 +14,7 @@ SHA="$SHAsum"
 TMPROOT=\${TMPDIR:=/tmp}
 USER_PWD="\$PWD"
 export USER_PWD
-ARCHIVE_DIR=`dirname \$0`
+ARCHIVE_DIR=\`dirname "\$0"\`
 export ARCHIVE_DIR
 
 label="$LABEL"
@@ -25,6 +25,7 @@ licensetxt="$LICENSE"
 helpheader='$HELPHEADER'
 targetdir="$archdirname"
 filesizes="$filesizes"
+totalsize="$totalsize"
 keep="$KEEP"
 nooverwrite="$NOOVERWRITE"
 quiet="n"
@@ -96,9 +97,14 @@ MS_dd()
 {
     blocks=\`expr \$3 / 1024\`
     bytes=\`expr \$3 % 1024\`
-    dd if="\$1" ibs=\$2 skip=1 obs=1024 conv=sync 2> /dev/null | \\
-    { test \$blocks -gt 0 && dd ibs=1024 obs=1024 count=\$blocks ; \\
-      test \$bytes  -gt 0 && dd ibs=1 obs=1024 count=\$bytes ; } 2> /dev/null
+    # Test for ibs, obs and conv feature
+    if dd if=/dev/zero of=/dev/null count=1 ibs=512 obs=512 conv=sync 2> /dev/null; then
+        dd if="\$1" ibs=\$2 skip=1 obs=1024 conv=sync 2> /dev/null | \\
+        { test \$blocks -gt 0 && dd ibs=1024 obs=1024 count=\$blocks ; \\
+          test \$bytes  -gt 0 && dd ibs=1 obs=1024 count=\$bytes ; } 2> /dev/null
+    else
+        dd if="\$1" bs=\$2 skip=1 2> /dev/null
+    fi
 }
 
 MS_dd_Progress()
@@ -162,7 +168,7 @@ MS_Help()
   --confirm             Ask before running embedded script
   --quiet               Do not print anything except error messages
   --accept              Accept the license
-  --noexec              Do not run embedded script
+  --noexec              Do not run embedded script (implies --noexec-cleanup)
   --noexec-cleanup      Do not run embedded cleanup script
   --keep                Do not erase target directory after running
                         the embedded script
@@ -201,6 +207,11 @@ MS_Check()
 		MS_Printf "Verifying archive integrity..."
     fi
     offset=\`head -n "\$skip" "\$1" | wc -c | tr -d " "\`
+    fsize=\`cat "\$1" | wc -c | tr -d " "\`
+    if test \$totalsize -ne \`expr \$fsize - \$offset\`; then
+        echo " Unexpected archive size." >&2
+        exit 2
+    fi
     verb=\$2
     i=1
     for s in \$filesizes
@@ -218,7 +229,7 @@ MS_Check()
 				if test x"\$shasum" != x"\$sha"; then
 					echo "Error in SHA256 checksums: \$shasum is different from \$sha" >&2
 					exit 2
-				else
+				elif test x"\$quiet" = xn; then
 					MS_Printf " SHA256 checksums are OK." >&2
 				fi
 				crc="0000000000";
@@ -236,7 +247,7 @@ MS_Check()
 				if test x"\$md5sum" != x"\$md5"; then
 					echo "Error in MD5 checksums: \$md5sum is different from \$md5" >&2
 					exit 2
-				else
+				elif test x"\$quiet" = xn; then
 					MS_Printf " MD5 checksums are OK." >&2
 				fi
 				crc="0000000000"; verb=n
@@ -246,11 +257,11 @@ MS_Check()
 			test x"\$verb" = xy && echo " \$1 does not contain a CRC checksum." >&2
 		else
 			sum1=\`MS_dd_Progress "\$1" \$offset \$s | CMD_ENV=xpg4 cksum | awk '{print \$1}'\`
-			if test x"\$sum1" = x"\$crc"; then
-				MS_Printf " CRC checksums are OK." >&2
-			else
+			if test x"\$sum1" != x"\$crc"; then
 				echo "Error in checksums: \$sum1 is different from \$crc" >&2
-				exit 2;
+				exit 2
+			elif test x"\$quiet" = xn; then
+				MS_Printf " CRC checksums are OK." >&2
 			fi
 		fi
 		i=\`expr \$i + 1\`
@@ -337,7 +348,7 @@ do
 	    echo Encryption: $ENCRYPT
 	fi
 	echo Date of packaging: $DATE
-	echo Built with Makeself version $MS_VERSION on $OSTYPE
+	echo Built with Makeself version $MS_VERSION
 	echo Build command was: "$MS_COMMAND"
 	if test x"\$script" != x; then
 	    echo Script run after extraction:
@@ -366,6 +377,7 @@ do
 	echo NOOVERWRITE=$NOOVERWRITE
 	echo COMPRESS=$COMPRESS
 	echo filesizes=\"\$filesizes\"
+    echo totalsize=\"\$totalsize\"
 	echo CRCsum=\"\$CRCsum\"
 	echo MD5sum=\"\$MD5sum\"
 	echo SHAsum=\"\$SHAsum\"
@@ -411,6 +423,7 @@ EOLSM
 	;;
 	--noexec)
 	script=""
+    cleanup_script=""
 	shift
 	;;
     --noexec-cleanup)

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Makeself version 2.3.x
+# Makeself version 2.4.x
 #  by Stephane Peter <megastep@megastep.org>
 #
 # Utility to create self-extracting tar.gz archives.
@@ -68,8 +68,8 @@
 # - 2.2.0 : Many bugfixes, updates and contributions from users. Check out the project page on Github for the details.
 # - 2.3.0 : Option to specify packaging date to enable byte-for-byte reproducibility. (Marc Pawlowsky)
 # - 2.4.0 : Optional support for SHA256 checksums in archives.
-# - 2.4.1 : ?
 # - 2.4.2 : Add support for threads for several compressors. (M. Limber)
+#           Added zstd support.
 #
 # (C) 1998-2020 by Stephane Peter <megastep@megastep.org>
 #
@@ -78,7 +78,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.4.2.prerelease.2020-04-03
+MS_VERSION=2.4.3.prerelease.2020-12-31
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -97,21 +97,22 @@ fi
 
 MS_Usage()
 {
-    echo "Usage: $0 [params] archive_dir file_name label startup_script [args]"
-    echo "params can be one or more of the following :"
+    echo "Usage: $0 [args] archive_dir file_name label startup_script [script_args]"
+    echo "args can be one or more of the following :"
     echo "    --version | -v     : Print out Makeself version number and exit"
     echo "    --help | -h        : Print out this help message"
     echo "    --tar-quietly      : Suppress verbose output from the tar command"
     echo "    --quiet | -q       : Do not print any messages other than errors."
     echo "    --gzip             : Compress using gzip (default if detected)"
     echo "    --pigz             : Compress with pigz"
+    echo "    --zstd             : Compress with zstd"
     echo "    --bzip2            : Compress using bzip2 instead of gzip"
     echo "    --pbzip2           : Compress using pbzip2 instead of gzip"
     echo "    --xz               : Compress using xz instead of gzip"
     echo "    --lzo              : Compress using lzop instead of gzip"
     echo "    --lz4              : Compress using lz4 instead of gzip"
     echo "    --compress         : Compress using the UNIX 'compress' command"
-    echo "    --complevel lvl    : Compression level for gzip pigz xz lzo lz4 bzip2 and pbzip2 (default 9)"
+    echo "    --complevel lvl    : Compression level for gzip pigz zstd xz lzo lz4 bzip2 and pbzip2 (default 9)"
     echo "    --threads thds     : Number of threads to be used by compressors that support parallelization."
     echo "                         Omit to use compressor's default. Most useful (and required) for opting"
     echo "                         into xz's threading, usually with '--threads=0' for all available cores."
@@ -172,10 +173,13 @@ MS_Usage()
 }
 
 # Default settings
-if type gzip > /dev/null 2>&1; then
+if type gzip >/dev/null 2>&1; then
     COMPRESS=gzip
+elif type compress >/dev/null 2>&1; then
+    COMPRESS=compress
 else
-    COMPRESS=Unix
+    echo "ERROR: missing commands: gzip, compress" >&2
+    MS_Usage
 fi
 ENCRYPT=n
 PASSWD=""
@@ -233,6 +237,10 @@ do
     	COMPRESS=pigz
     	shift
     	;;
+    --zstd)
+    	COMPRESS=zstd
+    	shift
+    	;;
     --xz)
 	COMPRESS=xz
 	shift
@@ -246,7 +254,7 @@ do
 	shift
 	;;
     --compress)
-	COMPRESS=Unix
+	COMPRESS=compress
 	shift
 	;;
     --base64)
@@ -439,7 +447,7 @@ archname="$2"
 if test "$QUIET" = "y" || test "$TAR_QUIETLY" = "y"; then
     if test "$TAR_ARGS" = "rvf"; then
 	    TAR_ARGS="rf"
-    elif test "$TAR_ARGS" = "rvhf";then
+    elif test "$TAR_ARGS" = "rvhf"; then
 	    TAR_ARGS="rhf"
     fi
 fi
@@ -456,6 +464,7 @@ if test "$APPEND" = y; then
 	    exit 1
     else
 	    eval "$OLDENV"
+	    OLDSKIP=`expr $SKIP + 1`
     fi
 else
     if test "$KEEP" = n -a $# = 3; then
@@ -500,6 +509,10 @@ pigz)
     fi
     GUNZIP_CMD="gzip -cd"
     ;;
+zstd)
+    GZIP_CMD="zstd -$COMPRESS_LEVEL"
+    GUNZIP_CMD="zstd -cd"
+    ;;
 pbzip2)
     GZIP_CMD="pbzip2 -c$COMPRESS_LEVEL"
     if test $THREADS -ne $DEFAULT_THREADS; then # Leave as the default if threads not indicated
@@ -541,9 +554,9 @@ gpg-asymmetric)
     GUNZIP_CMD="gpg --yes -d"
     ENCRYPT="gpg"
     ;;
-Unix)
-    GZIP_CMD="compress -cf"
-    GUNZIP_CMD="exec 2>&-; uncompress -c || test \\\$? -eq 2 || gzip -cd"
+compress)
+    GZIP_CMD="compress -fc"
+    GUNZIP_CMD="(type compress >/dev/null 2>&1 && compress -fcd || gzip -cd)"
     ;;
 none)
     GZIP_CMD="cat"
@@ -578,22 +591,21 @@ if test -f "$HEADER"; then
 	archname="$tmpfile"
 	# Generate a fake header to count its lines
 	SKIP=0
-    . "$HEADER"
-    SKIP=`cat "$tmpfile" |wc -l`
+	. "$HEADER"
+	SKIP=`cat "$tmpfile" |wc -l`
 	# Get rid of any spaces
 	SKIP=`expr $SKIP`
 	rm -f "$tmpfile"
-    if test "$QUIET" = "n";then
-    	echo "Header is $SKIP lines long" >&2
-    fi
-
+	if test "$QUIET" = "n"; then
+		echo "Header is $SKIP lines long" >&2
+	fi
 	archname="$oldarchname"
 else
     echo "Unable to open header file: $HEADER" >&2
     exit 1
 fi
 
-if test "$QUIET" = "n";then 
+if test "$QUIET" = "n"; then
     echo
 fi
 
@@ -620,10 +632,26 @@ fi
 tmparch="${TMPDIR:-/tmp}/mkself$$.tar"
 (
     if test "$APPEND" = "y"; then
-        tail -n "+$OLDSKIP" "$archname" | $GUNZIP_CMD > "$tmparch"
+        tail -n "+$OLDSKIP" "$archname" | eval "$GUNZIP_CMD" > "$tmparch"
     fi
     cd "$archdir"
-    find . ! -type d -o -links 2 \
+    # "Determining if a directory is empty"
+    # https://www.etalabs.net/sh_tricks.html
+    find . \
+        \( \
+        ! -type d \
+        -o \
+        \( -links 2 -exec sh -c '
+            is_empty () (
+                cd "$1"
+                set -- .[!.]* ; test -f "$1" && return 1
+                set -- ..?* ; test -f "$1" && return 1
+                set -- * ; test -f "$1" && return 1
+                return 0
+            )
+            is_empty "$0"' {} \; \
+        \) \
+        \) -print \
         | LC_ALL=C sort \
         | sed 's/./\\&/g' \
         | xargs tar $TAR_EXTRA -$TAR_ARGS "$tmparch"
@@ -657,12 +685,12 @@ md5sum=00000000000000000000000000000000
 crcsum=0000000000
 
 if test "$NOCRC" = y; then
-	if test "$QUIET" = "n";then
+	if test "$QUIET" = "n"; then
 		echo "skipping crc at user request"
 	fi
 else
 	crcsum=`CMD_ENV=xpg4 cksum < "$tmpfile" | sed -e 's/ /Z/' -e 's/	/Z/' | cut -dZ -f1`
-	if test "$QUIET" = "n";then
+	if test "$QUIET" = "n"; then
 		echo "CRC: $crcsum"
 	fi
 fi
@@ -684,7 +712,7 @@ if test "$SHA256" = y; then
 	fi
 fi
 if test "$NOMD5" = y; then
-	if test "$QUIET" = "n";then
+	if test "$QUIET" = "n"; then
 		echo "Skipping md5sum at user request"
 	fi
 else
@@ -701,15 +729,21 @@ else
 			MD5_ARG="-a md5"
 		fi
 		md5sum=`eval "$MD5_PATH $MD5_ARG" < "$tmpfile" | cut -b-32`
-		if test "$QUIET" = "n";then
+		if test "$QUIET" = "n"; then
 			echo "MD5: $md5sum"
 		fi
 	else
-		if test "$QUIET" = "n";then
+		if test "$QUIET" = "n"; then
 			echo "MD5: none, MD5 command not found"
 		fi
 	fi
 fi
+
+totalsize=0
+for size in $fsize;
+do
+    totalsize=`expr $totalsize + $size`
+done
 
 if test "$APPEND" = y; then
     mv "$archname" "$archname".bak || exit
@@ -726,7 +760,7 @@ if test "$APPEND" = y; then
 
     chmod +x "$archname"
     rm -f "$archname".bak
-    if test "$QUIET" = "n";then
+    if test "$QUIET" = "n"; then
     	echo "Self-extractable archive \"$archname\" successfully updated."
     fi
 else
@@ -739,12 +773,12 @@ else
     . "$HEADER"
 
     # Append the compressed tar data after the stub
-    if test "$QUIET" = "n";then
+    if test "$QUIET" = "n"; then
     	echo
     fi
     cat "$tmpfile" >> "$archname"
     chmod +x "$archname"
-    if test "$QUIET" = "n";then
+    if test "$QUIET" = "n"; then
     	echo Self-extractable archive \"$archname\" successfully created.
     fi
 fi
