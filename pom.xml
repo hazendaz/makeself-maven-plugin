@@ -75,6 +75,7 @@
         <checkstyle.config>checkstyle-4space.xml</checkstyle.config>
 
         <!-- Maven Artifacts -->
+        <download-plugin.version>1.6.0</download-plugin.version>
         <invoker-plugin.version>3.2.1</invoker-plugin.version>
         <maven.version>3.6.3</maven.version>
         <maven-plugin.version>3.6.0</maven-plugin.version>
@@ -309,6 +310,48 @@
                                 </configuration>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>update-makeself</id>
+            <build>
+                <plugins>
+                    <!-- Download -->
+                    <plugin>
+                        <groupId>com.googlecode.maven-download-plugin</groupId>
+                        <artifactId>download-maven-plugin</artifactId>
+                        <version>${download-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>download-makeself</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>wget</goal>
+                                </goals>
+                                <configuration>
+                                    <url>https://github.com/megastep/makeself/blob/master/makeself.sh</url>
+                                    <outputDirectory>${project.basedir}/src/assembly/makeself</outputDirectory>
+                                    <skipCache>true</skipCache>
+                                    <overwrite>true</overwrite>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>download-makeself-header</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>wget</goal>
+                                </goals>
+                                <configuration>
+                                    <url>https://github.com/megastep/makeself/blob/master/makeself-header.sh</url>
+                                    <outputDirectory>${project.basedir}/src/assembly/makeself</outputDirectory>
+                                    <skipCache>true</skipCache>
+                                    <overwrite>true</overwrite>
+                                </configuration>
+                            </execution>
+                       </executions>
                     </plugin>
                 </plugins>
             </build>
