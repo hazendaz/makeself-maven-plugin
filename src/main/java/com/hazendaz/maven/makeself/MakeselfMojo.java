@@ -550,7 +550,7 @@ public class MakeselfMojo extends AbstractMojo {
         // Add portable git to windows environment
         if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
-            envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin/" + ";" + envs.get("PATH"));
+            envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin" + ";" + envs.get("PATH"));
             getLog().debug("Environment Variables: " + envs);
         }
 
