@@ -75,6 +75,10 @@ To check the files are of right permissions
 
 *** Note: *** It seems no matter the change makself-header.sh wants to stay 644.  Regardless, with all other protections this is handled on *nix now and line endings are addressed.
 
+## Integration Tests ##
+
+mvn -Prun-it clean install
+
 ## Makeself Update ##
 
 Run 'mvn clean -Pupdate-makeself' and review results / commit / code as needed.
