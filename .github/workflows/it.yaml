@@ -22,7 +22,13 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        java: [11]
+      fail-fast: false
+      max-parallel: 4
     name: Integration Tests
 
     steps:
@@ -30,8 +36,8 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: ${{ matrix.java }}
       - name: Build Setup
         run: ./mvnw clean install
       - name: Integration Test with Maven
-        run: ./mvnw -Prun-it clean install
+        run: ./mvnw -Prun-it clean install -B
