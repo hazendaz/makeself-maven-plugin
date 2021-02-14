@@ -1,5 +1,5 @@
 /**
- *    Copyright 2011-2020 the original author or authors.
+ *    Copyright 2011-2021 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -550,8 +550,13 @@ public class MakeselfMojo extends AbstractMojo {
         // Add portable git to windows environment
         if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
-            envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin" + ";" + envs.get("PATH"));
-            getLog().debug("Environment Variables: " + envs);
+            if (envs.get("PATH") == null) {
+                envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin");
+                getLog().debug("Environment Variables: " + envs);
+            } else if (!envs.get("PATH").contains(gitPath)) {
+                envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin" + ";" + envs.get("PATH"));
+                getLog().debug("Environment Variables: " + envs);
+            }
         }
 
         // Create Process
