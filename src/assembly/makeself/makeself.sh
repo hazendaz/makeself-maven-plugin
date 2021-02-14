@@ -8,7 +8,7 @@
 # a small Shell script stub that uncompresses the archive to a temporary
 # directory and then executes a given script from withing that directory.
 #
-# Makeself home page: http://makeself.io/
+# Makeself home page: https://makeself.io/
 #
 # Version 2.0 is a rewrite of version 1.0 to make the code easier to read and maintain.
 #
@@ -70,15 +70,16 @@
 # - 2.4.0 : Optional support for SHA256 checksums in archives.
 # - 2.4.2 : Add support for threads for several compressors. (M. Limber)
 #           Added zstd support.
+# - 2.4.3 : Make explicit POSIX tar archives for increased compatibility.
 #
-# (C) 1998-2020 by Stephane Peter <megastep@megastep.org>
+# (C) 1998-2021 by Stephane Peter <megastep@megastep.org>
 #
 # This software is released under the terms of the GNU GPL version 2 and above
 # Please read the license at http://www.gnu.org/copyleft/gpl.html
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.4.3.prerelease.2020-12-31
+MS_VERSION=2.4.3
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -654,7 +655,7 @@ tmparch="${TMPDIR:-/tmp}/mkself$$.tar"
         \) -print \
         | LC_ALL=C sort \
         | sed 's/./\\&/g' \
-        | xargs tar $TAR_EXTRA -$TAR_ARGS "$tmparch"
+        | xargs tar $TAR_EXTRA --posix -$TAR_ARGS "$tmparch"
 ) || {
     echo "ERROR: failed to create temporary archive: $tmparch"
     rm -f "$tmparch" "$tmpfile"
