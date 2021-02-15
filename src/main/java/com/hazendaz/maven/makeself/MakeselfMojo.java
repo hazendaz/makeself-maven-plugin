@@ -555,7 +555,7 @@ public class MakeselfMojo extends AbstractMojo {
             if (envs.get("Path") != null) {
                 envs.put("Path", localRepository.getBasedir() + "/PortableGit/usr/bin;" + envs.get("Path"));
                 getLog().debug("Environment Path Variable: " + envs.get("Path"));
-                // Windows bash shows "PATH" in this case
+                // Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'
             } else if (envs.get("PATH") != null) {
                 envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin;"
                         + envs.get("PATH").replace("Program Files", "\"Program Files\""));
