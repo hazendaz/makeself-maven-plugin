@@ -634,8 +634,7 @@ public class MakeselfMojo extends AbstractMojo {
      * Check Git Setup.
      */
     private void checkGitSetup() {
-        // Windows detection for 'bash' output is questionable and not detecting well for windows 10, just use onboard
-        // git for now.
+        // Extract Portable Git
         this.extractPortableGit();
     }
 
