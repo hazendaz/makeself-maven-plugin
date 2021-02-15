@@ -551,6 +551,7 @@ public class MakeselfMojo extends AbstractMojo {
         if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
             if (envs.get("PATH") == null) {
+                getLog().debug("Path was null");
                 envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin;");
                 getLog().debug("Environment Path Variable: " + envs.get("PATH"));
             } else {
