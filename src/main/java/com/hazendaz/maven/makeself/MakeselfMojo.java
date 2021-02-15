@@ -551,11 +551,11 @@ public class MakeselfMojo extends AbstractMojo {
         if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
             if (envs.get("PATH") == null) {
-                envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin");
-                getLog().debug("Environment Variables: " + envs);
-            } else if (!envs.get("PATH").contains(gitPath)) {
-                envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin" + ";" + envs.get("PATH"));
-                getLog().debug("Environment Variables: " + envs);
+                envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin;");
+                getLog().debug("Environment Path Variable: " + envs.get("PATH"));
+            } else {
+                envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin;" + envs.get("PATH"));
+                getLog().debug("Environment Path Variable: " + envs.get("PATH"));
             }
         }
 
