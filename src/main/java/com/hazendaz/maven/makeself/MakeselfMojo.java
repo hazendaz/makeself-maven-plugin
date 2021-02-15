@@ -643,7 +643,7 @@ public class MakeselfMojo extends AbstractMojo {
      */
     private void extractPortableGit() {
         if (new File(localRepository.getBasedir() + "/PortableGit").exists()) {
-            getLog().debug("Existing 'PortableGit' folder found at {}" + localRepository.getBasedir());
+            getLog().debug("Existing 'PortableGit' folder found at " + localRepository.getBasedir());
             gitPath = localRepository.getBasedir() + "/PortableGit/usr/bin/";
             return;
         }
