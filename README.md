@@ -50,10 +50,10 @@ Example Usage
 *** Special notes: ***
 
 - Use version 1.3.0 or better for full windows support without having to pre-install bash.
-- Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
-- Use version 1.1.4 to avoid dead lock when buffer is overrun.
-- For jdk 7 usage, use version 1.1.5
 - For jdk 8 and on usage, use version 1.2.0
+- For jdk 7 usage, use version 1.1.5
+- Use version 1.1.4 to avoid dead lock when buffer is overrun.
+- Use version 1.0.0.beta3 or better for *nix support.  Earlier versions only worked in windows.
 
 ## Contributor Consideration ##
 
