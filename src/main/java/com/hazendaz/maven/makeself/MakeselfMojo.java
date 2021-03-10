@@ -646,6 +646,7 @@ public class MakeselfMojo extends AbstractMojo {
      * Extract Portable Git.
      */
     private void extractPortableGit() {
+        // TODO JWL 3/9/2021 This does not clear off old cached install
         if (new File(localRepository.getBasedir() + "/PortableGit").exists()) {
             getLog().debug("Existing 'PortableGit' folder found at " + localRepository.getBasedir());
             gitPath = localRepository.getBasedir() + "/PortableGit/usr/bin/";
