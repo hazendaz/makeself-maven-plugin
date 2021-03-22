@@ -655,7 +655,7 @@ public class MakeselfMojo extends AbstractMojo {
 
         final String groupId = "com.github.hazendaz.git";
         final String artifactId = "git-for-windows";
-        final String version = "2.30.2.1";
+        final String version = "2.31.0.1";
         final String type = "tar.gz";
         final String classifier = "portable";
         Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, type,
