@@ -17,6 +17,27 @@
  */
 package com.hazendaz.maven.makeself;
 
+/**
+ * The Class PortableGit.
+ */
 public class PortableGit {
+
+    /** The Constant GROUP_ID. */
+    protected static final String GROUP_ID = "com.github.hazendaz.git";
+
+    /** The Constant ARTIFACT_ID. */
+    protected static final String ARTIFACT_ID = "git-for-windows";
+
+    /** The Constant VERSION. */
+    protected static final String VERSION = "2.32.0.1";
+
+    /** The Constant TYPE. */
+    protected static final String TYPE = "tar.gz";
+
+    /** The Constant CLASSIFIER. */
+    protected static final String CLASSIFIER = "portable";
+
+    /** The Constant NAME. */
+    protected static final String NAME = "PortableGit";
 
 }

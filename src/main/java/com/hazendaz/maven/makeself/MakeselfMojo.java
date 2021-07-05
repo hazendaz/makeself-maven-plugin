@@ -551,14 +551,16 @@ public class MakeselfMojo extends AbstractMojo {
         if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
             getLog().debug("Environment Variables: " + envs);
+            final String location = localRepository.getBasedir() + File.separator + PortableGit.NAME + File.separator
+                    + PortableGit.VERSION;
             // Windows cmd/powershell shows "Path" in this case
             if (envs.get("Path") != null) {
-                envs.put("Path", localRepository.getBasedir() + "/PortableGit/usr/bin;" + envs.get("Path"));
+                envs.put("Path", location + "/usr/bin;" + envs.get("Path"));
                 getLog().debug("Environment Path Variable: " + envs.get("Path"));
                 // Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'
             } else if (envs.get("PATH") != null) {
-                envs.put("PATH", localRepository.getBasedir() + "/PortableGit/usr/bin;"
-                        + envs.get("PATH").replace("Program Files", "\"Program Files\""));
+                envs.put("PATH",
+                        location + "/usr/bin;" + envs.get("PATH").replace("Program Files", "\"Program Files\""));
                 getLog().debug("Environment Path Variable: " + envs.get("PATH"));
             }
         }
@@ -646,20 +648,16 @@ public class MakeselfMojo extends AbstractMojo {
      * Extract Portable Git.
      */
     private void extractPortableGit() {
-        // TODO JWL 3/9/2021 This does not clear off old cached install
-        if (new File(localRepository.getBasedir() + "/PortableGit").exists()) {
-            getLog().debug("Existing 'PortableGit' folder found at " + localRepository.getBasedir());
-            gitPath = localRepository.getBasedir() + "/PortableGit/usr/bin/";
+        final String location = localRepository.getBasedir() + File.separator + PortableGit.NAME + File.separator
+                + PortableGit.VERSION;
+        if (new File(location).exists()) {
+            getLog().debug("Existing 'PortableGit' folder found at " + location);
+            gitPath = location + "/usr/bin/";
             return;
         }
 
-        final String groupId = "com.github.hazendaz.git";
-        final String artifactId = "git-for-windows";
-        final String version = "2.32.0.1";
-        final String type = "tar.gz";
-        final String classifier = "portable";
-        Artifact artifact = repositorySystem.createArtifactWithClassifier(groupId, artifactId, version, type,
-                classifier);
+        Artifact artifact = repositorySystem.createArtifactWithClassifier(PortableGit.GROUP_ID, PortableGit.ARTIFACT_ID,
+                PortableGit.VERSION, PortableGit.TYPE, PortableGit.CLASSIFIER);
 
         final ArtifactResolutionRequest artifactResolutionRequest = new ArtifactResolutionRequest();
         artifactResolutionRequest.setArtifact(artifact);
@@ -668,7 +666,7 @@ public class MakeselfMojo extends AbstractMojo {
         artifactResolutionRequest.setRemoteRepositories(remoteRepositories);
         repositorySystem.resolve(artifactResolutionRequest);
 
-        this.installGit(artifact);
+        this.installGit(artifact, location);
     }
 
     /**
@@ -676,8 +674,10 @@ public class MakeselfMojo extends AbstractMojo {
      *
      * @param artifact
      *            the maven artifact representation for git
+     * @param location
+     *            the location in maven repository to store portable git
      */
-    private void installGit(final Artifact artifact) {
+    private void installGit(final Artifact artifact, final String location) {
         File currentFile = null;
         try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(
                 new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
@@ -701,8 +701,8 @@ public class MakeselfMojo extends AbstractMojo {
             if (currentFile != null) {
                 // Extract Portable Git
                 getLog().debug("Extract Portable Git");
-                execute(Arrays.asList(currentFile.toPath().toString(), "-y"), !ATTACH_ARTIFACT);
-                gitPath = localRepository.getBasedir() + "/PortableGit/usr/bin/";
+                execute(Arrays.asList(currentFile.toPath().toString(), "-y", "-o " + location), !ATTACH_ARTIFACT);
+                gitPath = location + "/usr/bin/";
             }
         } catch (IOException e) {
             getLog().error("", e);
