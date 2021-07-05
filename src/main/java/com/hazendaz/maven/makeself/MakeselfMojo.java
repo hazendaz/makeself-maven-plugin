@@ -690,7 +690,8 @@ public class MakeselfMojo extends AbstractMojo {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                currentFile = new File(localRepository.getBasedir() + "PortableGit", entry.getName());
+                currentFile = new File(localRepository.getBasedir() + File.separator + PortableGit.NAME,
+                        entry.getName());
                 File parent = currentFile.getParentFile();
                 if (!parent.exists()) {
                     parent.mkdirs();
