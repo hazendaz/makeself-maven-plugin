@@ -681,7 +681,8 @@ public class MakeselfMojo extends AbstractMojo {
     private void installGit(final Artifact artifact, final String location) {
         File currentFile = null;
 
-        // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into .m2/repository/PortableGit
+        // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into
+        // .m2/repository/PortableGit
         try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(
                 new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
             TarArchiveEntry entry;
