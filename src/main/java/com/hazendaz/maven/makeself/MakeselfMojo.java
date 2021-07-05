@@ -681,7 +681,7 @@ public class MakeselfMojo extends AbstractMojo {
     private void installGit(final Artifact artifact, final String location) {
         File currentFile = null;
 
-        // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into root
+        // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into .m2/repository/PortableGit
         try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(
                 new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
             TarArchiveEntry entry;
@@ -689,7 +689,7 @@ public class MakeselfMojo extends AbstractMojo {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                currentFile = new File(localRepository.getBasedir(), entry.getName());
+                currentFile = new File(localRepository.getBasedir() + "PortableGit", entry.getName());
                 File parent = currentFile.getParentFile();
                 if (!parent.exists()) {
                     parent.mkdirs();
