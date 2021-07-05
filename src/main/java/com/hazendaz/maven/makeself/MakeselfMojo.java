@@ -656,8 +656,9 @@ public class MakeselfMojo extends AbstractMojo {
             return;
         }
 
-        Artifact artifact = repositorySystem.createArtifactWithClassifier(PortableGit.GROUP_ID, PortableGit.ARTIFACT_ID,
-                PortableGit.VERSION, PortableGit.TYPE, PortableGit.CLASSIFIER);
+        getLog().info("Loading portable git");
+        final Artifact artifact = repositorySystem.createArtifactWithClassifier(PortableGit.GROUP_ID,
+                PortableGit.ARTIFACT_ID, PortableGit.VERSION, PortableGit.TYPE, PortableGit.CLASSIFIER);
 
         final ArtifactResolutionRequest artifactResolutionRequest = new ArtifactResolutionRequest();
         artifactResolutionRequest.setArtifact(artifact);
