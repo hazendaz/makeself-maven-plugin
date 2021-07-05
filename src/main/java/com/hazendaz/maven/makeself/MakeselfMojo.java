@@ -680,6 +680,8 @@ public class MakeselfMojo extends AbstractMojo {
      */
     private void installGit(final Artifact artifact, final String location) {
         File currentFile = null;
+
+        // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into root
         try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(
                 new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
             TarArchiveEntry entry;
@@ -692,6 +694,7 @@ public class MakeselfMojo extends AbstractMojo {
                 if (!parent.exists()) {
                     parent.mkdirs();
                 }
+                getLog().debug("Current file: " + currentFile.getName());
                 Files.copy(tarArchiveInputStream, currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
@@ -702,7 +705,7 @@ public class MakeselfMojo extends AbstractMojo {
             if (currentFile != null) {
                 // Extract Portable Git
                 getLog().debug("Extract Portable Git");
-                execute(Arrays.asList(currentFile.toPath().toString(), "-y", "-o " + location), !ATTACH_ARTIFACT);
+                execute(Arrays.asList(currentFile.toPath().toString(), "-y", "-o", location), !ATTACH_ARTIFACT);
                 gitPath = location + "/usr/bin/";
             }
         } catch (IOException e) {
