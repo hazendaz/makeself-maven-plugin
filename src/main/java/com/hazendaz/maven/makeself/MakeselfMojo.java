@@ -342,7 +342,7 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean sha256;
 
     /**
-     * -sign passphrase  : Signature private key to sign the package with.
+     * -sign passphrase : Signature private key to sign the package with.
      */
     @Parameter(property = "sign")
     private String sign;
@@ -1003,7 +1003,7 @@ public class MakeselfMojo extends AbstractMojo {
             args.add(untarExtraOpt);
         }
 
-        // --sign passphrase  : Signature private key to sign the package with
+        // --sign passphrase : Signature private key to sign the package with
         if (sign != null) {
             args.add("--sign");
             args.add(sign);
