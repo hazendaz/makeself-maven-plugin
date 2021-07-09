@@ -17,6 +17,11 @@
  */
 package com.hazendaz.maven.makeself;
 
+/**
+ * The Class ProcessUtils.
+ */
 public class ProcessUtils {
+
+    // TODO Future usage to cleanup build setup
 
 }
