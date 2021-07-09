@@ -356,6 +356,13 @@ public class MakeselfMojo extends AbstractMojo {
     private String gpgExtraOpt;
 
     /**
+     * --tar-format opt :Specify the tar archive format (default is ustar); you may use any value accepted by your tar
+     * command (such as posix, v7, etc).
+     */
+    @Parameter(property = "tarFormatOpt")
+    private String tarFormatOpt;
+
+    /**
      * --tar-extra opt : Append more options to the tar command line.
      *
      * <p>
@@ -967,6 +974,13 @@ public class MakeselfMojo extends AbstractMojo {
         if (gpgExtraOpt != null) {
             args.add("--gpg-extra");
             args.add(gpgExtraOpt);
+        }
+
+        // --tar-format opt : Specify the tar archive format (default is ustar); you may use any value accepted by your
+        // tar command (such as posix, v7, etc).
+        if (tarFormatOpt != null) {
+            args.add("--tar-format");
+            args.add(tarFormatOpt);
         }
 
         // --tar-extra opt : Append more options to the tar command line.
