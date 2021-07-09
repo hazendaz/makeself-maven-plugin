@@ -342,6 +342,12 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean sha256;
 
     /**
+     * -sign passphrase  : Signature private key to sign the package with.
+     */
+    @Parameter(property = "sign")
+    private String sign;
+
+    /**
      * --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
      * describing a software package in a way that is easily parseable. The LSM entry can then be later retrieved using
      * the --lsm argument to the archive. An example of a LSM file is provided with Makeself.
@@ -995,6 +1001,12 @@ public class MakeselfMojo extends AbstractMojo {
         if (untarExtraOpt != null) {
             args.add("--untar-extra");
             args.add(untarExtraOpt);
+        }
+
+        // --sign passphrase  : Signature private key to sign the package with
+        if (sign != null) {
+            args.add("--sign");
+            args.add(sign);
         }
 
         // --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
