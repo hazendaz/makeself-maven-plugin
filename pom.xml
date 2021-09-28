@@ -86,7 +86,7 @@
         <compress.version>1.21</compress.version>
 
         <!-- Guava -->
-        <guava.version>31.0-jre</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
 
         <!-- Junit -->
         <junit.version>5.8.1</junit.version>
