@@ -80,7 +80,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.4.5.release.2021-06-23
+MS_VERSION=2.4.5.snapshot.2021-09-24
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -407,7 +407,7 @@ do
 	shift
 	;;
     --lsm)
-	LSM_CMD="cat \"$2\" >> \"\$archname\""
+	LSM_CMD="awk 1 \"$2\" >> \"\$archname\""
     shift 2 || { MS_Usage; exit 1; }
 	;;
     --packaging-date)
@@ -765,7 +765,7 @@ fi
 if test "$SIGN" = y; then
     GPG_PATH=`exec <&- 2>&-; which gpg || command -v gpg || type gpg`
     if test -x "$GPG_PATH"; then
-        SIGNATURE=`$GPG_PATH --pinentry-mode=loopback --batch --yes --passphrase "$GPG_PASSPHRASE" --output - --detach-sig $tmpfile | base64 | tr -d \\\\n`
+        SIGNATURE=`$GPG_PATH --pinentry-mode=loopback --batch --yes $GPG_EXTRA --passphrase "$GPG_PASSPHRASE" --output - --detach-sig $tmpfile | base64 | tr -d \\\\n`
         if test "$QUIET" = "n"; then
             echo "Signature: $SIGNATURE"
         fi
