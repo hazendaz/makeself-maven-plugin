@@ -23,11 +23,11 @@ under the License.
     <link>https://github.com/hazendaz/makeself-maven-plugin</link>
     <description>makeself-maven-plugin - Checkstyle report</description>
     <language>en-us</language>
-    <copyright>&#169;2011 - 2020 hazendaz</copyright>
+    <copyright>&#169;2011 - 2021 hazendaz</copyright>
     <item>
-      <title>File: 3,
+      <title>File: 1,
              Errors: 0,
-             Warnings: 440,
+             Warnings: 3,
              Infos: 0
       </title>
             <link>https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html</link>
@@ -46,41 +46,13 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.HelpMojo.java">com/hazendaz/maven/makeself/HelpMojo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  433
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.MakeselfMojo.java">com/hazendaz/maven/makeself/MakeselfMojo.java</a>
                 </td>
                 <td>
                   0
                 </td>
                 <td>
-                  6
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.package-info.java">com/hazendaz/maven/makeself/package-info.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  1
+                  3
                 </td>
                 <td>
                   0

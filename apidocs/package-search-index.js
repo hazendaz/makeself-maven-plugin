@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"com.hazendaz.maven.makeself"}]
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.hazendaz.maven.makeself"}]
