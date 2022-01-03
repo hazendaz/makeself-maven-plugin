@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2011-2021 the original author or authors.
+       Copyright 2011-2022 the original author or authors.
 
        This program is free software; you can redistribute it and/or
        modify it under the terms of the GNU General Public License
@@ -94,7 +94,7 @@
         <!-- Targeted patches -->
         <io.version>2.11.0</io.version>
         <lang3.version>3.12.0</lang3.version>
-        <slf4j.version>2.0.0-alpha5</slf4j.version>
+        <slf4j.version>1.7.32</slf4j.version>
     </properties>
 
     <dependencies>
