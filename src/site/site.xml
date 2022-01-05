@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2011-2020 the original author or authors.
+       Copyright 2011-2022 the original author or authors.
 
        This program is free software; you can redistribute it and/or
        modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
-        <version>1.9</version>
+        <version>1.10.0</version>
     </skin>
     <custom>
         <fluidoSkin>
