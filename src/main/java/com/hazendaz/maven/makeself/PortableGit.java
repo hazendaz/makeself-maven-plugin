@@ -29,7 +29,7 @@ public class PortableGit {
     protected static final String ARTIFACT_ID = "git-for-windows";
 
     /** The Constant VERSION. */
-    protected static final String VERSION = "2.33.1.1";
+    protected static final String VERSION = "2.34.1.0";
 
     /** The Constant TYPE. */
     protected static final String TYPE = "tar.gz";
