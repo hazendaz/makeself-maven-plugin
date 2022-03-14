@@ -77,7 +77,7 @@
         <!-- Maven Artifacts -->
         <download-plugin.version>1.6.8</download-plugin.version>
         <invoker-plugin.version>3.2.2</invoker-plugin.version>
-        <maven.version>3.8.4</maven.version>
+        <maven.version>3.8.5</maven.version>
         <maven-plugin.version>3.6.4</maven-plugin.version>
         <plexus-utils.version>3.4.1</plexus-utils.version>
         <shared-utils.version>3.3.4</shared-utils.version>
