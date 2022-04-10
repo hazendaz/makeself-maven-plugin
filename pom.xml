@@ -269,6 +269,15 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- TODO: pdf fails on site so skip it at this time -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pdf-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
