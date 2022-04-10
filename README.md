@@ -7,6 +7,8 @@ Makeself Maven Plugin
 
 ![hazendaz](src/site/resources/images/hazendaz-banner.jpg)
 
+See site page [here](https://hazendaz.github.io/makeself-maven-plugin/)
+
 Makeself Maven Plugin provides maven integration for megastep makeself script.
 
 Makeself is a self-extracting archiving tool for Unix systems, in 100% shell script.
