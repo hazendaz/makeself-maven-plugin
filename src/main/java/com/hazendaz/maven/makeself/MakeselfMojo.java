@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011-2021 the original author or authors.
+ *    Copyright 2011-2022 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -370,7 +370,6 @@ public class MakeselfMojo extends AbstractMojo {
 
     /**
      * --tar-extra opt : Append more options to the tar command line.
-     *
      * <p>
      * For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar, one
      * can use makeself.sh --tar-extra "--exclude=.git" ...
