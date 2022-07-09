@@ -25,9 +25,9 @@ under the License.
     <language>en-us</language>
     <copyright>&#169;2011 - 2022 hazendaz</copyright>
     <item>
-      <title>File: 5,
+      <title>File: 6,
              Errors: 0,
-             Warnings: 551,
+             Warnings: 554,
              Infos: 0
       </title>
             <link>https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html</link>
@@ -46,13 +46,27 @@ under the License.
           <tbody>
                           <tr>
                 <td>
+                  <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#META-INF.makeself.properties">META-INF/makeself.properties</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
                   <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.PortableGit.java">com/hazendaz/maven/makeself/PortableGit.java</a>
                 </td>
                 <td>
                   0
                 </td>
                 <td>
-                  0
+                  2
                 </td>
                 <td>
                   0
@@ -94,7 +108,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  3
+                  4
                 </td>
                 <td>
                   0
