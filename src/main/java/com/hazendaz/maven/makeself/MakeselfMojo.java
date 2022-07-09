@@ -462,6 +462,9 @@ public class MakeselfMojo extends AbstractMojo {
     /** Static ATTACH_ARTIFACT to maven lifecycle. */
     private static final boolean ATTACH_ARTIFACT = true;
 
+    /** Portable Git. */
+    private PortableGit portableGit;
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         // Check if plugin run should be skipped
@@ -563,8 +566,8 @@ public class MakeselfMojo extends AbstractMojo {
         if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
             getLog().debug("Environment Variables: " + envs);
-            final String location = localRepository.getBasedir() + File.separator + PortableGit.NAME + File.separator
-                    + PortableGit.VERSION;
+            final String location = localRepository.getBasedir() + File.separator + this.portableGit.getName()
+                    + File.separator + this.portableGit.getVersion();
             // Windows cmd/powershell shows "Path" in this case
             if (envs.get("Path") != null) {
                 envs.put("Path", location + "/usr/bin;" + envs.get("Path"));
@@ -650,8 +653,14 @@ public class MakeselfMojo extends AbstractMojo {
 
     /**
      * Check Git Setup.
+     *
+     * @throws MojoFailureException
+     *             the mojo failure exception
      */
-    private void checkGitSetup() {
+    private void checkGitSetup() throws MojoFailureException {
+        // Get Portable Git Maven Information
+        this.portableGit = new PortableGit(getLog());
+
         // Extract Portable Git
         this.extractPortableGit();
     }
@@ -660,8 +669,8 @@ public class MakeselfMojo extends AbstractMojo {
      * Extract Portable Git.
      */
     private void extractPortableGit() {
-        final String location = localRepository.getBasedir() + File.separator + PortableGit.NAME + File.separator
-                + PortableGit.VERSION;
+        final String location = localRepository.getBasedir() + File.separator + this.portableGit.getName()
+                + File.separator + this.portableGit.getVersion();
         if (new File(location).exists()) {
             getLog().debug("Existing 'PortableGit' folder found at " + location);
             gitPath = location + "/usr/bin/";
@@ -669,8 +678,9 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         getLog().info("Loading portable git");
-        final Artifact artifact = repositorySystem.createArtifactWithClassifier(PortableGit.GROUP_ID,
-                PortableGit.ARTIFACT_ID, PortableGit.VERSION, PortableGit.TYPE, PortableGit.CLASSIFIER);
+        final Artifact artifact = repositorySystem.createArtifactWithClassifier(this.portableGit.getGroupId(),
+                this.portableGit.getArtifactId(), this.portableGit.getVersion(), this.portableGit.getType(),
+                this.portableGit.getClassifier());
 
         final ArtifactResolutionRequest artifactResolutionRequest = new ArtifactResolutionRequest();
         artifactResolutionRequest.setArtifact(artifact);
@@ -702,7 +712,7 @@ public class MakeselfMojo extends AbstractMojo {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                currentFile = new File(localRepository.getBasedir() + File.separator + PortableGit.NAME,
+                currentFile = new File(localRepository.getBasedir() + File.separator + this.portableGit.getName(),
                         entry.getName());
                 File parent = currentFile.getParentFile();
                 if (!parent.exists()) {

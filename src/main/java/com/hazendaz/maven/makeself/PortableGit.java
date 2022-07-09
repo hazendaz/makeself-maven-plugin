@@ -17,27 +17,63 @@
  */
 package com.hazendaz.maven.makeself;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import lombok.Data;
+
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+
 /**
  * The Class PortableGit.
  */
+@Data
 public class PortableGit {
 
-    /** The Constant GROUP_ID. */
-    protected static final String GROUP_ID = "com.github.hazendaz.git";
+    /** The group id. */
+    private String groupId;
 
-    /** The Constant ARTIFACT_ID. */
-    protected static final String ARTIFACT_ID = "git-for-windows";
+    /** The artifact id. */
+    private String artifactId;
 
-    /** The Constant VERSION. */
-    protected static final String VERSION = "2.37.0.1";
+    /** The version. */
+    private String version;
 
-    /** The Constant TYPE. */
-    protected static final String TYPE = "tar.gz";
+    /** The type. */
+    private String type;
 
-    /** The Constant CLASSIFIER. */
-    protected static final String CLASSIFIER = "portable";
+    /** The classifier. */
+    private String classifier;
 
-    /** The Constant NAME. */
-    protected static final String NAME = "PortableGit";
+    /** The name. */
+    private String name;
+
+    /**
+     * Load portable git artifact from makeself.properties file.
+     *
+     * @param log
+     *            the log
+     *
+     * @throws MojoFailureException
+     *             the mojo failure exception
+     */
+    public PortableGit(final Log log) throws MojoFailureException {
+        try (InputStream input = this.getClass().getClassLoader().getResourceAsStream("META-INF/makeself.properties")) {
+            final Properties properties = new Properties();
+            properties.load(input);
+
+            this.groupId = properties.getProperty("portable.git.groupId");
+            this.artifactId = properties.getProperty("portable.git.artifactId");
+            this.version = properties.getProperty("portable.git.version");
+            this.type = properties.getProperty("portable.git.type");
+            this.classifier = properties.getProperty("portable.git.classifier");
+            this.name = properties.getProperty("portable.git.name");
+        } catch (final IOException e) {
+            log.error("Unable to read makeself.properties");
+            throw new MojoFailureException(e);
+        }
+    }
 
 }
