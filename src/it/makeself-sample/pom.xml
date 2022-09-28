@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.github.hazendaz</groupId>
         <artifactId>base-parent</artifactId>
-        <version>33</version>
+        <version>34</version>
     </parent>
 
     <groupId>com.github.hazendaz</groupId>
