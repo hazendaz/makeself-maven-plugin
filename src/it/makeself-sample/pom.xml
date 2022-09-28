@@ -24,7 +24,7 @@
     <parent>
         <groupId>com.github.hazendaz</groupId>
         <artifactId>base-parent</artifactId>
-        <version>35</version>
+        <version>36</version>
     </parent>
 
     <groupId>com.github.hazendaz</groupId>
@@ -85,6 +85,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <configuration>
+                    <rules>
+                        <requirePluginVersions>
+                            <!-- Allow snapshot of plugin as we are testing it -->
+                            <banSnapshots>false</banSnapshots>
+                        </requirePluginVersions>
+                    </rules>
+                </configuration>
             </plugin>
         </plugins>
     </build>
