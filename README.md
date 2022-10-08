@@ -19,6 +19,10 @@ With help of Cygwin, git for windows or other tools supplying bash for windows, 
 
 ## Windows ##
 
+Usage in windows leverages Portable Git distribution automatically during the build.
+
+Versions prior to this point as noted below used bash in a different way.  It is best to use the latest where possible.
+
 [12/30/2020] Original windows logic to confirm bash is currently disabled as it detects incorrectly on recent windows 10.  Instead for windows, it will always use the portable git distribution.
 
 To use in windows, configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin.
