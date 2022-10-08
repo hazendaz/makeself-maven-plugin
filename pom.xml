@@ -19,6 +19,7 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -49,10 +50,10 @@
     </prerequisites>
 
     <scm>
-        <url>https://github.com/hazendaz/makeself-maven-plugin</url>
         <connection>scm:git:ssh://github.com/hazendaz/makeself-maven-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</developerConnection>
         <tag>HEAD</tag>
+        <url>https://github.com/hazendaz/makeself-maven-plugin</url>
     </scm>
     <issueManagement>
         <system>Github</system>
@@ -60,7 +61,7 @@
     </issueManagement>
     <ciManagement>
         <system>Github</system>
-        <url>https://github.com/hazendaz/makeself-maven-plugin/issues/actions</url>
+        <url>https://github.com/hazendaz/makeself-maven-plugin/actions</url>
     </ciManagement>
     <distributionManagement>
         <site>
@@ -189,8 +190,8 @@
     <build>
         <resources>
             <resource>
-                <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
+                <directory>${project.basedir}/src/main/resources</directory>
             </resource>
         </resources>
 
@@ -247,10 +248,10 @@
                 <executions>
                     <execution>
                         <id>unpack</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
+                        <phase>package</phase>
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
@@ -261,7 +262,7 @@
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
                                     <includes>META-INF/MANIFEST.MF</includes>
-                                 </artifactItem>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -285,10 +286,10 @@
                 <executions>
                     <execution>
                         <id>make-assembly</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <phase>package</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -350,10 +351,10 @@
                         <executions>
                             <execution>
                                 <id>download-makeself</id>
-                                <phase>clean</phase>
                                 <goals>
                                     <goal>wget</goal>
                                 </goals>
+                                <phase>clean</phase>
                                 <configuration>
                                     <url>https://raw.githubusercontent.com/megastep/makeself/master/makeself.sh</url>
                                     <outputDirectory>${project.basedir}/src/assembly/makeself</outputDirectory>
@@ -363,10 +364,10 @@
                             </execution>
                             <execution>
                                 <id>download-makeself-header</id>
-                                <phase>clean</phase>
                                 <goals>
                                     <goal>wget</goal>
                                 </goals>
+                                <phase>clean</phase>
                                 <configuration>
                                     <url>https://raw.githubusercontent.com/megastep/makeself/master/makeself-header.sh</url>
                                     <outputDirectory>${project.basedir}/src/assembly/makeself</outputDirectory>
@@ -374,7 +375,7 @@
                                     <overwrite>true</overwrite>
                                 </configuration>
                             </execution>
-                       </executions>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
