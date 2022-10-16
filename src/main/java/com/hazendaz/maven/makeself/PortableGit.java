@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import lombok.Data;
+import lombok.Getter;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
@@ -29,25 +29,30 @@ import org.apache.maven.plugin.logging.Log;
 /**
  * The Class PortableGit.
  */
-@Data
 public class PortableGit {
 
     /** The group id. */
+    @Getter
     private String groupId;
 
     /** The artifact id. */
+    @Getter
     private String artifactId;
 
     /** The version. */
+    @Getter
     private String version;
 
     /** The type. */
+    @Getter
     private String type;
 
     /** The classifier. */
+    @Getter
     private String classifier;
 
     /** The name. */
+    @Getter
     private String name;
 
     /**
