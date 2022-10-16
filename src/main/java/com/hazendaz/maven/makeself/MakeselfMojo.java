@@ -98,6 +98,16 @@ public class MakeselfMojo extends AbstractMojo {
     private String startupScript;
 
     /**
+     * extension is for type of fileName being created. It defaults to 'sh' for backwards compatibility. Makeself
+     * defines 'run' as its default, therefore when using 'run', set extension to 'run'. This extension is used when
+     * attaching resulting artifact to maven.
+     *
+     * @since 1.5.0
+     */
+    @Parameter(defaultValue = "sh", property = "extension")
+    private String extension;
+
+    /**
      * script_args are additional arguments for startup_script passed as an array.
      *
      * <pre>
@@ -601,7 +611,8 @@ public class MakeselfMojo extends AbstractMojo {
 
         // Attach artifact to maven build for install/deploy/release on success
         if (status == 0 && attach) {
-            projectHelper.attachArtifact(project, "sh", new File(buildTarget, FilenameUtils.getName(fileName)));
+            projectHelper.attachArtifact(project, this.extension,
+                    new File(buildTarget, FilenameUtils.getName(fileName)));
         }
     }
 
