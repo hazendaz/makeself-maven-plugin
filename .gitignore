@@ -5,3 +5,4 @@
 .mvn/wrapper/maven-wrapper.jar
 *.releaseBackup
 release.properties
+.factorypath
