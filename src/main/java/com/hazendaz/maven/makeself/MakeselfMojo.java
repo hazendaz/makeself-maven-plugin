@@ -108,6 +108,16 @@ public class MakeselfMojo extends AbstractMojo {
     private String extension;
 
     /**
+     * classifier is for fileName being created to allow for more than one. If not defined, multiple artifacts will all
+     * be installed to same m2 location. The artifact will take on the project artifact where classfier is the physical
+     * name attribute you which to create for the fileName.
+     *
+     * @since 1.5.0
+     */
+    @Parameter(property = "classifier")
+    private String classifier;
+
+    /**
      * script_args are additional arguments for startup_script passed as an array.
      *
      * <pre>
@@ -611,7 +621,7 @@ public class MakeselfMojo extends AbstractMojo {
 
         // Attach artifact to maven build for install/deploy/release on success
         if (status == 0 && attach) {
-            projectHelper.attachArtifact(project, this.extension,
+            projectHelper.attachArtifact(project, this.extension, this.classifier,
                     new File(buildTarget, FilenameUtils.getName(fileName)));
         }
     }
