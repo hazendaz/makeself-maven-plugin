@@ -94,7 +94,7 @@ public class MakeselfMojo extends AbstractMojo {
      * execute a program contain in this directory, you must prefix your command with './'. For example, './program'
      * will be fine.
      */
-    @Parameter(defaultValue = "makeself.sh", property = "startupScript", required = true)
+    @Parameter(defaultValue = "./makeself.sh", property = "startupScript", required = true)
     private String startupScript;
 
     /**
