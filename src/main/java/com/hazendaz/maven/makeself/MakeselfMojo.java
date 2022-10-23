@@ -634,7 +634,7 @@ public class MakeselfMojo extends AbstractMojo {
 
         // Create makeself directory
         File makeselfTemp = new File(targetDirectory.getAbsolutePath());
-        if (!makeselfTemp.exists() && !makeselfTemp.mkdir()) {
+        if (!makeselfTemp.exists() && !makeselfTemp.mkdirs()) {
             getLog().error(Joiner.on(" ").join("Unable to make directory", targetDirectory.getAbsolutePath()));
             return;
         } else {
