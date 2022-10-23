@@ -493,6 +493,18 @@ public class MakeselfMojo extends AbstractMojo {
             return;
         }
 
+        // Validations
+        File file = new File(buildTarget.concat(archiveDir));
+        if (!file.exists()) {
+            throw new MojoExecutionException("ArchiveDir: missing '" + buildTarget.concat(archiveDir) + "'");
+        }
+
+        file = new File(buildTarget.concat(archiveDir).concat(startupScript));
+        if (!file.exists()) {
+            throw new MojoExecutionException(
+                    "StartupScript: missing '" + buildTarget.concat(archiveDir).concat(startupScript) + "'");
+        }
+
         // Setup make self files
         this.extractMakeself();
 
