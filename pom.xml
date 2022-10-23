@@ -80,7 +80,7 @@
         <invoker-plugin.version>3.3.0</invoker-plugin.version>
         <maven.version>3.8.6</maven.version>
         <maven-plugin.version>3.6.4</maven-plugin.version>
-        <plexus-utils.version>3.4.2</plexus-utils.version>
+        <plexus-utils.version>3.5.0</plexus-utils.version>
         <shared-utils.version>3.3.4</shared-utils.version>
 
         <!-- Compress -->
