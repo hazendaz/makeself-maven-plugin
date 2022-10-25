@@ -80,7 +80,7 @@ public class MakeselfMojo extends AbstractMojo {
     /**
      * file_name is the name of the archive to be created.
      */
-    @Parameter(defaultValue = "makeself", property = "fileName", required = true)
+    @Parameter(defaultValue = "makeself.sh", property = "fileName", required = true)
     private String fileName;
 
     /**
