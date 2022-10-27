@@ -86,7 +86,7 @@ public class MakeselfMojo extends AbstractMojo {
     /**
      * label is an arbitrary text string describing the package. It will be displayed while extracting the files.
      */
-    @Parameter(defaultValue = "Make self-extrabable archives", property = "label", required = true)
+    @Parameter(defaultValue = "Makeself self-extractable archive", property = "label", required = true)
     private String label;
 
     /**
