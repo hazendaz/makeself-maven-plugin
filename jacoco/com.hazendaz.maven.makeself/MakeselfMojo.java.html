@@ -1,0 +1,1103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MakeselfMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">makeself-maven-plugin</a> &gt; <a href="index.source.html" class="el_package">com.hazendaz.maven.makeself</a> &gt; <span class="el_source">MakeselfMojo.java</span></div><h1>MakeselfMojo.java</h1><pre class="source lang-java linenums">/*
+ *    Copyright 2011-2022 the original author or authors.
+ *
+ *    This program is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    as published by the Free Software Foundation; either version 2
+ *    of the License, or (at your option) any later version.
+ *
+ *    You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ */
+package com.hazendaz.maven.makeself;
+
+import com.google.common.base.Joiner;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
+import org.apache.maven.repository.RepositorySystem;
+
+/**
+ * The Class MakeselfMojo.
+ */
+@Mojo(name = &quot;makeself&quot;, defaultPhase = LifecyclePhase.VERIFY, requiresProject = false)
+<span class="nc" id="L62">public class MakeselfMojo extends AbstractMojo {</span>
+
+    /**
+     * isWindows is detected at start of plugin to ensure windows needs.
+     */
+<span class="nc" id="L67">    private static final boolean WINDOWS = System.getProperty(&quot;os.name&quot;).startsWith(&quot;Windows&quot;);</span>
+
+    /**
+     * The path to git which is left blank unless portable git is used.
+     */
+<span class="nc" id="L72">    private String gitPath = &quot;&quot;;</span>
+
+    /**
+     * archive_dir is the name of the directory that contains the files to be archived.
+     */
+    @Parameter(defaultValue = &quot;makeself&quot;, property = &quot;archiveDir&quot;, required = true)
+    private String archiveDir;
+
+    /**
+     * file_name is the name of the archive to be created.
+     */
+    @Parameter(defaultValue = &quot;makeself.sh&quot;, property = &quot;fileName&quot;, required = true)
+    private String fileName;
+
+    /**
+     * label is an arbitrary text string describing the package. It will be displayed while extracting the files.
+     */
+    @Parameter(defaultValue = &quot;Makeself self-extractable archive&quot;, property = &quot;label&quot;, required = true)
+    private String label;
+
+    /**
+     * startup_script is the command to be executed from within the directory of extracted files. Thus, if you wish to
+     * execute a program contain in this directory, you must prefix your command with './'. For example, './program'
+     * will be fine.
+     */
+    @Parameter(defaultValue = &quot;./makeself.sh&quot;, property = &quot;startupScript&quot;, required = true)
+    private String startupScript;
+
+    /**
+     * extension is for type of fileName being created. It defaults to 'sh' for backwards compatibility. Makeself
+     * defines 'run' as its default, therefore when using 'run', set extension to 'run'. This extension is used when
+     * attaching resulting artifact to maven.
+     *
+     * @since 1.5.0
+     */
+    @Parameter(defaultValue = &quot;sh&quot;, property = &quot;extension&quot;)
+    private String extension;
+
+    /**
+     * classifier is for fileName being created to allow for more than one. If not defined, multiple artifacts will all
+     * be installed to same m2 location. The artifact will take on the project artifact where classfier is the physical
+     * name attribute you which to create for the fileName.
+     *
+     * @since 1.5.0
+     */
+    @Parameter(property = &quot;classifier&quot;)
+    private String classifier;
+
+    /**
+     * script_args are additional arguments for startup_script passed as an array.
+     *
+     * &lt;pre&gt;
+     * {@code
+     * &lt;scriptArgs&gt;
+     *   &lt;scriptArg&gt;arg1&lt;/scriptArg&gt;
+     *   &lt;scriptArg&gt;arg2&lt;/scriptArg&gt;
+     * &lt;/scriptArgs&gt;
+     * }
+     * &lt;/pre&gt;
+     */
+    @Parameter(property = &quot;scriptArgs&quot;)
+    private List&lt;String&gt; scriptArgs;
+
+    /**
+     * cleanup_script_args are additional arguments for cleanup_script passed as an array.
+     *
+     * &lt;pre&gt;
+     * {@code
+     * &lt;cleanupArgs&gt;
+     *   &lt;cleanupArg&gt;arg1&lt;/cleanupArg&gt;
+     *   &lt;cleanupArg&gt;arg2&lt;/cleanupArg&gt;
+     * &lt;/cleanupArg&gt;
+     * }
+     * &lt;/pre&gt;
+     */
+    @Parameter(property = &quot;cleanupArgs&quot;)
+    private List&lt;String&gt; cleanupArgs;
+
+    /** --help | -h : Print out this help message. */
+    @Parameter(property = &quot;help&quot;)
+    private Boolean help;
+
+    /**
+     * --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux).
+     */
+    @Parameter(property = &quot;gzip&quot;)
+    private Boolean gzip;
+
+    /**
+     * --bzip2 : Use bzip2 instead of gzip for better compression. The bzip2 command must be available in the command
+     * path. It is recommended that the archive prefix be set to something like '.bz2.run', so that potential users know
+     * that they'll need bzip2 to extract it.
+     */
+    @Parameter(property = &quot;bzip2&quot;)
+    private Boolean bzip2;
+
+    /**
+     * --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs. The
+     * pbzip2 command must be available in the command path. It is recommended that the archive prefix be set to
+     * something like '.bz2.run', so that potential users know that they'll need bzip2 to extract it.
+     */
+    @Parameter(property = &quot;pbzip2&quot;)
+    private Boolean pbzip2;
+
+    /**
+     * --xz : Use xz instead of gzip for better compression. The xz command must be available in the command path. It is
+     * recommended that the archive prefix be set to something like '.xz.run' for the archive, so that potential users
+     * know that they'll need xz to extract it.
+     */
+    @Parameter(property = &quot;xz&quot;)
+    private Boolean xz;
+
+    /**
+     * --lzo : Use lzop instead of gzip for better compression. The lzop command must be available in the command path.
+     * It is recommended that the archive prefix be set to something like '.lzo.run' for the archive, so that potential
+     * users know that they'll need lzop to extract it.
+     */
+    @Parameter(property = &quot;lzo&quot;)
+    private Boolean lzo;
+
+    /**
+     * --lz4 : Use lz4 instead of gzip for better compression. The lz4 command must be available in the command path. It
+     * is recommended that the archive prefix be set to something like '.lz4.run' for the archive, so that potential
+     * users know that they'll need lz4 to extract it.
+     */
+    @Parameter(property = &quot;lz4&quot;)
+    private Boolean lz4;
+
+    /** --pigz : Use pigz for compression. */
+    @Parameter(property = &quot;pigz&quot;)
+    private Boolean pigz;
+
+    /** --zstd : Use zstd for compression. */
+    @Parameter(property = &quot;zstd&quot;)
+    private Boolean zstd;
+
+    /**
+     * --base64 : Encode the archive to ASCII in Base64 format (base64 command required).
+     */
+    @Parameter(property = &quot;base64&quot;)
+    private Boolean base64;
+
+    /**
+     * --gpg-encrypt : Encrypt the archive using gpg -ac -z $COMPRESS_LEVEL. This will prompt for a password to encrypt
+     * with. Assumes that potential users have gpg installed.
+     */
+    @Parameter(property = &quot;gpgEncrypt&quot;)
+    private Boolean gpgEncrypt;
+
+    /**
+     * --gpg-asymmetric-encrypt-sign : Instead of compressing, asymmetrically encrypt and sign the data using GPG.&quot;
+     */
+    @Parameter(property = &quot;gpgAsymmetricEncryptSign&quot;)
+    private Boolean gpgAsymmetricEncryptSign;
+
+    /**
+     * --ssl-encrypt : Encrypt the archive using openssl aes-256-cbc -a -salt. This will prompt for a password to
+     * encrypt with. Assumes that the potential users have the OpenSSL tools installed.
+     */
+    @Parameter(property = &quot;sslEncrypt&quot;)
+    private Boolean sslEncrypt;
+
+    /**
+     * --ssl-passwd pass : Use the given password to encrypt the data using OpenSSL.
+     */
+    @Parameter(property = &quot;sslPasswd&quot;)
+    private String sslPasswd;
+
+    /**
+     * --ssl-pass-src : Use the given src as the source of password to encrypt the data using OpenSSL. See \&quot;PASS PHRASE
+     * ARGUMENTS\&quot; in man openssl. If this option is not supplied, the user wil be asked to enter encryption pasword on
+     * the current terminal.
+     */
+    @Parameter(property = &quot;sslPassSrc&quot;)
+    private String sslPassSrc;
+
+    /**
+     * --ssl-no-md : Do not use \&quot;-md\&quot; option not supported by older OpenSSL.
+     */
+    @Parameter(property = &quot;sslNoMd&quot;)
+    private Boolean sslNoMd;
+
+    /**
+     * --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms that
+     * don't have gzip available.
+     */
+    @Parameter(property = &quot;compress&quot;)
+    private Boolean compress;
+
+    /**
+     * --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
+     */
+    @Parameter(property = &quot;nocomp&quot;)
+    private Boolean nocomp;
+
+    /**
+     * --complevel : Specify the compression level for gzip, bzip2, pbzip2, xz, lzo or lz4. (defaults to 9).
+     */
+    @Parameter(property = &quot;complevel&quot;)
+    private Integer complevel;
+
+    /**
+     * --threads : Specify the number of threads to be used by compressors that support parallelization. Omit to use
+     * compressor's default. Most useful (and required) for opting into xz's threading, usually with --threads=0 for all
+     * available cores. pbzip2 and pigz are parallel by default, and setting this value allows limiting the number of
+     * threads they use.
+     */
+    @Parameter(property = &quot;threads&quot;)
+    private Integer threads;
+
+    /**
+     * --notemp : The generated archive will not extract the files to a temporary directory, but in a new directory
+     * created in the current directory. This is better to distribute software packages that may extract and compile by
+     * themselves (i.e. launch the compilation through the embedded script).
+     */
+    @Parameter(property = &quot;notemp&quot;)
+    private Boolean notemp;
+
+    /**
+     * --current : Files will be extracted to the current directory, instead of in a subdirectory. This option implies
+     * --notemp above.
+     */
+    @Parameter(property = &quot;current&quot;)
+    private Boolean current;
+
+    /**
+     * --follow : Follow the symbolic links inside of the archive directory, i.e. store the files that are being pointed
+     * to instead of the links themselves.
+     */
+    @Parameter(property = &quot;follow&quot;)
+    private Boolean follow;
+
+    /**
+     * --append (new in 2.1.x): Append data to an existing archive, instead of creating a new one. In this mode, the
+     * settings from the original archive are reused (compression type, label, embedded script), and thus don't need to
+     * be specified again on the command line.
+     */
+    @Parameter(property = &quot;append&quot;)
+    private Boolean append;
+
+    /**
+     * --header: Makeself 2.0 uses a separate file to store the header stub, called makeself-header.sh. By default, it
+     * is assumed that it is stored in the same location as makeself.sh. This option can be used to specify its actual
+     * location if it is stored someplace else. This is not required for this plugin as the header is provided.
+     */
+    @Parameter(property = &quot;headerFile&quot;, readonly = true)
+    private Boolean headerFile;
+
+    /**
+     * .--cleanup: Specify a script that is run when execution is interrupted or finishes successfully. The script is
+     * executed with the same environment and initial `script_agrs` as `startup_script`.
+     */
+    @Parameter(property = &quot;cleanupScript&quot;)
+    private String cleanupScript;
+
+    /**
+     * --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main application of
+     * this is to allow self-contained installers stored in a Makeself archive on a CD, when the installer program will
+     * later need to unmount the CD and allow a new one to be inserted. This prevents &quot;Filesystem busy&quot; errors for
+     * installers that span multiple CDs.
+     */
+    @Parameter(property = &quot;copy&quot;)
+    private Boolean copy;
+
+    /** --nox11 : Disable the automatic spawning of a new terminal in X11. */
+    @Parameter(property = &quot;nox11&quot;)
+    private Boolean nox11;
+
+    /** --nox11 : Disable the automatic spawning of a new terminal in X11. */
+    @Parameter(property = &quot;nowait&quot;)
+    private Boolean nowait;
+
+    /**
+     * --nomd5 : Disable the creation of a MD5 checksum for the archive. This speeds up the extraction process if
+     * integrity checking is not necessary.
+     */
+    @Parameter(property = &quot;nomd5&quot;)
+    private Boolean nomd5;
+
+    /**
+     * --nocrc : Disable the creation of a CRC checksum for the archive. This speeds up the extraction process if
+     * integrity checking is not necessary.
+     */
+    @Parameter(property = &quot;nocrc&quot;)
+    private Boolean nocrc;
+
+    /**
+     * --sha256 : Compute a SHA256 checksum for the archive.
+     */
+    @Parameter(property = &quot;sha256&quot;)
+    private Boolean sha256;
+
+    /**
+     * -sign passphrase : Signature private key to sign the package with.
+     */
+    @Parameter(property = &quot;sign&quot;)
+    private String sign;
+
+    /**
+     * --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
+     * describing a software package in a way that is easily parseable. The LSM entry can then be later retrieved using
+     * the --lsm argument to the archive. An example of a LSM file is provided with Makeself.
+     */
+    @Parameter(property = &quot;lsmFile&quot;)
+    private String lsmFile;
+
+    /**
+     * --gpg-extra opt : Append more options to the gpg command line.
+     */
+    @Parameter(property = &quot;gpgExtraOpt&quot;)
+    private String gpgExtraOpt;
+
+    /**
+     * --tar-format opt :Specify the tar archive format (default is ustar); you may use any value accepted by your tar
+     * command (such as posix, v7, etc).
+     */
+    @Parameter(property = &quot;tarFormatOpt&quot;)
+    private String tarFormatOpt;
+
+    /**
+     * --tar-extra opt : Append more options to the tar command line.
+     * &lt;p&gt;
+     * For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar, one
+     * can use makeself.sh --tar-extra &quot;--exclude=.git&quot; ...
+     */
+    @Parameter(property = &quot;tarExtraOpt&quot;)
+    private String tarExtraOpt;
+
+    /**
+     * --untar-extra opt : Append more options to the during the extraction of the tar archive.
+     */
+    @Parameter(property = &quot;untarExtraOpt&quot;)
+    private String untarExtraOpt;
+
+    /**
+     * --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
+     * archive.
+     */
+    @Parameter(property = &quot;keepUmask&quot;)
+    private Boolean keepUmask;
+
+    /**
+     * --export-conf : Export configuration variables to startup_script.
+     */
+    @Parameter(property = &quot;exportConf&quot;)
+    private Boolean exportConf;
+
+    /**
+     * --packaging-date date : Use provided string as the packaging date instead of the current date.
+     */
+    @Parameter(property = &quot;packagingDate&quot;)
+    private String packagingDate;
+
+    /**
+     * --license : Append a license file.
+     */
+    @Parameter(property = &quot;licenseFile&quot;)
+    private String licenseFile;
+
+    /**
+     * --nooverwrite : Do not extract the archive if the specified target directory already exists.
+     */
+    @Parameter(property = &quot;nooverwrite&quot;)
+    private Boolean nooverwrite;
+
+    /**
+     * --help-header file : Add a header to the archive's --help output.
+     */
+    @Parameter(property = &quot;helpHeaderFile&quot;)
+    private String helpHeaderFile;
+
+    /** Skip run of plugin. */
+    @Parameter(defaultValue = &quot;false&quot;, alias = &quot;skip&quot;, property = &quot;skip&quot;)
+    private boolean skip;
+
+    /** Auto run : When set to true, resulting shell will be run. This is useful for testing purposes. */
+    @Parameter(defaultValue = &quot;false&quot;, property = &quot;autoRun&quot;)
+    private boolean autoRun;
+
+    /** The build target. */
+    @Parameter(defaultValue = &quot;${project.build.directory}/&quot;, readonly = true)
+    private String buildTarget;
+
+    /** The target directory. */
+    @Parameter(defaultValue = &quot;${project.build.directory}/makeself-tmp/&quot;, readonly = true)
+    private File targetDirectory;
+
+    /** Maven ProjectHelper. */
+    @Component
+    private MavenProjectHelper projectHelper;
+
+    /** Maven Artifact Factory. */
+    @Component
+    private RepositorySystem repositorySystem;
+
+    /** Maven Project. */
+    @Parameter(defaultValue = &quot;${project}&quot;, readonly = true, required = true)
+    private MavenProject project;
+
+    /** Maven Local Repository. */
+    @Parameter(defaultValue = &quot;${localRepository}&quot;, readonly = true, required = true)
+    private ArtifactRepository localRepository;
+
+    /** Maven Remote Artifacts Repositories. */
+    @Parameter(property = &quot;project.remoteArtifactRepositories&quot;)
+    private List&lt;ArtifactRepository&gt; remoteRepositories;
+
+    /** The makeself. */
+    private File makeself;
+
+    /** Static ATTACH_ARTIFACT to maven lifecycle. */
+    private static final boolean ATTACH_ARTIFACT = true;
+
+    /** Portable Git. */
+    private PortableGit portableGit;
+
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        // Check if plugin run should be skipped
+<span class="nc bnc" id="L491" title="All 2 branches missed.">        if (this.skip) {</span>
+<span class="nc" id="L492">            getLog().info(&quot;Makeself is skipped&quot;);</span>
+<span class="nc" id="L493">            return;</span>
+        }
+
+        // Validations
+<span class="nc" id="L497">        File file = new File(buildTarget.concat(archiveDir));</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">        if (!file.exists()) {</span>
+<span class="nc" id="L499">            throw new MojoExecutionException(&quot;ArchiveDir: missing '&quot; + buildTarget.concat(archiveDir) + &quot;'&quot;);</span>
+        }
+
+<span class="nc bnc" id="L502" title="All 2 branches missed.">        if (!startupScript.startsWith(&quot;./&quot;)) {</span>
+<span class="nc" id="L503">            throw new MojoExecutionException(&quot;StartupScript required to start with './'&quot;);</span>
+        }
+
+<span class="nc" id="L506">        file = new File(buildTarget.concat(archiveDir).concat(startupScript.substring(1)));</span>
+<span class="nc bnc" id="L507" title="All 2 branches missed.">        if (!file.exists()) {</span>
+<span class="nc" id="L508">            throw new MojoExecutionException(&quot;StartupScript: missing '&quot;</span>
+<span class="nc" id="L509">                    + buildTarget.concat(archiveDir).concat(startupScript.substring(1)) + &quot;'&quot;);</span>
+        }
+
+        // Setup make self files
+<span class="nc" id="L513">        this.extractMakeself();</span>
+
+        // Check git setup
+<span class="nc bnc" id="L516" title="All 2 branches missed.">        if (MakeselfMojo.WINDOWS) {</span>
+<span class="nc" id="L517">            this.checkGitSetup();</span>
+        }
+
+        try {
+            // Output version of bash
+<span class="nc" id="L522">            getLog().debug(&quot;Execute Bash Version&quot;);</span>
+<span class="nc" id="L523">            execute(Arrays.asList(gitPath + &quot;bash&quot;, &quot;--version&quot;), !ATTACH_ARTIFACT);</span>
+
+            // Output version of makeself.sh
+<span class="nc" id="L526">            getLog().debug(&quot;Execute Makeself Version&quot;);</span>
+<span class="nc" id="L527">            execute(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath(), &quot;--version&quot;), !ATTACH_ARTIFACT);</span>
+
+            // If help arguments supplied, write output and get out of code.
+<span class="nc" id="L530">            String helpArgs = helpArgs();</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">            if (!helpArgs.isEmpty()) {</span>
+<span class="nc" id="L532">                getLog().debug(&quot;Execute Makeself Help&quot;);</span>
+<span class="nc" id="L533">                execute(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath(), helpArgs), !ATTACH_ARTIFACT);</span>
+<span class="nc" id="L534">                return;</span>
+            }
+
+            // Basic Configuration
+<span class="nc" id="L538">            getLog().debug(&quot;Loading Makeself Basic Configuration&quot;);</span>
+<span class="nc" id="L539">            List&lt;String&gt; target = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L540">            target.addAll(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath()));</span>
+<span class="nc" id="L541">            target.addAll(loadArgs());</span>
+<span class="nc" id="L542">            target.add(buildTarget.concat(archiveDir));</span>
+<span class="nc" id="L543">            target.add(buildTarget.concat(fileName));</span>
+<span class="nc" id="L544">            target.add(label);</span>
+<span class="nc" id="L545">            target.add(startupScript);</span>
+<span class="nc bnc" id="L546" title="All 2 branches missed.">            if (scriptArgs != null) {</span>
+<span class="nc" id="L547">                target.addAll(scriptArgs);</span>
+            }
+<span class="nc bnc" id="L549" title="All 2 branches missed.">            if (cleanupScript != null) {</span>
+<span class="nc" id="L550">                target.add(cleanupScript);</span>
+                // Pass original arguments again
+<span class="nc bnc" id="L552" title="All 2 branches missed.">                if (scriptArgs != null) {</span>
+<span class="nc" id="L553">                    target.addAll(scriptArgs);</span>
+                }
+                // Pass cleanup arguments
+<span class="nc bnc" id="L556" title="All 2 branches missed.">                if (cleanupArgs != null) {</span>
+<span class="nc" id="L557">                    target.addAll(cleanupArgs);</span>
+                }
+            }
+
+            // Indicate makeself running
+<span class="nc" id="L562">            getLog().info(&quot;Running makeself build&quot;);</span>
+
+            // Execute main run of makeself.sh
+<span class="nc" id="L565">            getLog().debug(&quot;Execute Makeself Build&quot;);</span>
+<span class="nc" id="L566">            execute(target, ATTACH_ARTIFACT);</span>
+
+            // Output info on file makeself created
+<span class="nc" id="L569">            getLog().debug(&quot;Execute Makeself Info on Resulting Shell Script&quot;);</span>
+<span class="nc" id="L570">            execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName), &quot;--info&quot;), !ATTACH_ARTIFACT);</span>
+
+            // Output list on file makeself created (non windows need)
+<span class="nc bnc" id="L573" title="All 2 branches missed.">            if (!MakeselfMojo.WINDOWS) {</span>
+<span class="nc" id="L574">                getLog().debug(&quot;Execute Makeself List on Resulting Shell Script&quot;);</span>
+<span class="nc" id="L575">                execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName), &quot;--list&quot;), !ATTACH_ARTIFACT);</span>
+            }
+
+            // auto run script
+<span class="nc bnc" id="L579" title="All 2 branches missed.">            if (this.autoRun) {</span>
+<span class="nc" id="L580">                getLog().info(&quot;Auto-run created shell (this may take a few minutes)&quot;);</span>
+<span class="nc" id="L581">                execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName)), !ATTACH_ARTIFACT);</span>
+            }
+<span class="nc" id="L583">        } catch (IOException e) {</span>
+<span class="nc" id="L584">            getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L585">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L586">            getLog().error(&quot;&quot;, e);</span>
+            // restore interruption status of the corresponding thread
+<span class="nc" id="L588">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L589">        }</span>
+<span class="nc" id="L590">    }</span>
+
+    private void execute(List&lt;String&gt; target, boolean attach) throws IOException, InterruptedException {
+
+        // Log execution target
+<span class="nc" id="L595">        getLog().debug(&quot;Execution commands: &quot; + target);</span>
+
+        // Create Process Builder
+<span class="nc" id="L598">        ProcessBuilder processBuilder = new ProcessBuilder(target);</span>
+<span class="nc" id="L599">        processBuilder.redirectErrorStream(true);</span>
+
+        // Add portable git to windows environment
+<span class="nc bnc" id="L602" title="All 2 branches missed.">        if (MakeselfMojo.WINDOWS) {</span>
+<span class="nc" id="L603">            Map&lt;String, String&gt; envs = processBuilder.environment();</span>
+<span class="nc" id="L604">            getLog().debug(&quot;Environment Variables: &quot; + envs);</span>
+<span class="nc" id="L605">            final String location = localRepository.getBasedir() + File.separator + this.portableGit.getName()</span>
+<span class="nc" id="L606">                    + File.separator + this.portableGit.getVersion();</span>
+            // Windows cmd/powershell shows &quot;Path&quot; in this case
+<span class="nc bnc" id="L608" title="All 2 branches missed.">            if (envs.get(&quot;Path&quot;) != null) {</span>
+<span class="nc" id="L609">                envs.put(&quot;Path&quot;, location + &quot;/usr/bin;&quot; + envs.get(&quot;Path&quot;));</span>
+<span class="nc" id="L610">                getLog().debug(&quot;Environment Path Variable: &quot; + envs.get(&quot;Path&quot;));</span>
+                // Windows bash shows &quot;PATH&quot; in this case and has issues with spacing as in 'Program Files'
+<span class="nc bnc" id="L612" title="All 2 branches missed.">            } else if (envs.get(&quot;PATH&quot;) != null) {</span>
+<span class="nc" id="L613">                envs.put(&quot;PATH&quot;,</span>
+<span class="nc" id="L614">                        location + &quot;/usr/bin;&quot; + envs.get(&quot;PATH&quot;).replace(&quot;Program Files&quot;, &quot;\&quot;Program Files\&quot;&quot;));</span>
+<span class="nc" id="L615">                getLog().debug(&quot;Environment Path Variable: &quot; + envs.get(&quot;PATH&quot;));</span>
+            }
+        }
+
+        // Create Process
+<span class="nc" id="L620">        Process process = processBuilder.start();</span>
+
+        // Write process output
+<span class="nc" id="L623">        try (BufferedReader reader = new BufferedReader(</span>
+<span class="nc" id="L624">                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {</span>
+<span class="nc" id="L625">            String line = &quot;&quot;;</span>
+<span class="nc bnc" id="L626" title="All 2 branches missed.">            while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L627">                getLog().info(line);</span>
+            }
+<span class="nc" id="L629">            getLog().info(&quot;&quot;);</span>
+        }
+
+        // Wait for process completion
+<span class="nc" id="L633">        int status = process.waitFor();</span>
+<span class="nc bnc" id="L634" title="All 2 branches missed.">        if (status &gt; 0) {</span>
+<span class="nc" id="L635">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;makeself failed with error status:&quot;, status));</span>
+        }
+
+        // Attach artifact to maven build for install/deploy/release on success
+<span class="nc bnc" id="L639" title="All 4 branches missed.">        if (status == 0 &amp;&amp; attach) {</span>
+<span class="nc" id="L640">            projectHelper.attachArtifact(project, this.extension, this.classifier,</span>
+<span class="nc" id="L641">                    new File(buildTarget, FilenameUtils.getName(fileName)));</span>
+        }
+<span class="nc" id="L643">    }</span>
+
+    /**
+     * Extract makeself.
+     */
+    private void extractMakeself() {
+<span class="nc" id="L649">        getLog().debug(&quot;Extracting Makeself&quot;);</span>
+
+        // Create makeself directory
+<span class="nc" id="L652">        File makeselfTemp = new File(targetDirectory.getAbsolutePath());</span>
+<span class="nc bnc" id="L653" title="All 4 branches missed.">        if (!makeselfTemp.exists() &amp;&amp; !makeselfTemp.mkdirs()) {</span>
+<span class="nc" id="L654">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;Unable to make directory&quot;, targetDirectory.getAbsolutePath()));</span>
+<span class="nc" id="L655">            return;</span>
+        } else {
+<span class="nc" id="L657">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Created directory for&quot;, targetDirectory.getAbsolutePath()));</span>
+        }
+
+<span class="nc" id="L660">        ClassLoader classloader = this.getClass().getClassLoader();</span>
+
+        // Write makeself script
+<span class="nc" id="L663">        makeself = new File(targetDirectory, &quot;makeself.sh&quot;);</span>
+<span class="nc bnc" id="L664" title="All 2 branches missed.">        if (!makeself.exists()) {</span>
+<span class="nc" id="L665">            getLog().debug(&quot;Writing makeself.sh&quot;);</span>
+<span class="nc" id="L666">            try (InputStream link = classloader.getResourceAsStream(&quot;META-INF/makeself/makeself.sh&quot;)) {</span>
+<span class="nc" id="L667">                Path path = makeself.getAbsoluteFile().toPath();</span>
+<span class="nc" id="L668">                Files.copy(link, path);</span>
+<span class="nc" id="L669">                setFilePermissions(makeself);</span>
+<span class="nc" id="L670">                setPosixFilePermissions(path);</span>
+<span class="nc" id="L671">            } catch (IOException e) {</span>
+<span class="nc" id="L672">                getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L673">            }</span>
+        }
+
+        // Write makeself-header script
+<span class="nc" id="L677">        File makeselfHeader = new File(targetDirectory, &quot;makeself-header.sh&quot;);</span>
+<span class="nc bnc" id="L678" title="All 2 branches missed.">        if (!makeselfHeader.exists()) {</span>
+<span class="nc" id="L679">            getLog().debug(&quot;Writing makeself-header.sh&quot;);</span>
+<span class="nc" id="L680">            try (InputStream link = classloader.getResourceAsStream(&quot;META-INF/makeself/makeself-header.sh&quot;)) {</span>
+<span class="nc" id="L681">                Path path = makeselfHeader.getAbsoluteFile().toPath();</span>
+<span class="nc" id="L682">                Files.copy(link, path);</span>
+<span class="nc" id="L683">                setFilePermissions(makeselfHeader);</span>
+<span class="nc" id="L684">                setPosixFilePermissions(path);</span>
+<span class="nc" id="L685">            } catch (IOException e) {</span>
+<span class="nc" id="L686">                getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L687">            }</span>
+        }
+<span class="nc" id="L689">    }</span>
+
+    /**
+     * Check Git Setup.
+     *
+     * @throws MojoFailureException
+     *             the mojo failure exception
+     */
+    private void checkGitSetup() throws MojoFailureException {
+        // Get Portable Git Maven Information
+<span class="nc" id="L699">        this.portableGit = new PortableGit(getLog());</span>
+
+        // Extract Portable Git
+<span class="nc" id="L702">        this.extractPortableGit();</span>
+<span class="nc" id="L703">    }</span>
+
+    /**
+     * Extract Portable Git.
+     */
+    private void extractPortableGit() {
+<span class="nc" id="L709">        final String location = localRepository.getBasedir() + File.separator + this.portableGit.getName()</span>
+<span class="nc" id="L710">                + File.separator + this.portableGit.getVersion();</span>
+<span class="nc bnc" id="L711" title="All 2 branches missed.">        if (new File(location).exists()) {</span>
+<span class="nc" id="L712">            getLog().debug(&quot;Existing 'PortableGit' folder found at &quot; + location);</span>
+<span class="nc" id="L713">            gitPath = location + &quot;/usr/bin/&quot;;</span>
+<span class="nc" id="L714">            return;</span>
+        }
+
+<span class="nc" id="L717">        getLog().info(&quot;Loading portable git&quot;);</span>
+<span class="nc" id="L718">        final Artifact artifact = repositorySystem.createArtifactWithClassifier(this.portableGit.getGroupId(),</span>
+<span class="nc" id="L719">                this.portableGit.getArtifactId(), this.portableGit.getVersion(), this.portableGit.getType(),</span>
+<span class="nc" id="L720">                this.portableGit.getClassifier());</span>
+
+<span class="nc" id="L722">        final ArtifactResolutionRequest artifactResolutionRequest = new ArtifactResolutionRequest();</span>
+<span class="nc" id="L723">        artifactResolutionRequest.setArtifact(artifact);</span>
+<span class="nc" id="L724">        artifactResolutionRequest.setResolveTransitively(true);</span>
+<span class="nc" id="L725">        artifactResolutionRequest.setLocalRepository(localRepository);</span>
+<span class="nc" id="L726">        artifactResolutionRequest.setRemoteRepositories(remoteRepositories);</span>
+<span class="nc" id="L727">        repositorySystem.resolve(artifactResolutionRequest);</span>
+
+<span class="nc" id="L729">        this.installGit(artifact, location);</span>
+<span class="nc" id="L730">    }</span>
+
+    /**
+     * Install Git extracts git to .m2/repository under PortableGit.
+     *
+     * @param artifact
+     *            the maven artifact representation for git
+     * @param location
+     *            the location in maven repository to store portable git
+     */
+    private void installGit(final Artifact artifact, final String location) {
+<span class="nc" id="L741">        File currentFile = null;</span>
+
+        // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into
+        // .m2/repository/PortableGit
+<span class="nc" id="L745">        try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(</span>
+<span class="nc" id="L746">                new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {</span>
+            TarArchiveEntry entry;
+<span class="nc bnc" id="L748" title="All 2 branches missed.">            while ((entry = tarArchiveInputStream.getNextTarEntry()) != null) {</span>
+<span class="nc bnc" id="L749" title="All 2 branches missed.">                if (entry.isDirectory()) {</span>
+<span class="nc" id="L750">                    continue;</span>
+                }
+<span class="nc" id="L752">                currentFile = new File(localRepository.getBasedir() + File.separator + this.portableGit.getName(),</span>
+<span class="nc" id="L753">                        entry.getName());</span>
+<span class="nc" id="L754">                File parent = currentFile.getParentFile();</span>
+<span class="nc bnc" id="L755" title="All 2 branches missed.">                if (!parent.exists()) {</span>
+<span class="nc" id="L756">                    parent.mkdirs();</span>
+                }
+<span class="nc" id="L758">                getLog().debug(&quot;Current file: &quot; + currentFile.getName());</span>
+<span class="nc" id="L759">                Files.copy(tarArchiveInputStream, currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);</span>
+<span class="nc" id="L760">            }</span>
+<span class="nc" id="L761">        } catch (IOException e) {</span>
+<span class="nc" id="L762">            getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L763">        }</span>
+
+        try {
+<span class="nc bnc" id="L766" title="All 2 branches missed.">            if (currentFile != null) {</span>
+                // Extract Portable Git
+<span class="nc" id="L768">                getLog().debug(&quot;Extract Portable Git&quot;);</span>
+<span class="nc" id="L769">                execute(Arrays.asList(currentFile.toPath().toString(), &quot;-y&quot;, &quot;-o&quot;, location), !ATTACH_ARTIFACT);</span>
+<span class="nc" id="L770">                gitPath = location + &quot;/usr/bin/&quot;;</span>
+            }
+<span class="nc" id="L772">        } catch (IOException e) {</span>
+<span class="nc" id="L773">            getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L774">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L775">            getLog().error(&quot;&quot;, e);</span>
+            // restore interruption status of the corresponding thread
+<span class="nc" id="L777">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L778">        }</span>
+<span class="nc" id="L779">    }</span>
+
+    private void setFilePermissions(File file) {
+<span class="nc bnc" id="L782" title="All 2 branches missed.">        if (!file.setExecutable(true, true)) {</span>
+<span class="nc" id="L783">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;Unable to set executable:&quot;, file.getName()));</span>
+        } else {
+<span class="nc" id="L785">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Set executable for&quot;, file.getName()));</span>
+        }
+<span class="nc" id="L787">    }</span>
+
+    private void setPosixFilePermissions(Path path) {
+<span class="nc" id="L790">        final Set&lt;PosixFilePermission&gt; permissions = PosixFilePermissions.fromString(&quot;rwxr-xr--&quot;);</span>
+
+        try {
+<span class="nc" id="L793">            Files.setPosixFilePermissions(path, permissions);</span>
+<span class="nc" id="L794">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Set Posix File Permissions for&quot;, path, &quot;as&quot;, permissions));</span>
+<span class="nc" id="L795">        } catch (IOException e) {</span>
+<span class="nc" id="L796">            getLog().error(&quot;Failed attempted Posix permissions&quot;, e);</span>
+<span class="nc" id="L797">        } catch (UnsupportedOperationException e) {</span>
+            // Attempting but don't care about status if it fails
+<span class="nc" id="L799">            getLog().debug(&quot;Failed attempted Posix permissions&quot;, e);</span>
+<span class="nc" id="L800">        }</span>
+<span class="nc" id="L801">    }</span>
+
+    /**
+     * Help args.
+     *
+     * @return the string
+     */
+    private String helpArgs() {
+<span class="nc" id="L809">        getLog().debug(&quot;Loading help arguments&quot;);</span>
+
+<span class="nc" id="L811">        StringBuilder args = new StringBuilder();</span>
+
+        // --help | -h : Print out this help message
+<span class="nc bnc" id="L814" title="All 2 branches missed.">        if (isTrue(help)) {</span>
+<span class="nc" id="L815">            args.append(&quot;--help &quot;);</span>
+        }
+<span class="nc" id="L817">        return args.toString();</span>
+    }
+
+    /**
+     * Load args.
+     *
+     * @return the string
+     */
+    private List&lt;String&gt; loadArgs() {
+<span class="nc" id="L826">        getLog().debug(&quot;Loading arguments&quot;);</span>
+
+<span class="nc" id="L828">        List&lt;String&gt; args = new ArrayList&lt;&gt;(50);</span>
+
+        // --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
+<span class="nc bnc" id="L831" title="All 2 branches missed.">        if (isTrue(gzip)) {</span>
+<span class="nc" id="L832">            args.add(&quot;--gzip&quot;);</span>
+        }
+
+        // --bzip2 : Use bzip2 instead of gzip for better compression. The bzip2 command must be available in the
+        // command path. It is recommended that the archive prefix be set to something like '.bz2.run', so that
+        // potential users know that they'll need bzip2 to extract it.
+<span class="nc bnc" id="L838" title="All 2 branches missed.">        if (isTrue(bzip2)) {</span>
+<span class="nc" id="L839">            args.add(&quot;--bzip2&quot;);</span>
+        }
+
+        // --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs.
+        // The pbzip2 command must be available in the command path. It is recommended that the archive prefix be
+        // set to something like '.bz2.run', so that potential users know that they'll need bzip2 to extract it.
+<span class="nc bnc" id="L845" title="All 2 branches missed.">        if (isTrue(pbzip2)) {</span>
+<span class="nc" id="L846">            args.add(&quot;--pbzip2&quot;);</span>
+        }
+
+        // --xz : Use xz instead of gzip for better compression. The xz command must be available in the command path.
+        // It is recommended that the archive prefix be set to something like '.xz.run' for the archive, so that
+        // potential users know that they'll need xz to extract it.
+<span class="nc bnc" id="L852" title="All 2 branches missed.">        if (isTrue(xz)) {</span>
+<span class="nc" id="L853">            args.add(&quot;--xz&quot;);</span>
+        }
+
+        // --lzo : Use lzop instead of gzip for better compression. The lzop command must be available in the command
+        // path. It is recommended that the archive prefix be set to something like '.lzo.run' for the archive, so
+        // that potential users know that they'll need lzop to extract it.
+<span class="nc bnc" id="L859" title="All 2 branches missed.">        if (isTrue(lzo)) {</span>
+<span class="nc" id="L860">            args.add(&quot;--lzo&quot;);</span>
+        }
+
+        // --lz4 : Use lz4 instead of gzip for better compression. The lz4 command must be available in the command
+        // path. It is recommended that the archive prefix be set to something like '.lz4.run' for the archive, so
+        // that potential users know that they'll need lz4 to extract it.
+<span class="nc bnc" id="L866" title="All 2 branches missed.">        if (isTrue(lz4)) {</span>
+<span class="nc" id="L867">            args.add(&quot;--lz4&quot;);</span>
+        }
+
+        // --pigz : Use pigz for compression.
+<span class="nc bnc" id="L871" title="All 2 branches missed.">        if (isTrue(pigz)) {</span>
+<span class="nc" id="L872">            args.add(&quot;--pigz&quot;);</span>
+        }
+
+        // --zstd : Use zstd for compression.
+<span class="nc bnc" id="L876" title="All 2 branches missed.">        if (isTrue(zstd)) {</span>
+<span class="nc" id="L877">            args.add(&quot;--zstd&quot;);</span>
+        }
+
+        // --base64 : Encode the archive to ASCII in Base64 format (base64 command required).
+<span class="nc bnc" id="L881" title="All 2 branches missed.">        if (isTrue(base64)) {</span>
+<span class="nc" id="L882">            args.add(&quot;--base64&quot;);</span>
+        }
+
+        // --gpg-encrypt : Encrypt the archive using gpg -ac -z $COMPRESS_LEVEL. This will prompt for a password to
+        // encrypt with. Assumes that potential users have gpg installed.
+<span class="nc bnc" id="L887" title="All 2 branches missed.">        if (isTrue(gpgEncrypt)) {</span>
+<span class="nc" id="L888">            args.add(&quot;--gpg-encrypt&quot;);</span>
+        }
+
+        // --gpg-asymmetric-encrypt-sign : Instead of compressing, asymmetrically encrypt and sign the data using GPG
+<span class="nc bnc" id="L892" title="All 2 branches missed.">        if (isTrue(gpgAsymmetricEncryptSign)) {</span>
+<span class="nc" id="L893">            args.add(&quot;--gpg-asymmetric-encrypt-sign&quot;);</span>
+        }
+
+        // --ssl-encrypt : Encrypt the archive using openssl aes-256-cbc -a -salt. This will prompt for a password to
+        // encrypt with. Assumes that the potential users have the OpenSSL tools installed.
+<span class="nc bnc" id="L898" title="All 2 branches missed.">        if (isTrue(sslEncrypt)) {</span>
+<span class="nc" id="L899">            args.add(&quot;--ssl-encrypt&quot;);</span>
+        }
+
+        // --ssl-passwd pass : Use the given password to encrypt the data using OpenSSL.
+<span class="nc bnc" id="L903" title="All 2 branches missed.">        if (sslPasswd != null) {</span>
+<span class="nc" id="L904">            args.add(&quot;--ssl-passwd&quot;);</span>
+<span class="nc" id="L905">            args.add(sslPasswd);</span>
+        }
+
+        // --ssl-pass-src src : Use the given src as the source of password to encrypt the data using OpenSSL. See
+        // \&quot;PASS PHRASE ARGUMENTS\&quot; in man openssl. If this option is not supplied, the user wil be asked to enter
+        // encryption pasword on the current terminal.
+<span class="nc bnc" id="L911" title="All 2 branches missed.">        if (sslPasswd != null) {</span>
+<span class="nc" id="L912">            args.add(&quot;--ssl-pass-src&quot;);</span>
+<span class="nc" id="L913">            args.add(sslPassSrc);</span>
+        }
+
+        // --ssl-no-md : Do not use \&quot;-md\&quot; option not supported by older OpenSSL.
+<span class="nc bnc" id="L917" title="All 2 branches missed.">        if (isTrue(sslNoMd)) {</span>
+<span class="nc" id="L918">            args.add(&quot;--ssl-no-md&quot;);</span>
+        }
+
+        // --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms
+        // that don't have gzip available.
+<span class="nc bnc" id="L923" title="All 2 branches missed.">        if (isTrue(compress)) {</span>
+<span class="nc" id="L924">            args.add(&quot;--compress&quot;);</span>
+        }
+
+        // --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
+<span class="nc bnc" id="L928" title="All 2 branches missed.">        if (isTrue(nocomp)) {</span>
+<span class="nc" id="L929">            args.add(&quot;--nocomp&quot;);</span>
+        }
+
+        // --complevel : Specify the compression level for gzip, bzip2, pbzip2, xz, lzo or lz4. (defaults to 9)
+<span class="nc bnc" id="L933" title="All 2 branches missed.">        if (complevel != null) {</span>
+<span class="nc" id="L934">            args.add(&quot;--complevel&quot;);</span>
+<span class="nc" id="L935">            args.add(complevel.toString());</span>
+        }
+
+        // --threads thds : Number of threads to be used by compressors that support parallelization.
+        // Omit to use compressor's default. Most useful (and required) for opting into xz's threading,
+        // usually with '--threads=0' for all available cores.pbzip2 and pigz are parallel by default,
+        // and setting this value allows limiting the number of threads they use.
+<span class="nc bnc" id="L942" title="All 2 branches missed.">        if (threads != null) {</span>
+<span class="nc" id="L943">            args.add(&quot;--threads&quot;);</span>
+<span class="nc" id="L944">            args.add(threads.toString());</span>
+        }
+
+        // --notemp : The generated archive will not extract the files to a temporary directory, but in a new directory
+        // created in the current directory. This is better to distribute software packages that may extract and compile
+        // by themselves (i.e. launch the compilation through the embedded script).
+<span class="nc bnc" id="L950" title="All 2 branches missed.">        if (isTrue(notemp)) {</span>
+<span class="nc" id="L951">            args.add(&quot;--notemp&quot;);</span>
+        }
+
+        // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option
+        // implies --notemp above.
+<span class="nc bnc" id="L956" title="All 2 branches missed.">        if (isTrue(current)) {</span>
+<span class="nc" id="L957">            args.add(&quot;--current&quot;);</span>
+        }
+
+        // --follow : Follow the symbolic links inside of the archive directory, i.e. store the files that are being
+        // pointed to instead of the links themselves.
+<span class="nc bnc" id="L962" title="All 2 branches missed.">        if (isTrue(follow)) {</span>
+<span class="nc" id="L963">            args.add(&quot;--follow&quot;);</span>
+        }
+
+        // --append (new in 2.1.x): Append data to an existing archive, instead of creating a new one. In this mode, the
+        // settings from the original archive are reused (compression type, label, embedded script), and thus don't need
+        // to be specified again on the command line.
+<span class="nc bnc" id="L969" title="All 2 branches missed.">        if (isTrue(append)) {</span>
+<span class="nc" id="L970">            args.add(&quot;--append&quot;);</span>
+        }
+
+        // --header : Makeself 2.0 uses a separate file to store the header stub, called makeself-header.sh. By default,
+        // it is assumed that it is stored in the same location as makeself.sh. This option can be used to specify its
+        // actual location if it is stored someplace else.
+<span class="nc bnc" id="L976" title="All 2 branches missed.">        if (headerFile != null) {</span>
+<span class="nc" id="L977">            args.add(&quot;--header&quot;);</span>
+<span class="nc" id="L978">            args.add(headerFile.toString());</span>
+        }
+
+        // --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main
+        // application of this is to allow self-contained installers stored in a Makeself archive on a CD, when the
+        // installer program will later need to unmount the CD and allow a new one to be inserted. This prevents
+        // &quot;File system busy&quot; errors for installers that span multiple CDs.
+<span class="nc bnc" id="L985" title="All 2 branches missed.">        if (isTrue(copy)) {</span>
+<span class="nc" id="L986">            args.add(&quot;--copy&quot;);</span>
+        }
+
+        // --nox11 : Disable the automatic spawning of a new terminal in X11.
+<span class="nc bnc" id="L990" title="All 2 branches missed.">        if (isTrue(nox11)) {</span>
+<span class="nc" id="L991">            args.add(&quot;--nox11&quot;);</span>
+        }
+
+        // --nowait : When executed from a new X11 terminal, disable the user prompt at the end of the script execution.
+<span class="nc bnc" id="L995" title="All 2 branches missed.">        if (isTrue(nowait)) {</span>
+<span class="nc" id="L996">            args.add(&quot;--nowait&quot;);</span>
+        }
+
+        // --nomd5 : Disable the creation of a MD5 checksum for the archive. This speeds up the extraction process if
+        // integrity checking is not necessary.
+<span class="nc bnc" id="L1001" title="All 2 branches missed.">        if (isTrue(nomd5)) {</span>
+<span class="nc" id="L1002">            args.add(&quot;--nomd5&quot;);</span>
+        }
+
+        // --nocrc : Disable the creation of a CRC checksum for the archive. This speeds up the extraction process if
+        // integrity checking is not necessary.
+<span class="nc bnc" id="L1007" title="All 2 branches missed.">        if (isTrue(nocrc)) {</span>
+<span class="nc" id="L1008">            args.add(&quot;--nocrc&quot;);</span>
+        }
+
+        // --sha256 : Compute a SHA256 checksum for the archive.
+<span class="nc bnc" id="L1012" title="All 2 branches missed.">        if (isTrue(sha256)) {</span>
+<span class="nc" id="L1013">            args.add(&quot;--sha256&quot;);</span>
+        }
+
+        // --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
+        // describing a software package in a way that is easily parseable. The LSM entry can then be later retrieved
+        // using the --lsm argument to the archive. An example of a LSM file is provided
+        // with Makeself.
+<span class="nc bnc" id="L1020" title="All 2 branches missed.">        if (lsmFile != null) {</span>
+<span class="nc" id="L1021">            args.add(&quot;--lsm&quot;);</span>
+<span class="nc" id="L1022">            args.add(lsmFile);</span>
+        }
+
+        // --gpg-extra opt : Append more options to the gpg command line.
+<span class="nc bnc" id="L1026" title="All 2 branches missed.">        if (gpgExtraOpt != null) {</span>
+<span class="nc" id="L1027">            args.add(&quot;--gpg-extra&quot;);</span>
+<span class="nc" id="L1028">            args.add(gpgExtraOpt);</span>
+        }
+
+        // --tar-format opt : Specify the tar archive format (default is ustar); you may use any value accepted by your
+        // tar command (such as posix, v7, etc).
+<span class="nc bnc" id="L1033" title="All 2 branches missed.">        if (tarFormatOpt != null) {</span>
+<span class="nc" id="L1034">            args.add(&quot;--tar-format&quot;);</span>
+<span class="nc" id="L1035">            args.add(tarFormatOpt);</span>
+        }
+
+        // --tar-extra opt : Append more options to the tar command line.
+        // For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar,
+        // one can use makeself.sh --tar-extra &quot;--exclude=.git&quot; ...
+<span class="nc bnc" id="L1041" title="All 2 branches missed.">        if (tarExtraOpt != null) {</span>
+<span class="nc" id="L1042">            args.add(&quot;--tar-extra&quot;);</span>
+<span class="nc" id="L1043">            args.add(tarExtraOpt);</span>
+        }
+
+        // --untar-extra opt : Append more options to the during the extraction of the tar archive.
+<span class="nc bnc" id="L1047" title="All 2 branches missed.">        if (untarExtraOpt != null) {</span>
+<span class="nc" id="L1048">            args.add(&quot;--untar-extra&quot;);</span>
+<span class="nc" id="L1049">            args.add(untarExtraOpt);</span>
+        }
+
+        // --sign passphrase : Signature private key to sign the package with
+<span class="nc bnc" id="L1053" title="All 2 branches missed.">        if (sign != null) {</span>
+<span class="nc" id="L1054">            args.add(&quot;--sign&quot;);</span>
+<span class="nc" id="L1055">            args.add(sign);</span>
+        }
+
+        // --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
+        // archive.
+<span class="nc bnc" id="L1060" title="All 2 branches missed.">        if (isTrue(keepUmask)) {</span>
+<span class="nc" id="L1061">            args.add(&quot;--keep-umask&quot;);</span>
+        }
+
+        // --export-conf : Export configuration variables to startup_script&quot;
+<span class="nc bnc" id="L1065" title="All 2 branches missed.">        if (isTrue(exportConf)) {</span>
+<span class="nc" id="L1066">            args.add(&quot;--export-conf&quot;);</span>
+        }
+
+        // --packaging-date date : Use provided string as the packaging date instead of the current date.
+<span class="nc bnc" id="L1070" title="All 2 branches missed.">        if (packagingDate != null) {</span>
+<span class="nc" id="L1071">            args.add(&quot;--packaging-date&quot;);</span>
+<span class="nc" id="L1072">            args.add(packagingDate);</span>
+        }
+
+        // --license : Append a license file.
+<span class="nc bnc" id="L1076" title="All 2 branches missed.">        if (licenseFile != null) {</span>
+<span class="nc" id="L1077">            args.add(&quot;--license&quot;);</span>
+<span class="nc" id="L1078">            args.add(licenseFile);</span>
+        }
+
+        // --nooverwrite : Do not extract the archive if the specified target directory already exists.
+<span class="nc bnc" id="L1082" title="All 2 branches missed.">        if (isTrue(nooverwrite)) {</span>
+<span class="nc" id="L1083">            args.add(&quot;--nooverwrite&quot;);</span>
+        }
+
+        // --help-header file : Add a header to the archive's --help output.
+<span class="nc bnc" id="L1087" title="All 2 branches missed.">        if (helpHeaderFile != null) {</span>
+<span class="nc" id="L1088">            args.add(&quot;--help-header&quot;);</span>
+<span class="nc" id="L1089">            args.add(helpHeaderFile);</span>
+        }
+
+<span class="nc" id="L1092">        return args;</span>
+    }
+
+    private boolean isTrue(Boolean value) {
+<span class="nc bnc" id="L1096" title="All 2 branches missed.">        if (value != null) {</span>
+<span class="nc" id="L1097">            return value.booleanValue();</span>
+        }
+<span class="nc" id="L1099">        return false;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

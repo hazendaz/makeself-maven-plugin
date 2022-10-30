@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PortableGit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">makeself-maven-plugin</a> &gt; <a href="index.source.html" class="el_package">com.hazendaz.maven.makeself</a> &gt; <span class="el_source">PortableGit.java</span></div><h1>PortableGit.java</h1><pre class="source lang-java linenums">/*
+ *    Copyright 2011-2022 the original author or authors.
+ *
+ *    This program is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    as published by the Free Software Foundation; either version 2
+ *    of the License, or (at your option) any later version.
+ *
+ *    You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ */
+package com.hazendaz.maven.makeself;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import lombok.Getter;
+
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.logging.Log;
+
+/**
+ * The Class PortableGit.
+ */
+public class PortableGit {
+
+    /** The group id. */
+<span class="fc" id="L35">    @Getter</span>
+    private String groupId;
+
+    /** The artifact id. */
+<span class="fc" id="L39">    @Getter</span>
+    private String artifactId;
+
+    /** The version. */
+<span class="fc" id="L43">    @Getter</span>
+    private String version;
+
+    /** The type. */
+<span class="fc" id="L47">    @Getter</span>
+    private String type;
+
+    /** The classifier. */
+<span class="fc" id="L51">    @Getter</span>
+    private String classifier;
+
+    /** The name. */
+<span class="fc" id="L55">    @Getter</span>
+    private String name;
+
+    /**
+     * Load portable git artifact from makeself.properties file.
+     *
+     * @param log
+     *            the log
+     *
+     * @throws MojoFailureException
+     *             the mojo failure exception
+     */
+<span class="fc" id="L67">    public PortableGit(final Log log) throws MojoFailureException {</span>
+<span class="fc" id="L68">        try (InputStream input = this.getClass().getClassLoader().getResourceAsStream(&quot;META-INF/makeself.properties&quot;)) {</span>
+<span class="fc" id="L69">            final Properties properties = new Properties();</span>
+<span class="fc" id="L70">            properties.load(input);</span>
+
+<span class="fc" id="L72">            this.groupId = properties.getProperty(&quot;portable.git.groupId&quot;);</span>
+<span class="fc" id="L73">            this.artifactId = properties.getProperty(&quot;portable.git.artifactId&quot;);</span>
+<span class="fc" id="L74">            this.version = properties.getProperty(&quot;portable.git.version&quot;);</span>
+<span class="fc" id="L75">            this.type = properties.getProperty(&quot;portable.git.type&quot;);</span>
+<span class="fc" id="L76">            this.classifier = properties.getProperty(&quot;portable.git.classifier&quot;);</span>
+<span class="fc" id="L77">            this.name = properties.getProperty(&quot;portable.git.name&quot;);</span>
+<span class="nc" id="L78">        } catch (final IOException e) {</span>
+<span class="nc" id="L79">            log.error(&quot;Unable to read makeself.properties&quot;);</span>
+<span class="nc" id="L80">            throw new MojoFailureException(e);</span>
+<span class="fc" id="L81">        }</span>
+<span class="fc" id="L82">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

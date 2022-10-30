@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.hazendaz.maven.makeself","l":"PortableGitTest"}];updateSearchResults();
