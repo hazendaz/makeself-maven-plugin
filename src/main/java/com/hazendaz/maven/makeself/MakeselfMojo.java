@@ -91,7 +91,7 @@ public class MakeselfMojo extends AbstractMojo {
 
     /**
      * startup_script is the command to be executed from within the directory of extracted files. Thus, if you wish to
-     * execute a program contain in this directory, you must prefix your command with './'. For example, './program'
+     * execute a program contained in this directory, you must prefix your command with './'. For example, './program'
      * will be fine.
      */
     @Parameter(defaultValue = "./makeself.sh", property = "startupScript", required = true)
