@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+       Copyright 2011-2022 the original author or authors.
+
+       This program is free software; you can redistribute it and/or
+       modify it under the terms of the GNU General Public License
+       as published by the Free Software Foundation; either version 2
+       of the License, or (at your option) any later version.
+
+       You may obtain a copy of the License at
+
+          https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+
+       This program is distributed in the hope that it will be useful,
+       but WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+       GNU General Public License for more details.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.hazendaz</groupId>
+        <artifactId>base-parent</artifactId>
+        <version>36</version>
+    </parent>
+
+    <groupId>com.github.hazendaz</groupId>
+    <artifactId>makeself-inline</artifactId>
+    <version>testing</version>
+    <packaging>pom</packaging>
+
+    <name>makeself-inline</name>
+    <description>Makeself inline Integration Test</description>
+    <url>https://hazendaz.github.io/makeself-maven-plugin/</url>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</developerConnection>
+        <url>https://github.io/hazendaz/makeself-maven-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <build>
+        <finalName>makeself-inline</finalName>
+        <plugins>
+            <!-- Assembly -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.hazendaz.maven</groupId>
+                <artifactId>makeself-maven-plugin</artifactId>
+                <version>@pom.version@</version>
+                <configuration>
+                    <archiveDir>makeself-inline-distro</archiveDir>
+                    <fileName>makeself-inline.sh</fileName>
+                    <inlineScript>true</inlineScript>
+                    <label>Makeself inline Self Extraction</label>
+                    <scriptArgs>hello</scriptArgs>
+                    <startupScript>echo</startupScript>
+                    <sha256>true</sha256>
+                    <autoRun>true</autoRun>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>makeself</id>
+                        <goals>
+                            <goal>makeself</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <configuration>
+                    <rules>
+                        <requirePluginVersions>
+                            <!-- Allow snapshot of plugin as we are testing it -->
+                            <banSnapshots>false</banSnapshots>
+                        </requirePluginVersions>
+                    </rules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
