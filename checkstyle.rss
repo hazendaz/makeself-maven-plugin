@@ -27,7 +27,7 @@ under the License.
     <item>
       <title>File: 6,
              Errors: 0,
-             Warnings: 554,
+             Warnings: 562,
              Infos: 0
       </title>
             <link>https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html</link>
@@ -88,20 +88,6 @@ under the License.
               </tr>
                           <tr>
                 <td>
-                  <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.HelpMojo.java">com/hazendaz/maven/makeself/HelpMojo.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  548
-                </td>
-                <td>
-                  0
-                </td>
-              </tr>
-                          <tr>
-                <td>
                   <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.hazendaz.maven.makeself.MakeselfMojo.java">com/hazendaz/maven/makeself/MakeselfMojo.java</a>
                 </td>
                 <td>
@@ -123,6 +109,20 @@ under the License.
                 </td>
                 <td>
                   0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/hazendaz/makeself-maven-plugin/checkstyle.html#com.github.hazendaz.maven.makeself_maven_plugin.HelpMojo.java">com/github/hazendaz/maven/makeself_maven_plugin/HelpMojo.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  556
                 </td>
                 <td>
                   0
