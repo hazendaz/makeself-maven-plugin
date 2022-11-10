@@ -118,6 +118,17 @@ public class MakeselfMojo extends AbstractMojo {
     private String classifier;
 
     /**
+     * inline script allows user to skip strict verification of startup script for cases where script is defined
+     * directly such as 'echo hello' where 'echo' is a 'program' to run and 'hello' is one of many 'script arguments'.
+     * Behaviour of makeself plugin prior to 1.5.0 allowed for this undocumented feature which is further allowed and
+     * shown as an example in makeself. Verification therefore checks that both startupScript and scriptArgs exist only.
+     *
+     * @since 1.5.1
+     */
+    @Parameter(property = "inlineScript")
+    private boolean inlineScript;
+
+    /**
      * script_args are additional arguments for startup_script passed as an array.
      *
      * <pre>
@@ -493,20 +504,30 @@ public class MakeselfMojo extends AbstractMojo {
             return;
         }
 
-        // Validations
+        // Validate archive directory exists
         File file = new File(buildTarget.concat(archiveDir));
         if (!file.exists()) {
             throw new MojoExecutionException("ArchiveDir: missing '" + buildTarget.concat(archiveDir) + "'");
         }
 
-        if (!startupScript.startsWith("./")) {
-            throw new MojoExecutionException("StartupScript required to start with './'");
-        }
+        // Validate inline script or startup script file
+        if (inlineScript) {
+            // Validate inline script has script args
+            if (scriptArgs == null) {
+                throw new MojoExecutionException("ScriptArgs required when running inlineScript");
+            }
+        } else {
+            // Validate startupScript file starts with './'
+            if (!startupScript.startsWith("./")) {
+                throw new MojoExecutionException("StartupScript required to start with './'");
+            }
 
-        file = new File(buildTarget.concat(archiveDir).concat(startupScript.substring(1)));
-        if (!file.exists()) {
-            throw new MojoExecutionException("StartupScript: missing '"
-                    + buildTarget.concat(archiveDir).concat(startupScript.substring(1)) + "'");
+            // Validate startupScript file exists
+            file = new File(buildTarget.concat(archiveDir).concat(startupScript.substring(1)));
+            if (!file.exists()) {
+                throw new MojoExecutionException("StartupScript: missing '"
+                        + buildTarget.concat(archiveDir).concat(startupScript.substring(1)) + "'");
+            }
         }
 
         // Setup make self files
