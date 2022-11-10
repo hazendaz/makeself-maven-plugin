@@ -7,9 +7,13 @@ Makeself Maven Plugin
 
 ![hazendaz](src/site/resources/images/hazendaz-banner.jpg)
 
-See site page [here](https://hazendaz.github.io/makeself-maven-plugin/)
+See [makeself](https://github.com/megastep/makeself) for details on using makeself
+
+See plugin site page [here](https://hazendaz.github.io/makeself-maven-plugin/)
 
 See plugin details [here](https://hazendaz.github.io/makeself-maven-plugin/plugin-info.html)
+
+See changelog [here](https://hazendaz.github.io/makeself-maven-plugin/CHANGELOG.md)
 
 Makeself Maven Plugin provides maven integration for megastep makeself script.
 
@@ -28,8 +32,6 @@ Versions prior to this point as noted below used bash in a different way.  It is
 To use in windows, configure Bash or Add git for windows '/usr/bin' to environment 'Path' variable to execute this plugin.
 
 Alternatively in windows, if bash is not found on the path, the plugin will download the portable copy of git-for-windows and install it into maven home under 'PortableGit' and will use that version to run necessary bash steps.
-
-See [makeself](https://github.com/megastep/makeself)
 
 Example Usage
 
@@ -57,6 +59,7 @@ Example Usage
 
 *** Special notes: ***
 
+- Use version 1.5.1 with 'inlineScript' set to true if using startupScript to call a program with scriptArgs.
 - Use version 1.3.0 or better for full windows support without having to pre-install bash.
 - For jdk 8 and on usage, use version 1.2.0
 - For jdk 7 usage, use version 1.1.5

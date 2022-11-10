@@ -1,7 +1,12 @@
+1.5.1
+-----
+- Add 'inlineScript' to skip 1.5.0 verifications for startupScript and instead check scriptArgs exist for case where startupScript is not a file as expected but rather inline script followed by arguments.
+
 1.5.0
 -----
 - Add 'extension' exposure to caller to set the type of extension used.  This was previously set to 'sh' and will remain its default.  When using 'run' type as defined by makeself standards, set this to 'run'.  This is used for attachments to maven for distribution to sonatype/artifactory/etc.
 - Add 'classifier' exposure to caller to set the classifier of the fileName used when using multiple executions.  This previously did not use classifier and will remain not using classifier which takes on form of the project.  If not set when more than one execution used, the attachment will only pick up last defined.
+- Added verifications on input data for 4 required parameters
 
 1.3.2
 -----
