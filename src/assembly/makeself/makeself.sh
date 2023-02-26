@@ -20,13 +20,13 @@
 #         support for non-temporary archives. Ideas thanks to Francois Petitjean
 # - 1.3 : More patches from Bjarni R. Einarsson and Francois Petitjean:
 #         Support for no compression (--nocomp), script is no longer mandatory,
-#         automatic launch in an xterm, optional verbose output, and -target 
+#         automatic launch in an xterm, optional verbose output, and -target
 #         archive option to indicate where to extract the files.
 # - 1.4 : Improved UNIX compatibility (Francois Petitjean)
 #         Automatic integrity checking, support of LSM files (Francois Petitjean)
 # - 1.5 : Many bugfixes. Optionally disable xterm spawning.
 # - 1.5.1 : More bugfixes, added archive options -list and -check.
-# - 1.5.2 : Cosmetic changes to inform the user of what's going on with big 
+# - 1.5.2 : Cosmetic changes to inform the user of what's going on with big
 #           archives (Quake III demo)
 # - 1.5.3 : Check for validity of the DISPLAY variable before launching an xterm.
 #           More verbosity in xterms and check for embedded command's return value.
@@ -227,116 +227,116 @@ while true
 do
     case "$1" in
     --version | -v)
-	echo Makeself version $MS_VERSION
-	exit 0
-	;;
+  echo Makeself version $MS_VERSION
+  exit 0
+  ;;
     --pbzip2)
-	COMPRESS=pbzip2
-	shift
-	;;
+  COMPRESS=pbzip2
+  shift
+  ;;
     --bzip2)
-	COMPRESS=bzip2
-	shift
-	;;
+  COMPRESS=bzip2
+  shift
+  ;;
     --gzip)
-	COMPRESS=gzip
-	shift
-	;;
+  COMPRESS=gzip
+  shift
+  ;;
     --pigz)
-    	COMPRESS=pigz
-    	shift
-    	;;
+      COMPRESS=pigz
+      shift
+      ;;
     --zstd)
-    	COMPRESS=zstd
-    	shift
-    	;;
+      COMPRESS=zstd
+      shift
+      ;;
     --xz)
-	COMPRESS=xz
-	shift
-	;;
+  COMPRESS=xz
+  shift
+  ;;
     --lzo)
-	COMPRESS=lzo
-	shift
-	;;
+  COMPRESS=lzo
+  shift
+  ;;
     --lz4)
-	COMPRESS=lz4
-	shift
-	;;
+  COMPRESS=lz4
+  shift
+  ;;
     --compress)
-	COMPRESS=compress
-	shift
-	;;
+  COMPRESS=compress
+  shift
+  ;;
     --base64)
-	COMPRESS=base64
-	shift
-	;;
+  COMPRESS=base64
+  shift
+  ;;
     --gpg-encrypt)
-	COMPRESS=gpg
-	shift
-	;;
+  COMPRESS=gpg
+  shift
+  ;;
     --gpg-asymmetric-encrypt-sign)
-	COMPRESS=gpg-asymmetric
-	shift
-	;;
+  COMPRESS=gpg-asymmetric
+  shift
+  ;;
     --gpg-extra)
-	GPG_EXTRA="$2"
+  GPG_EXTRA="$2"
     shift 2 || { MS_Usage; exit 1; }
-	;;
+  ;;
     --ssl-encrypt)
-	ENCRYPT=openssl
- 	shift
-	;;
+  ENCRYPT=openssl
+   shift
+  ;;
     --ssl-passwd)
-	PASSWD=$2
+  PASSWD=$2
     shift 2 || { MS_Usage; exit 1; }
-	;;
+  ;;
     --ssl-pass-src)
-	PASSWD_SRC=$2
+  PASSWD_SRC=$2
     shift 2 || { MS_Usage; exit 1; }
-	;;
+  ;;
     --ssl-no-md)
-	OPENSSL_NO_MD=y
-	shift
-	;;
+  OPENSSL_NO_MD=y
+  shift
+  ;;
     --nocomp)
-	COMPRESS=none
-	shift
-	;;
+  COMPRESS=none
+  shift
+  ;;
     --complevel)
-	COMPRESS_LEVEL="$2"
+  COMPRESS_LEVEL="$2"
     shift 2 || { MS_Usage; exit 1; }
-	;;
+  ;;
     --threads)
-	THREADS="$2"
+  THREADS="$2"
     shift 2 || { MS_Usage; exit 1; }
-	;;
+  ;;
     --nochown)
-	OWNERSHIP=n
-	shift
-	;;
+  OWNERSHIP=n
+  shift
+  ;;
     --chown)
-	OWNERSHIP=y
-	shift
-	;;
+  OWNERSHIP=y
+  shift
+  ;;
     --notemp)
-	KEEP=y
-	shift
-	;;
+  KEEP=y
+  shift
+  ;;
     --copy)
-	COPY=copy
-	shift
-	;;
+  COPY=copy
+  shift
+  ;;
     --current)
-	CURRENT=y
-	KEEP=y
-	shift
-	;;
+  CURRENT=y
+  KEEP=y
+  shift
+  ;;
     --tar-format)
-	    TAR_FORMAT="$2"
+      TAR_FORMAT="$2"
         shift 2 || { MS_Usage; exit 1; }
     ;;
     --tar-extra)
-	    TAR_EXTRA="$2"
+      TAR_EXTRA="$2"
         shift 2 || { MS_Usage; exit 1; }
     ;;
     --untar-extra)
@@ -344,10 +344,10 @@ do
         shift 2 || { MS_Usage; exit 1; }
         ;;
     --target)
-	  TARGETDIR="$2"
-	  KEEP=y
+    TARGETDIR="$2"
+    KEEP=y
     shift 2 || { MS_Usage; exit 1; }
- 	  ;;
+     ;;
     --sign)
     SIGN=y
     GPG_PASSPHRASE="$2"
