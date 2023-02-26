@@ -177,9 +177,17 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean bzip2;
 
     /**
+     * --bzip3 : Use bzip3 instead of gzip for better compression. The bzip3 command must be available in the command
+     * path. It is recommended that the archive prefix be set to something like '.bz3.run', so that potential users know
+     * that they'll need bzip3 to extract it.
+     */
+    @Parameter(property = "bzip3")
+    private Boolean bzip3;
+
+    /**
      * --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs. The
      * pbzip2 command must be available in the command path. It is recommended that the archive prefix be set to
-     * something like '.bz2.run', so that potential users know that they'll need bzip2 to extract it.
+     * something like '.pbz2.run', so that potential users know that they'll need bzip2 to extract it.
      */
     @Parameter(property = "pbzip2")
     private Boolean pbzip2;
@@ -276,7 +284,7 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean nocomp;
 
     /**
-     * --complevel : Specify the compression level for gzip, bzip2, pbzip2, xz, lzo or lz4. (defaults to 9).
+     * --complevel : Specify the compression level for gzip, bzip2, bzip3, pbzip2, xz, lzo or lz4. (defaults to 9).
      */
     @Parameter(property = "complevel")
     private Integer complevel;
@@ -860,9 +868,16 @@ public class MakeselfMojo extends AbstractMojo {
             args.add("--bzip2");
         }
 
+        // --bzip3 : Use bzip3 instead of gzip for better compression. The bzip3 command must be available in the
+        // command path. It is recommended that the archive prefix be set to something like '.bz3.run', so that
+        // potential users know that they'll need bzip3 to extract it.
+        if (isTrue(bzip2)) {
+            args.add("--bzip2");
+        }
+
         // --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs.
         // The pbzip2 command must be available in the command path. It is recommended that the archive prefix be
-        // set to something like '.bz2.run', so that potential users know that they'll need bzip2 to extract it.
+        // set to something like '.pbz2.run', so that potential users know that they'll need bzip2 to extract it.
         if (isTrue(pbzip2)) {
             args.add("--pbzip2");
         }
@@ -950,7 +965,7 @@ public class MakeselfMojo extends AbstractMojo {
             args.add("--nocomp");
         }
 
-        // --complevel : Specify the compression level for gzip, bzip2, pbzip2, xz, lzo or lz4. (defaults to 9)
+        // --complevel : Specify the compression level for gzip, bzip2, bzip3, pbzip2, xz, lzo or lz4. (defaults to 9)
         if (complevel != null) {
             args.add("--complevel");
             args.add(complevel.toString());
