@@ -195,19 +195,6 @@
             </resource>
         </resources>
 
-        <pluginManagement>
-            <plugins>
-                <!-- TODO: pdf fails on site so skip it at this time -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-pdf-plugin</artifactId>
-                    <configuration>
-                        <includeReports>false</includeReports>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
