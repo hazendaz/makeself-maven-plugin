@@ -460,7 +460,7 @@ public class MakeselfMojo extends AbstractMojo {
     private String helpHeaderFile;
 
     /** Skip run of plugin. */
-    @Parameter(defaultValue = "false", alias = "skip", property = "skip")
+    @Parameter(defaultValue = "false", property = "makeself.skip")
     private boolean skip;
 
     /** Auto run : When set to true, resulting shell will be run. This is useful for testing purposes. */
