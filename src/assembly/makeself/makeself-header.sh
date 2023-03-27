@@ -127,7 +127,7 @@ MS_dd_Progress()
     blocks=\`expr \$length / \$bsize\`
     bytes=\`expr \$length % \$bsize\`
     (
-        dd ibs=\$offset skip=1 count=0 2>/dev/null
+        dd ibs=\$offset skip=1 count=1 2>/dev/null
         pos=\`expr \$pos \+ \$bsize\`
         MS_Printf "     0%% " 1>&2
         if test \$blocks -gt 0; then
@@ -577,7 +577,7 @@ if test x"\$nox11" = xn; then
                         break
                     fi
                 done
-                chmod a+x \$0 || echo Please add execution rights on \$0
+                chmod a+x \$0 || echo Please add execution rights on \$0 >&2
                 if test \`echo "\$0" | cut -c1\` = "/"; then # Spawn a terminal!
                     exec \$XTERM -e "\$0 --xwin \$initargs"
                 else
