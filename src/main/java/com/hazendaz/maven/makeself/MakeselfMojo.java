@@ -774,12 +774,15 @@ public class MakeselfMojo extends AbstractMojo {
         try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(
                 new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
             TarArchiveEntry entry;
+            String directory = localRepository.getBasedir() + File.separator + this.portableGit.getName();
             while ((entry = tarArchiveInputStream.getNextTarEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                currentFile = new File(localRepository.getBasedir() + File.separator + this.portableGit.getName(),
-                        entry.getName());
+                currentFile = new File(directory, entry.getName());
+                if (!currentFile.toPath().normalize().startsWith(directory)) {
+                    throw new IOException("Bad zip entry, possible directory traversal");
+                }
                 File parent = currentFile.getParentFile();
                 if (!parent.exists()) {
                     parent.mkdirs();
