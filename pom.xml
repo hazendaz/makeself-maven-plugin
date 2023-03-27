@@ -223,11 +223,15 @@
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <configuration>
-                    <header>${license.header}</header>
-                    <excludes combine.children="append">
-                        <exclude>**/*makeself-header.sh</exclude>
-                        <exclude>**/*makeself.sh</exclude>
-                    </excludes>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>LICENSE_HEADER</header>
+                            <excludes combine.children="append">
+                                <exclude>**/*makeself-header.sh</exclude>
+                                <exclude>**/*makeself.sh</exclude>
+                            </excludes>
+                        </licenseSet>
+                    </licenseSets>
                 </configuration>
             </plugin>
 
