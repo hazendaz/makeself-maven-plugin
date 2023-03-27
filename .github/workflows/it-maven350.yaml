@@ -16,14 +16,14 @@
 #    GNU General Public License for more details.
 #
 
-name: Java Integration Tests Maven 3.3.9
+name: Java Integration Tests Maven 3.5.0
 
 on: [push, pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    name: Integration Tests Maven 3.3.9
+    name: Integration Tests Maven 3.5.0
 
     steps:
       - uses: actions/checkout@v3
@@ -32,9 +32,9 @@ jobs:
         with:
           java-version: 17
           distribution: 'zulu'
-      - name: Load Maven 3.3.9
-        run: ./mvnw -B -V org.apache.maven.plugins:maven-wrapper-plugin:3.2.0:wrapper -Dmaven=3.3.9 --no-transfer-progress
+      - name: Load Maven 3.5.0
+        run: ./mvnw -B -V org.apache.maven.plugins:maven-wrapper-plugin:3.2.0:wrapper -Dmaven=3.5.0 --no-transfer-progress
       - name: Build Setup
-        run: ./mvnw -B -V clean install -Dmaven.min-version=3.3.9 -Dimpsort.plugin=1.6.2
+        run: ./mvnw -B -V clean install -Dmaven.min-version=3.5.0
       - name: Integration Test with Maven
-        run: ./mvnw -B -V -Prun-its clean install -Dmaven.min-version=3.3.9 -Dimpsort.plugin=1.6.2
+        run: ./mvnw -B -V -Prun-its clean install -Dmaven.min-version=3.5.0
