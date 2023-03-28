@@ -39,7 +39,7 @@ Example Usage
             <plugin>
                 <groupId>com.github.hazendaz.maven</groupId>
                 <artifactId>makeself-maven-plugin</artifactId>
-                <version>1.4.2</version>
+                <version>1.5.1</version>
                 <configuration>
                     <archiveDir>distro</archiveDir>
                     <fileName>installDistro.sh</fileName>
