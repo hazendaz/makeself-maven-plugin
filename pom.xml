@@ -96,7 +96,7 @@
         <guava.version>31.1-jre</guava.version>
 
         <!-- Junit -->
-        <junit.version>5.9.2</junit.version>
+        <junit.version>5.9.3</junit.version>
 
         <!-- Targeted patches -->
         <io.version>2.11.0</io.version>
