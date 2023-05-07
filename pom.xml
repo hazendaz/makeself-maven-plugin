@@ -84,7 +84,7 @@
         <maven.version>3.9.1</maven.version>
         <maven-plugin.version>3.8.2</maven-plugin.version>
         <plexus-utils.version>3.5.1</plexus-utils.version>
-        <shared-utils.version>3.3.4</shared-utils.version>
+        <shared-utils.version>3.4.1</shared-utils.version>
 
         <!-- Compress -->
         <compress.version>1.23.0</compress.version>
