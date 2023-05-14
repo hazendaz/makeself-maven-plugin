@@ -79,7 +79,7 @@
         <module.name>com.github.hazendaz.maven.makeself</module.name>
 
         <!-- Maven Artifacts -->
-        <download-plugin.version>1.6.8</download-plugin.version>
+        <download-plugin.version>1.7.0</download-plugin.version>
         <invoker-plugin.version>3.5.1</invoker-plugin.version>
         <maven.version>3.9.2</maven.version>
         <maven-plugin.version>3.8.2</maven-plugin.version>
