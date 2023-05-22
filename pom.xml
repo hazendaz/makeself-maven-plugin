@@ -86,7 +86,7 @@
         <invoker-plugin.version>3.5.1</invoker-plugin.version>
         <maven.version>3.9.2</maven.version>
         <maven-plugin.version>3.9.0</maven-plugin.version>
-        <plexus-utils.version>3.5.1</plexus-utils.version>
+        <plexus-utils.version>4.0.0</plexus-utils.version>
         <shared-utils.version>3.4.2</shared-utils.version>
 
         <!-- Compress -->
