@@ -90,7 +90,7 @@
         <shared-utils.version>3.4.2</shared-utils.version>
 
         <!-- Compress -->
-        <compress.version>1.23.0</compress.version>
+        <compress.version>1.24.0</compress.version>
 
         <!-- Git -->
         <git.version>2.40.1.1</git.version>
