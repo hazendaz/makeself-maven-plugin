@@ -423,6 +423,11 @@ public class MakeselfMojo extends AbstractMojo {
     private String untarExtraOpt;
 
     /**
+     * --target dir : Specify the directory where the archive will be extracted.
+     */
+    private String extractTargetDir;
+
+    /**
      * --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
      * archive.
      */
@@ -1092,6 +1097,12 @@ public class MakeselfMojo extends AbstractMojo {
         if (sign != null) {
             args.add("--sign");
             args.add(sign);
+        }
+
+        // --target dir : Specify the directory where the archive will be extracted.
+        if (extractTargetDir != null) {
+            args.add("--target");
+            args.add(extractTargetDir);
         }
 
         // --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
