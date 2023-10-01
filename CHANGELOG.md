@@ -11,6 +11,10 @@
 - Add 'tarQuietly' support
 - Add 'quiet' support
 - Add 'version' support with direct exit (note: we internally have always ran 'version' but this allows user to quickly call version as a parameter and exit
+- Add 'nochown' support
+- Add 'chown' support
+- Add 'needroot' support
+- Add 'noprogress' support
 - Fix 'sslPasswd' and 'sslPasswdScr' support
 - Adjust 'skip' to 'makeself.skip' so its possible to pass that on command line
 - Fix potential path traversal issue but code is internal so its very unlikely to occur unless using jar not provided by us.
