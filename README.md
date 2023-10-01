@@ -39,7 +39,7 @@ Example Usage
             <plugin>
                 <groupId>com.github.hazendaz.maven</groupId>
                 <artifactId>makeself-maven-plugin</artifactId>
-                <version>1.5.1</version>
+                <version>1.6.0</version>
                 <configuration>
                     <archiveDir>distro</archiveDir>
                     <fileName>installDistro.sh</fileName>
@@ -59,6 +59,7 @@ Example Usage
 
 *** Special notes: ***
 
+- Version 1.6.0 requires at least maven 3.5.0
 - Use version 1.5.1 with 'inlineScript' set to true if using startupScript to call a program with scriptArgs.
 - Use version 1.3.0 or better for full windows support without having to pre-install bash.
 - For jdk 8 and on usage, use version 1.2.0
