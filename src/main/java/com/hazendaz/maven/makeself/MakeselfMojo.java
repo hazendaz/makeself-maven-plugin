@@ -316,6 +316,22 @@ public class MakeselfMojo extends AbstractMojo {
     private Integer complevel;
 
     /**
+     * --nochown : Do not give the target folder to the current user (default)
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "nochown")
+    private Boolean nochown;
+
+    /**
+     * --chown : Give the target folder to the current user recursively
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "chown")
+    private Boolean chown;
+
+    /**
      * --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
      */
     @Parameter(property = "nocomp")
@@ -1004,6 +1020,16 @@ public class MakeselfMojo extends AbstractMojo {
         if (complevel != null) {
             args.add("--complevel");
             args.add(complevel.toString());
+        }
+
+        // --nochown : Do not give the target folder to the current user (default)
+        if (isTrue(nochown)) {
+            args.add("--nochown");
+        }
+
+        // --chown : Give the target folder to the current user recursively.
+        if (isTrue(chown)) {
+            args.add("--chown");
         }
 
         // --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
