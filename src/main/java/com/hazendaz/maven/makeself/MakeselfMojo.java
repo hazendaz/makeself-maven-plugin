@@ -158,7 +158,9 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "cleanupArgs")
     private List<String> cleanupArgs;
 
-    /** --help | -h : Print out this help message. */
+    /**
+      * --help | -h : Print out this help message.
+      */
     @Parameter(property = "help")
     private Boolean help;
 
@@ -180,6 +182,8 @@ public class MakeselfMojo extends AbstractMojo {
      * --bzip3 : Use bzip3 instead of gzip for better compression. The bzip3 command must be available in the command
      * path. It is recommended that the archive prefix be set to something like '.bz3.run', so that potential users know
      * that they'll need bzip3 to extract it.
+     *
+     * @since 1.6.0
      */
     @Parameter(property = "bzip3")
     private Boolean bzip3;
@@ -424,6 +428,8 @@ public class MakeselfMojo extends AbstractMojo {
 
     /**
      * --target dir : Specify the directory where the archive will be extracted.
+     *
+     * @since 1.6.0
      */
     private String extractTargetDir;
 
