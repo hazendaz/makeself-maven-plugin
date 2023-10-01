@@ -583,10 +583,9 @@ public class MakeselfMojo extends AbstractMojo {
             execute(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath(), "--version"), !ATTACH_ARTIFACT);
 
             // If help arguments supplied, write output and get out of code.
-            String helpArgs = helpArgs();
-            if (!helpArgs.isEmpty()) {
+            if (isTrue(help)) {
                 getLog().debug("Execute Makeself Help");
-                execute(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath(), helpArgs), !ATTACH_ARTIFACT);
+                execute(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath(), "--help"), !ATTACH_ARTIFACT);
                 return;
             }
 
@@ -857,23 +856,6 @@ public class MakeselfMojo extends AbstractMojo {
             // Attempting but don't care about status if it fails
             getLog().debug("Failed attempted Posix permissions", e);
         }
-    }
-
-    /**
-     * Help args.
-     *
-     * @return the string
-     */
-    private String helpArgs() {
-        getLog().debug("Loading help arguments");
-
-        StringBuilder args = new StringBuilder();
-
-        // --help | -h : Print out this help message
-        if (isTrue(help)) {
-            args.append("--help ");
-        }
-        return args.toString();
     }
 
     /**
