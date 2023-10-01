@@ -17,7 +17,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.5.0.release.2023-03-13
+MS_VERSION=2.5.0.snapshot.2023-08-29
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -165,120 +165,120 @@ while true
 do
     case "$1" in
     --version | -v)
-  echo Makeself version $MS_VERSION
-  exit 0
-  ;;
+	echo Makeself version $MS_VERSION
+	exit 0
+	;;
     --pbzip2)
-  COMPRESS=pbzip2
-  shift
-  ;;
+	COMPRESS=pbzip2
+	shift
+	;;
     --bzip3)
-  COMPRESS=bzip3
-  shift
-  ;;
+	COMPRESS=bzip3
+	shift
+	;;
     --bzip2)
-  COMPRESS=bzip2
-  shift
-  ;;
+	COMPRESS=bzip2
+	shift
+	;;
     --gzip)
-  COMPRESS=gzip
-  shift
-  ;;
+	COMPRESS=gzip
+	shift
+	;;
     --pigz)
-      COMPRESS=pigz
-      shift
-      ;;
+    	COMPRESS=pigz
+    	shift
+    	;;
     --zstd)
-      COMPRESS=zstd
-      shift
-      ;;
+    	COMPRESS=zstd
+    	shift
+    	;;
     --xz)
-  COMPRESS=xz
-  shift
-  ;;
+	COMPRESS=xz
+	shift
+	;;
     --lzo)
-  COMPRESS=lzo
-  shift
-  ;;
+	COMPRESS=lzo
+	shift
+	;;
     --lz4)
-  COMPRESS=lz4
-  shift
-  ;;
+	COMPRESS=lz4
+	shift
+	;;
     --compress)
-  COMPRESS=compress
-  shift
-  ;;
+	COMPRESS=compress
+	shift
+	;;
     --base64)
-  COMPRESS=base64
-  shift
-  ;;
+	COMPRESS=base64
+	shift
+	;;
     --gpg-encrypt)
-  COMPRESS=gpg
-  shift
-  ;;
+	COMPRESS=gpg
+	shift
+	;;
     --gpg-asymmetric-encrypt-sign)
-  COMPRESS=gpg-asymmetric
-  shift
-  ;;
+	COMPRESS=gpg-asymmetric
+	shift
+	;;
     --gpg-extra)
-  GPG_EXTRA="$2"
+	GPG_EXTRA="$2"
     shift 2 || { MS_Usage; exit 1; }
-  ;;
+	;;
     --ssl-encrypt)
-  ENCRYPT=openssl
-   shift
-  ;;
+	ENCRYPT=openssl
+ 	shift
+	;;
     --ssl-passwd)
-  PASSWD=$2
+	PASSWD=$2
     shift 2 || { MS_Usage; exit 1; }
-  ;;
+	;;
     --ssl-pass-src)
-  PASSWD_SRC=$2
+	PASSWD_SRC=$2
     shift 2 || { MS_Usage; exit 1; }
-  ;;
+	;;
     --ssl-no-md)
-  OPENSSL_NO_MD=y
-  shift
-  ;;
+	OPENSSL_NO_MD=y
+	shift
+	;;
     --nocomp)
-  COMPRESS=none
-  shift
-  ;;
+	COMPRESS=none
+	shift
+	;;
     --complevel)
-  COMPRESS_LEVEL="$2"
+	COMPRESS_LEVEL="$2"
     shift 2 || { MS_Usage; exit 1; }
-  ;;
+	;;
     --threads)
-  THREADS="$2"
+	THREADS="$2"
     shift 2 || { MS_Usage; exit 1; }
-  ;;
+	;;
     --nochown)
-  OWNERSHIP=n
-  shift
-  ;;
+	OWNERSHIP=n
+	shift
+	;;
     --chown)
-  OWNERSHIP=y
-  shift
-  ;;
+	OWNERSHIP=y
+	shift
+	;;
     --notemp)
-  KEEP=y
-  shift
-  ;;
+	KEEP=y
+	shift
+	;;
     --copy)
-  COPY=copy
-  shift
-  ;;
+	COPY=copy
+	shift
+	;;
     --current)
-  CURRENT=y
-  KEEP=y
-  shift
-  ;;
+	CURRENT=y
+	KEEP=y
+	shift
+	;;
     --tar-format)
-      TAR_FORMAT="$2"
+	    TAR_FORMAT="$2"
         shift 2 || { MS_Usage; exit 1; }
     ;;
     --tar-extra)
-      TAR_EXTRA="$2"
+	    TAR_EXTRA="$2"
         shift 2 || { MS_Usage; exit 1; }
     ;;
     --untar-extra)
@@ -286,10 +286,10 @@ do
         shift 2 || { MS_Usage; exit 1; }
         ;;
     --target)
-    TARGETDIR="$2"
-    KEEP=y
+	  TARGETDIR="$2"
+	  KEEP=y
     shift 2 || { MS_Usage; exit 1; }
-     ;;
+ 	  ;;
     --sign)
     SIGN=y
     GPG_PASSPHRASE="$2"
@@ -297,16 +297,16 @@ do
     ;;
     --nooverwrite)
         NOOVERWRITE=y
-  shift
+	shift
         ;;
     --needroot)
-  NEED_ROOT=y
-  shift
-  ;;
+	NEED_ROOT=y
+	shift
+	;;
     --header)
-  HEADER="$2"
+	HEADER="$2"
     shift 2 || { MS_Usage; exit 1; }
-  ;;
+	;;
     --cleanup)
     CLEANUP_SCRIPT="$2"
     shift 2 || { MS_Usage; exit 1; }
@@ -315,134 +315,134 @@ do
         # We need to escape all characters having a special meaning in double quotes
         LICENSE=$(sed 's/\\/\\\\/g; s/"/\\\"/g; s/`/\\\`/g; s/\$/\\\$/g' "$2")
         shift 2 || { MS_Usage; exit 1; }
-  ;;
+	;;
     --follow)
-  TAR_ARGS=rvhf
-  DU_ARGS=-ksL
-  shift
-  ;;
+	TAR_ARGS=rvhf
+	DU_ARGS=-ksL
+	shift
+	;;
     --noprogress)
-  NOPROGRESS=y
-  shift
-  ;;
+	NOPROGRESS=y
+	shift
+	;;
     --nox11)
-  NOX11=y
-  shift
-  ;;
+	NOX11=y
+	shift
+	;;
     --nowait)
-  NOWAIT=y
-  shift
-  ;;
+	NOWAIT=y
+	shift
+	;;
     --nomd5)
-  NOMD5=y
-  shift
-  ;;
+	NOMD5=y
+	shift
+	;;
     --sha256)
         SHA256=y
         shift
         ;;
     --nocrc)
-  NOCRC=y
-  shift
-  ;;
+	NOCRC=y
+	shift
+	;;
     --append)
-  APPEND=y
-  shift
-  ;;
+	APPEND=y
+	shift
+	;;
     --lsm)
-  LSM_CMD="awk 1 \"$2\" >> \"\$archname\""
+	LSM_CMD="awk 1 \"$2\" >> \"\$archname\""
     shift 2 || { MS_Usage; exit 1; }
-  ;;
+	;;
     --packaging-date)
-  DATE="$2"
+	DATE="$2"
     shift 2 || { MS_Usage; exit 1; }
         ;;
     --help-header)
-  HELPHEADER=`sed -e "s/'/'\\\\\''/g" $2`
+	HELPHEADER=`sed -e "s/'/'\\\\\''/g" $2`
     shift 2 || { MS_Usage; exit 1; }
-  [ -n "$HELPHEADER" ] && HELPHEADER="$HELPHEADER
+	[ -n "$HELPHEADER" ] && HELPHEADER="$HELPHEADER
 "
     ;;
     --tar-quietly)
-  TAR_QUIETLY=y
-  shift
-  ;;
-  --keep-umask)
-  KEEP_UMASK=y
-  shift
-  ;;
+	TAR_QUIETLY=y
+	shift
+	;;
+	--keep-umask)
+	KEEP_UMASK=y
+	shift
+	;;
     --export-conf)
     EXPORT_CONF=y
     shift
     ;;
     -q | --quiet)
-  QUIET=y
-  shift
-  ;;
+	QUIET=y
+	shift
+	;;
     -h | --help)
-  MS_Usage
-  ;;
+	MS_Usage
+	;;
     -*)
-  echo Unrecognized flag : "$1"
-  MS_Usage
-  ;;
+	echo Unrecognized flag : "$1"
+	MS_Usage
+	;;
     *)
-  break
-  ;;
+	break
+	;;
     esac
 done
 
 if test $# -lt 1; then
-  MS_Usage
+	MS_Usage
 else
-  if test -d "$1"; then
-    archdir="$1"
-  else
-    echo "Directory $1 does not exist." >&2
-    exit 1
-  fi
+	if test -d "$1"; then
+		archdir="$1"
+	else
+		echo "Directory $1 does not exist." >&2
+		exit 1
+	fi
 fi
 archname="$2"
 
 if test "$QUIET" = "y" || test "$TAR_QUIETLY" = "y"; then
     if test "$TAR_ARGS" = "rvf"; then
-      TAR_ARGS="rf"
+	    TAR_ARGS="rf"
     elif test "$TAR_ARGS" = "rvhf"; then
-      TAR_ARGS="rhf"
+	    TAR_ARGS="rhf"
     fi
 fi
 
 if test "$APPEND" = y; then
     if test $# -lt 2; then
-      MS_Usage
+    	MS_Usage
     fi
 
     # Gather the info from the original archive
     OLDENV=`sh "$archname" --dumpconf`
     if test $? -ne 0; then
-      echo "Unable to update archive: $archname" >&2
-      exit 1
+	    echo "Unable to update archive: $archname" >&2
+	    exit 1
     else
-      eval "$OLDENV"
-      OLDSKIP=`expr $SKIP + 1`
+	    eval "$OLDENV"
+	    OLDSKIP=`expr $SKIP + 1`
     fi
 else
     if test "$KEEP" = n -a $# = 3; then
-      echo "ERROR: Making a temporary archive with no embedded command does not make sense!" >&2
-      echo >&2
-      MS_Usage
+	    echo "ERROR: Making a temporary archive with no embedded command does not make sense!" >&2
+    	echo >&2
+    	MS_Usage
     fi
     # We don't want to create an absolute directory unless a target directory is defined
     if test "$CURRENT" = y; then
-      archdirname="."
+	    archdirname="."
     elif test x"$TARGETDIR" != x; then
-      archdirname="$TARGETDIR"
+	    archdirname="$TARGETDIR"
     else
-      archdirname=`basename "$1"`
+	    archdirname=`basename "$1"`
     fi
 
     if test $# -lt 3; then
-      MS_Usage
+	    MS_Usage
     fi
 
     LABEL="$3"
@@ -462,7 +462,7 @@ gzip)
     GZIP_CMD="gzip -c$COMPRESS_LEVEL"
     GUNZIP_CMD="gzip -cd"
     ;;
-pigz)
+pigz) 
     GZIP_CMD="pigz -$COMPRESS_LEVEL"
     if test $THREADS -ne $DEFAULT_THREADS; then # Leave as the default if threads not indicated
         GZIP_CMD="$GZIP_CMD --processes $THREADS"
@@ -500,7 +500,7 @@ bzip2)
 xz)
     GZIP_CMD="xz -c$COMPRESS_LEVEL"
     # Must opt-in by specifying a value since not all versions of xz support threads
-    if test $THREADS -ne $DEFAULT_THREADS; then
+    if test $THREADS -ne $DEFAULT_THREADS; then 
         GZIP_CMD="$GZIP_CMD --threads=$THREADS"
     fi
     GUNZIP_CMD="xz -d"
@@ -541,10 +541,10 @@ if test x"$ENCRYPT" = x"openssl"; then
     if test x"$APPEND" = x"y"; then
         echo "Appending to existing archive is not compatible with OpenSSL encryption." >&2
     fi
-
+    
     ENCRYPT_CMD="openssl enc -aes-256-cbc -salt"
     DECRYPT_CMD="openssl enc -aes-256-cbc -d"
-
+    
     if test x"$OPENSSL_NO_MD" != x"y"; then
         ENCRYPT_CMD="$ENCRYPT_CMD -md sha256"
         DECRYPT_CMD="$DECRYPT_CMD -md sha256"
@@ -552,7 +552,7 @@ if test x"$ENCRYPT" = x"openssl"; then
 
     if test -n "$PASSWD_SRC"; then
         ENCRYPT_CMD="$ENCRYPT_CMD -pass $PASSWD_SRC"
-    elif test -n "$PASSWD"; then
+    elif test -n "$PASSWD"; then 
         ENCRYPT_CMD="$ENCRYPT_CMD -pass pass:$PASSWD"
     fi
 fi
@@ -560,19 +560,19 @@ fi
 tmpfile="${TMPDIR:-/tmp}/mkself$$"
 
 if test -f "$HEADER"; then
-  oldarchname="$archname"
-  archname="$tmpfile"
-  # Generate a fake header to count its lines
-  SKIP=0
-  . "$HEADER"
-  SKIP=`cat "$tmpfile" |wc -l`
-  # Get rid of any spaces
-  SKIP=`expr $SKIP`
-  rm -f "$tmpfile"
-  if test "$QUIET" = "n"; then
-    echo "Header is $SKIP lines long" >&2
-  fi
-  archname="$oldarchname"
+	oldarchname="$archname"
+	archname="$tmpfile"
+	# Generate a fake header to count its lines
+	SKIP=0
+	. "$HEADER"
+	SKIP=`cat "$tmpfile" |wc -l`
+	# Get rid of any spaces
+	SKIP=`expr $SKIP`
+	rm -f "$tmpfile"
+	if test "$QUIET" = "n"; then
+		echo "Header is $SKIP lines long" >&2
+	fi
+	archname="$oldarchname"
 else
     echo "Unable to open header file: $HEADER" >&2
     exit 1
@@ -584,16 +584,16 @@ fi
 
 if test "$APPEND" = n; then
     if test -f "$archname"; then
-    echo "WARNING: Overwriting existing file: $archname" >&2
+		echo "WARNING: Overwriting existing file: $archname" >&2
     fi
 fi
 
 USIZE=`du $DU_ARGS "$archdir" | awk '{print $1}'`
 
 if test "." = "$archdirname"; then
-  if test "$KEEP" = n; then
-    archdirname="makeself-$$-`date +%Y%m%d%H%M%S`"
-  fi
+	if test "$KEEP" = n; then
+		archdirname="makeself-$$-`date +%Y%m%d%H%M%S`"
+	fi
 fi
 
 test -d "$archdir" || { echo "Error: $archdir does not exist."; rm -f "$tmpfile"; exit 1; }
@@ -663,58 +663,58 @@ md5sum=00000000000000000000000000000000
 crcsum=0000000000
 
 if test "$NOCRC" = y; then
-  if test "$QUIET" = "n"; then
-    echo "skipping crc at user request"
-  fi
+	if test "$QUIET" = "n"; then
+		echo "skipping crc at user request"
+	fi
 else
-  crcsum=`CMD_ENV=xpg4 cksum < "$tmpfile" | sed -e 's/ /Z/' -e 's/	/Z/' | cut -dZ -f1`
-  if test "$QUIET" = "n"; then
-    echo "CRC: $crcsum"
-  fi
+	crcsum=`CMD_ENV=xpg4 cksum < "$tmpfile" | sed -e 's/ /Z/' -e 's/	/Z/' | cut -dZ -f1`
+	if test "$QUIET" = "n"; then
+		echo "CRC: $crcsum"
+	fi
 fi
 
 if test "$SHA256" = y; then
-  SHA_PATH=`exec <&- 2>&-; which shasum || command -v shasum || type shasum`
-  if test -x "$SHA_PATH"; then
-    shasum=`eval "$SHA_PATH -a 256" < "$tmpfile" | cut -b-64`
-  else
-    SHA_PATH=`exec <&- 2>&-; which sha256sum || command -v sha256sum || type sha256sum`
-    shasum=`eval "$SHA_PATH" < "$tmpfile" | cut -b-64`
-  fi
-  if test "$QUIET" = "n"; then
-    if test -x "$SHA_PATH"; then
-      echo "SHA256: $shasum"
-    else
-      echo "SHA256: none, SHA command not found"
-    fi
-  fi
+	SHA_PATH=`exec <&- 2>&-; which shasum || command -v shasum || type shasum`
+	if test -x "$SHA_PATH"; then
+		shasum=`eval "$SHA_PATH -a 256" < "$tmpfile" | cut -b-64`
+	else
+		SHA_PATH=`exec <&- 2>&-; which sha256sum || command -v sha256sum || type sha256sum`
+		shasum=`eval "$SHA_PATH" < "$tmpfile" | cut -b-64`
+	fi
+	if test "$QUIET" = "n"; then
+		if test -x "$SHA_PATH"; then
+			echo "SHA256: $shasum"
+		else
+			echo "SHA256: none, SHA command not found"
+		fi
+	fi
 fi
 if test "$NOMD5" = y; then
-  if test "$QUIET" = "n"; then
-    echo "Skipping md5sum at user request"
-  fi
+	if test "$QUIET" = "n"; then
+		echo "Skipping md5sum at user request"
+	fi
 else
-  # Try to locate a MD5 binary
-  OLD_PATH=$PATH
-  PATH=${GUESS_MD5_PATH:-"$OLD_PATH:/bin:/usr/bin:/sbin:/usr/local/ssl/bin:/usr/local/bin:/opt/openssl/bin"}
-  MD5_ARG=""
-  MD5_PATH=`exec <&- 2>&-; which md5sum || command -v md5sum || type md5sum`
-  test -x "$MD5_PATH" || MD5_PATH=`exec <&- 2>&-; which md5 || command -v md5 || type md5`
-  test -x "$MD5_PATH" || MD5_PATH=`exec <&- 2>&-; which digest || command -v digest || type digest`
-  PATH=$OLD_PATH
-  if test -x "$MD5_PATH"; then
-    if test `basename ${MD5_PATH}`x = digestx; then
-      MD5_ARG="-a md5"
-    fi
-    md5sum=`eval "$MD5_PATH $MD5_ARG" < "$tmpfile" | cut -b-32`
-    if test "$QUIET" = "n"; then
-      echo "MD5: $md5sum"
-    fi
-  else
-    if test "$QUIET" = "n"; then
-      echo "MD5: none, MD5 command not found"
-    fi
-  fi
+	# Try to locate a MD5 binary
+	OLD_PATH=$PATH
+	PATH=${GUESS_MD5_PATH:-"$OLD_PATH:/bin:/usr/bin:/sbin:/usr/local/ssl/bin:/usr/local/bin:/opt/openssl/bin"}
+	MD5_ARG=""
+	MD5_PATH=`exec <&- 2>&-; which md5sum || command -v md5sum || type md5sum`
+	test -x "$MD5_PATH" || MD5_PATH=`exec <&- 2>&-; which md5 || command -v md5 || type md5`
+	test -x "$MD5_PATH" || MD5_PATH=`exec <&- 2>&-; which digest || command -v digest || type digest`
+	PATH=$OLD_PATH
+	if test -x "$MD5_PATH"; then
+		if test `basename ${MD5_PATH}`x = digestx; then
+			MD5_ARG="-a md5"
+		fi
+		md5sum=`eval "$MD5_PATH $MD5_ARG" < "$tmpfile" | cut -b-32`
+		if test "$QUIET" = "n"; then
+			echo "MD5: $md5sum"
+		fi
+	else
+		if test "$QUIET" = "n"; then
+			echo "MD5: none, MD5 command not found"
+		fi
+	fi
 fi
 if test "$SIGN" = y; then
     GPG_PATH=`exec <&- 2>&-; which gpg || command -v gpg || type gpg`
@@ -751,7 +751,7 @@ if test "$APPEND" = y; then
     chmod +x "$archname"
     rm -f "$archname".bak
     if test "$QUIET" = "n"; then
-      echo "Self-extractable archive \"$archname\" successfully updated."
+    	echo "Self-extractable archive \"$archname\" successfully updated."
     fi
 else
     filesizes="$fsize"
@@ -765,12 +765,12 @@ else
 
     # Append the compressed tar data after the stub
     if test "$QUIET" = "n"; then
-      echo
+    	echo
     fi
     cat "$tmpfile" >> "$archname"
     chmod +x "$archname"
     if test "$QUIET" = "n"; then
-      echo Self-extractable archive \"$archname\" successfully created.
+    	echo Self-extractable archive \"$archname\" successfully created.
     fi
 fi
 rm -f "$tmpfile"
