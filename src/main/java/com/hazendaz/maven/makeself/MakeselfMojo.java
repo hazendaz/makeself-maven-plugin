@@ -244,11 +244,15 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "lz4")
     private Boolean lz4;
 
-    /** --zstd : Use zstd for compression. */
+    /**
+      * --zstd : Use zstd for compression.
+      */
     @Parameter(property = "zstd")
     private Boolean zstd;
 
-    /** --pigz : Use pigz for compression. */
+    /**
+     * --pigz : Use pigz for compression.
+     */
     @Parameter(property = "pigz")
     private Boolean pigz;
 
@@ -336,7 +340,7 @@ public class MakeselfMojo extends AbstractMojo {
 
     /**
      * --current : Files will be extracted to the current directory, instead of in a subdirectory. This option implies
-     * --notemp above.
+     * --notemp and ddoes not require aq startup_script.
      */
     @Parameter(property = "current")
     private Boolean current;
@@ -451,7 +455,8 @@ public class MakeselfMojo extends AbstractMojo {
     private String untarExtraOpt;
 
     /**
-     * --target dir : Specify the directory where the archive will be extracted.
+     * --target dir : Specify the directory where the archive will be extracted. This option implies
+     * --notemp and ddoes not require aq startup_script.
      *
      * @since 1.6.0
      */
@@ -1022,8 +1027,8 @@ public class MakeselfMojo extends AbstractMojo {
             args.add("--notemp");
         }
 
-        // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option
-        // implies --notemp above.
+        // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option implies
+        // --notemp and does not require aq startup_script.
         if (isTrue(current)) {
             args.add("--current");
         }
@@ -1126,7 +1131,8 @@ public class MakeselfMojo extends AbstractMojo {
             args.add(sign);
         }
 
-        // --target dir : Specify the directory where the archive will be extracted.
+        // --target dir : Specify the directory where the archive will be extracted.  This option implies
+        // --notemp and ddoes not require aq startup_script.
         if (extractTargetDir != null) {
             args.add("--target");
             args.add(extractTargetDir);
