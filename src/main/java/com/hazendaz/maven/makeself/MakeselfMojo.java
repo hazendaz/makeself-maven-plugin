@@ -310,16 +310,16 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean compress;
 
     /**
-     * --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
-     */
-    @Parameter(property = "nocomp")
-    private Boolean nocomp;
-
-    /**
      * --complevel : Specify the compression level for gzip, bzip2, bzip3, pbzip2, xz, lzo or lz4. (defaults to 9).
      */
     @Parameter(property = "complevel")
     private Integer complevel;
+
+    /**
+     * --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
+     */
+    @Parameter(property = "nocomp")
+    private Boolean nocomp;
 
     /**
      * --threads : Specify the number of threads to be used by compressors that support parallelization. Omit to use
@@ -1000,15 +1000,15 @@ public class MakeselfMojo extends AbstractMojo {
             args.add("--compress");
         }
 
-        // --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
-        if (isTrue(nocomp)) {
-            args.add("--nocomp");
-        }
-
         // --complevel : Specify the compression level for gzip, bzip2, bzip3, pbzip2, xz, lzo or lz4. (defaults to 9)
         if (complevel != null) {
             args.add("--complevel");
             args.add(complevel.toString());
+        }
+
+        // --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
+        if (isTrue(nocomp)) {
+            args.add("--nocomp");
         }
 
         // --threads thds : Number of threads to be used by compressors that support parallelization.
