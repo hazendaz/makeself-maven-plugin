@@ -355,6 +355,14 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean notemp;
 
     /**
+     * --needroot : Check that the root user is extracting the archive before proceeding
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "needroot")
+    private Boolean needroot;
+
+    /**
      * --current : Files will be extracted to the current directory, instead of in a subdirectory. This option implies
      * --notemp and ddoes not require aq startup_script.
      */
@@ -1051,6 +1059,11 @@ public class MakeselfMojo extends AbstractMojo {
         // by themselves (i.e. launch the compilation through the embedded script).
         if (isTrue(notemp)) {
             args.add("--notemp");
+        }
+
+        // --needroot : Check that the root user is extracting the archive before proceeding
+        if (isTrue(needroot)) {
+            args.add("--needroot");
         }
 
         // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option implies
