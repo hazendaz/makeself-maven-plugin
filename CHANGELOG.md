@@ -1,3 +1,26 @@
+1.6.0
+-----
+- Require maven 3.5.0
+- Use git 2.42.0
+- makeself 2.5.0.snapshot.2023-08-29
+
+- Deprecated 'sign' in favor of 'signPassphrase' for better clarity
+- Add 'signPassphrase'
+- Add 'bzip3' support
+- Add 'extractTargetDir' support
+- Add 'tarQuietly' support
+- Add 'quiet' support
+- Add 'version' support with direct exit (note: we internally have always ran 'version' but this allows user to quickly call version as a parameter and exit
+- Fix 'sslPasswd' and 'sslPasswdScr' support
+- Adjust 'skip' to 'makeself.skip' so its possible to pass that on command line
+- Fix potential path traversal issue but code is internal so its very unlikely to occur unless using jar not provided by us.
+- Rework help logic so its quicker to run and get out
+
+- Add automatic module name as 'com.github.hazendaz.maven.makeself'
+- Builds now reproducible
+- Set plexus utils to provided as no direct usage and internally use version 4 with xml 3
+- Internally renamed 'targetDirectory' used for makeself temp space to 'makeselfTempDirectory'
+
 1.5.1
 -----
 - Add 'inlineScript' to skip 1.5.0 verifications for startupScript and instead check scriptArgs exist for case where startupScript is not a file as expected but rather inline script followed by arguments.
@@ -12,7 +35,7 @@
 -----
 - Updated build libraries
 - Use git 2.33.1
-- makeself 2.4.5.snapstop.2021-09-24
+- makeself 2.4.5.snapshop.2021-09-24
 
 1.3.1
 -----
