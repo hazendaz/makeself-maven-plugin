@@ -165,6 +165,22 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean help;
 
     /**
+     * --tar-quietly : Suppress verbose output from the tar command.
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "tarQuietly")
+    private Boolean tarQuietly;
+
+    /**
+     * --quiet | -q : Do not print any messages other than errors.
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "quiet")
+    private Boolean quiet;
+
+    /**
      * --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux).
      */
     @Parameter(property = "gzip")
@@ -869,6 +885,16 @@ public class MakeselfMojo extends AbstractMojo {
         getLog().debug("Loading arguments");
 
         List<String> args = new ArrayList<>(50);
+
+        // " --tar-quietly : Suppress verbose output from the tar command"
+        if (isTrue(tarQuietly)) {
+            args.add("--tar-quietly");
+        }
+
+        // " --quiet | -q : Do not print any messages other than errors."
+        if (isTrue(quiet)) {
+            args.add("--quiet");
+        }
 
         // --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
         if (isTrue(gzip)) {
