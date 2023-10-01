@@ -159,16 +159,16 @@ public class MakeselfMojo extends AbstractMojo {
     private List<String> cleanupArgs;
 
     /**
-      * --version | -v : Print out Makeself version number and exit
-      *
-      * @since 1.6.0
-      */
+     * --version | -v : Print out Makeself version number and exit
+     *
+     * @since 1.6.0
+     */
     @Parameter(property = "version")
     private Boolean version;
 
     /**
-      * --help | -h : Print out this help message and exit (exit is custom to makeself maven plugin).
-      */
+     * --help | -h : Print out this help message and exit (exit is custom to makeself maven plugin).
+     */
     @Parameter(property = "help")
     private Boolean help;
 
@@ -245,8 +245,8 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean lz4;
 
     /**
-      * --zstd : Use zstd for compression.
-      */
+     * --zstd : Use zstd for compression.
+     */
     @Parameter(property = "zstd")
     private Boolean zstd;
 
@@ -487,8 +487,8 @@ public class MakeselfMojo extends AbstractMojo {
     private String untarExtraOpt;
 
     /**
-     * --target dir : Specify the directory where the archive will be extracted. This option implies
-     * --notemp and ddoes not require aq startup_script.
+     * --target dir : Specify the directory where the archive will be extracted. This option implies --notemp and ddoes
+     * not require aq startup_script.
      *
      * @since 1.6.0
      */
@@ -1074,7 +1074,8 @@ public class MakeselfMojo extends AbstractMojo {
             args.add("--needroot");
         }
 
-        // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option implies
+        // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option
+        // implies
         // --notemp and does not require aq startup_script.
         if (isTrue(current)) {
             args.add("--current");
@@ -1183,7 +1184,7 @@ public class MakeselfMojo extends AbstractMojo {
             args.add(sign);
         }
 
-        // --target dir : Specify the directory where the archive will be extracted.  This option implies
+        // --target dir : Specify the directory where the archive will be extracted. This option implies
         // --notemp and ddoes not require aq startup_script.
         if (extractTargetDir != null) {
             args.add("--target");
