@@ -159,7 +159,15 @@ public class MakeselfMojo extends AbstractMojo {
     private List<String> cleanupArgs;
 
     /**
-      * --help | -h : Print out this help message.
+      * --version | -v : Print out Makeself version number and exit
+      *
+      * @since 1.6.0
+      */
+    @Parameter(property = "version")
+    private Boolean version;
+
+    /**
+      * --help | -h : Print out this help message and exit (exit is custom to makeself maven plugin).
       */
     @Parameter(property = "help")
     private Boolean help;
@@ -581,6 +589,11 @@ public class MakeselfMojo extends AbstractMojo {
             // Output version of makeself.sh
             getLog().debug("Execute Makeself Version");
             execute(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath(), "--version"), !ATTACH_ARTIFACT);
+
+            // If version arguments supplied, exit as we just printed version.
+            if (isTrue(version)) {
+                return;
+            }
 
             // If help arguments supplied, write output and get out of code.
             if (isTrue(help)) {
