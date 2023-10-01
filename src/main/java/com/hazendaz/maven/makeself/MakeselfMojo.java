@@ -377,6 +377,14 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean follow;
 
     /**
+     * --noprogress : Do not show the progress during the decompression
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "noprogress")
+    private Boolean noprogress;
+
+    /**
      * --append (new in 2.1.x): Append data to an existing archive, instead of creating a new one. In this mode, the
      * settings from the original archive are reused (compression type, label, embedded script), and thus don't need to
      * be specified again on the command line.
@@ -1076,6 +1084,11 @@ public class MakeselfMojo extends AbstractMojo {
         // pointed to instead of the links themselves.
         if (isTrue(follow)) {
             args.add("--follow");
+        }
+
+        // --noprogress : Do not show the progress during the decompression
+        if (isTrue(noprogress)) {
+            args.add("--noprogress");
         }
 
         // --append (new in 2.1.x): Append data to an existing archive, instead of creating a new one. In this mode, the
