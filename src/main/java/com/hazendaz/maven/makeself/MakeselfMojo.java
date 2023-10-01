@@ -216,13 +216,13 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "lz4")
     private Boolean lz4;
 
-    /** --pigz : Use pigz for compression. */
-    @Parameter(property = "pigz")
-    private Boolean pigz;
-
     /** --zstd : Use zstd for compression. */
     @Parameter(property = "zstd")
     private Boolean zstd;
+
+    /** --pigz : Use pigz for compression. */
+    @Parameter(property = "pigz")
+    private Boolean pigz;
 
     /**
      * --base64 : Encode the archive to ASCII in Base64 format (base64 command required).
@@ -906,14 +906,14 @@ public class MakeselfMojo extends AbstractMojo {
             args.add("--lz4");
         }
 
-        // --pigz : Use pigz for compression.
-        if (isTrue(pigz)) {
-            args.add("--pigz");
-        }
-
         // --zstd : Use zstd for compression.
         if (isTrue(zstd)) {
             args.add("--zstd");
+        }
+
+        // --pigz : Use pigz for compression.
+        if (isTrue(pigz)) {
+            args.add("--pigz");
         }
 
         // --base64 : Encode the archive to ASCII in Base64 format (base64 command required).
