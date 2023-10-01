@@ -239,6 +239,7 @@
                             <excludes combine.children="append">
                                 <exclude>**/*makeself-header.sh</exclude>
                                 <exclude>**/*makeself.sh</exclude>
+                                <exclude>**/junk</exclude>
                             </excludes>
                         </licenseSet>
                     </licenseSets>
