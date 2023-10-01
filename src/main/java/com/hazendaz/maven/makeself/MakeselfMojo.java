@@ -879,8 +879,8 @@ public class MakeselfMojo extends AbstractMojo {
         // --bzip3 : Use bzip3 instead of gzip for better compression. The bzip3 command must be available in the
         // command path. It is recommended that the archive prefix be set to something like '.bz3.run', so that
         // potential users know that they'll need bzip3 to extract it.
-        if (isTrue(bzip2)) {
-            args.add("--bzip2");
+        if (isTrue(bzip3)) {
+            args.add("--bzip3");
         }
 
         // --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs.
