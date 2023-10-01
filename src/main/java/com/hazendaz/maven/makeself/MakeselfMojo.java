@@ -445,10 +445,21 @@ public class MakeselfMojo extends AbstractMojo {
     private Boolean sha256;
 
     /**
-     * -sign passphrase : Signature private key to sign the package with.
+     * --sign passphrase : Signature private key to sign the package with.
+     *
+     * @deprecated use 'signPassphrase'
      */
+    @Deprecated
     @Parameter(property = "sign")
     private String sign;
+
+    /**
+     * --sign passphrase : Signature private key to sign the package with.
+     *
+     * @since 1.6.0
+     */
+    @Parameter(property = "signPassphrase")
+    private String signPassphrase;
 
     /**
      * --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
@@ -1182,6 +1193,12 @@ public class MakeselfMojo extends AbstractMojo {
         if (sign != null) {
             args.add("--sign");
             args.add(sign);
+        }
+
+        // --sign passphrase : Signature private key to sign the package with
+        if (signPassphrase != null) {
+            args.add("--sign");
+            args.add(signPassphrase);
         }
 
         // --target dir : Specify the directory where the archive will be extracted. This option implies
