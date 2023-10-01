@@ -1,5 +1,5 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-makeself-maven-plugin,com.github.hazendaz.maven.makeself_maven_plugin,HelpMojo,861,0,110,0,155,0,71,0,16,0
+makeself-maven-plugin,com.github.hazendaz.maven.makeself_maven_plugin,HelpMojo,864,0,112,0,156,0,72,0,16,0
 makeself-maven-plugin,com.hazendaz.maven.makeself,PortableGit,9,65,0,0,3,18,0,7,0,7
 makeself-maven-plugin,com.hazendaz.maven.makeself,ProcessUtils,3,0,0,0,1,0,1,0,1,0
-makeself-maven-plugin,com.hazendaz.maven.makeself,MakeselfMojo,1560,0,150,0,294,0,88,0,13,0
+makeself-maven-plugin,com.hazendaz.maven.makeself,MakeselfMojo,1645,0,170,0,312,0,97,0,12,0
