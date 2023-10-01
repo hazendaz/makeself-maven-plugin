@@ -471,9 +471,9 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.directory}/", readonly = true)
     private String buildTarget;
 
-    /** The target directory. */
+    /** The makeself temp directory. */
     @Parameter(defaultValue = "${project.build.directory}/makeself-tmp/", readonly = true)
-    private File targetDirectory;
+    private File makeselfTempDirectory;
 
     /** Maven ProjectHelper. */
     @Component
@@ -678,18 +678,18 @@ public class MakeselfMojo extends AbstractMojo {
         getLog().debug("Extracting Makeself");
 
         // Create makeself directory
-        File makeselfTemp = new File(targetDirectory.getAbsolutePath());
+        File makeselfTemp = new File(makeselfTempDirectory.getAbsolutePath());
         if (!makeselfTemp.exists() && !makeselfTemp.mkdirs()) {
-            getLog().error(Joiner.on(" ").join("Unable to make directory", targetDirectory.getAbsolutePath()));
+            getLog().error(Joiner.on(" ").join("Unable to make directory", makeselfTempDirectory.getAbsolutePath()));
             return;
         } else {
-            getLog().debug(Joiner.on(" ").join("Created directory for", targetDirectory.getAbsolutePath()));
+            getLog().debug(Joiner.on(" ").join("Created directory for", makeselfTempDirectory.getAbsolutePath()));
         }
 
         ClassLoader classloader = this.getClass().getClassLoader();
 
         // Write makeself script
-        makeself = new File(targetDirectory, "makeself.sh");
+        makeself = new File(makeselfTempDirectory, "makeself.sh");
         if (!makeself.exists()) {
             getLog().debug("Writing makeself.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
@@ -703,7 +703,7 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // Write makeself-header script
-        File makeselfHeader = new File(targetDirectory, "makeself-header.sh");
+        File makeselfHeader = new File(makeselfTempDirectory, "makeself-header.sh");
         if (!makeselfHeader.exists()) {
             getLog().debug("Writing makeself-header.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
