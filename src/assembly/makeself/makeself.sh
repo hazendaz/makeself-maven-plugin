@@ -17,7 +17,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.5.0.snapshot.2023-08-29
+MS_VERSION=2.5.0.snapshot.2023-12-01
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -109,6 +109,10 @@ MS_Usage()
     echo
     echo "    --keep-umask       : Keep the umask set to shell default, rather than overriding when executing self-extracting archive."
     echo "    --export-conf      : Export configuration variables to startup_script"
+    echo
+    echo "ENVIRONMENT"
+    echo "    SETUP_NOCHECK"
+    echo "        If set to 1, then checksum validation will be skipped."
     echo
     echo "Do not forget to give a fully qualified startup script name"
     echo "(i.e. with a ./ prefix if inside the archive)."
