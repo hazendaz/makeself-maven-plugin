@@ -97,7 +97,7 @@
         <git.version>2.44.0.1</git.version>
 
         <!-- Guava -->
-        <guava.version>33.0.0-jre</guava.version>
+        <guava.version>33.1.0-jre</guava.version>
 
         <!-- Junit -->
         <junit.version>5.10.2</junit.version>
