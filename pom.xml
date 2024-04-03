@@ -85,7 +85,7 @@
         <download-plugin.version>1.8.1</download-plugin.version>
         <invoker-plugin.version>3.6.1</invoker-plugin.version>
         <maven.version>3.9.6</maven.version>
-        <maven-plugin.version>3.11.0</maven-plugin.version>
+        <maven-plugin.version>3.12.0</maven-plugin.version>
         <plexus-utils.version>4.0.0</plexus-utils.version>
         <plexus-xml.version>3.0.0</plexus-xml.version>
         <shared-utils.version>3.4.2</shared-utils.version>
