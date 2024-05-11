@@ -427,7 +427,7 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "nox11")
     private Boolean nox11;
 
-    /** --nox11 : Disable the automatic spawning of a new terminal in X11. */
+    /** --nowait :  Do not wait for user input after executing embedded program from an xterm. */
     @Parameter(property = "nowait")
     private Boolean nowait;
 
