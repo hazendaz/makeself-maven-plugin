@@ -836,7 +836,7 @@ public class MakeselfMojo extends AbstractMojo {
                 new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
             TarArchiveEntry entry;
             String directory = localRepository.getBasedir() + File.separator + this.portableGit.getName();
-            while ((entry = tarArchiveInputStream.getNextTarEntry()) != null) {
+            while ((entry = tarArchiveInputStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
                 }
