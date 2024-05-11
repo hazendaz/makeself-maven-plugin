@@ -144,21 +144,6 @@ public class MakeselfMojo extends AbstractMojo {
     private List<String> scriptArgs;
 
     /**
-     * cleanup_script_args are additional arguments for cleanup_script passed as an array.
-     *
-     * <pre>
-     * {@code
-     * <cleanupArgs>
-     *   <cleanupArg>arg1</cleanupArg>
-     *   <cleanupArg>arg2</cleanupArg>
-     * </cleanupArg>
-     * }
-     * </pre>
-     */
-    @Parameter(property = "cleanupArgs")
-    private List<String> cleanupArgs;
-
-    /**
      * --version | -v : Print out Makeself version number and exit
      *
      * @since 1.6.0
@@ -665,10 +650,6 @@ public class MakeselfMojo extends AbstractMojo {
                 // Pass original arguments again
                 if (scriptArgs != null) {
                     target.addAll(scriptArgs);
-                }
-                // Pass cleanup arguments
-                if (cleanupArgs != null) {
-                    target.addAll(cleanupArgs);
                 }
             }
 
