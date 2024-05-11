@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011-2023 the original author or authors.
+ *    Copyright 2011-2024 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -443,15 +443,6 @@ public class MakeselfMojo extends AbstractMojo {
      */
     @Parameter(property = "sha256")
     private Boolean sha256;
-
-    /**
-     * --sign passphrase : Signature private key to sign the package with.
-     *
-     * @deprecated use 'signPassphrase'
-     */
-    @Deprecated
-    @Parameter(property = "sign")
-    private String sign;
 
     /**
      * --sign passphrase : Signature private key to sign the package with.
@@ -1187,12 +1178,6 @@ public class MakeselfMojo extends AbstractMojo {
         if (untarExtraOpt != null) {
             args.add("--untar-extra");
             args.add(untarExtraOpt);
-        }
-
-        // --sign passphrase : Signature private key to sign the package with
-        if (sign != null) {
-            args.add("--sign");
-            args.add(sign);
         }
 
         // --sign passphrase : Signature private key to sign the package with
