@@ -36,25 +36,25 @@ Alternatively in windows, if bash is not found on the path, the plugin will down
 Example Usage
 
 ```xml
-            <plugin>
-                <groupId>com.github.hazendaz.maven</groupId>
-                <artifactId>makeself-maven-plugin</artifactId>
-                <version>1.7.0</version>
-                <configuration>
-                    <archiveDir>distro</archiveDir>
-                    <fileName>installDistro.sh</fileName>
-                    <label>Distro Self Extraction</label>
-                    <startupScript>./runDistroScript.sh</startupScript>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>makeself</id>
-                        <goals>
-                            <goal>makeself</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+    <plugin>
+        <groupId>com.github.hazendaz.maven</groupId>
+        <artifactId>makeself-maven-plugin</artifactId>
+        <version>1.7.0</version>
+        <configuration>
+            <archiveDir>distro</archiveDir>
+            <fileName>installDistro.sh</fileName>
+            <label>Distro Self Extraction</label>
+            <startupScript>./runDistroScript.sh</startupScript>
+        </configuration>
+        <executions>
+            <execution>
+                <id>makeself</id>
+                <goals>
+                    <goal>makeself</goal>
+                </goals>
+            </execution>
+        </executions>
+    </plugin>
 ```
 
 *** Special notes: ***
