@@ -397,8 +397,8 @@ public class MakeselfMojo extends AbstractMojo {
      * is assumed that it is stored in the same location as makeself.sh. This option can be used to specify its actual
      * location if it is stored someplace else. This is not required for this plugin as the header is provided.
      */
-    @Parameter(property = "headerFile", readonly = true)
-    private Boolean headerFile;
+    @Parameter(property = "headerFile")
+    private String headerFile;
 
     /**
      * .--cleanup: Specify a script that is run when execution is interrupted or finishes successfully. The script is
@@ -1105,7 +1105,7 @@ public class MakeselfMojo extends AbstractMojo {
         // actual location if it is stored someplace else.
         if (headerFile != null) {
             args.add("--header");
-            args.add(headerFile.toString());
+            args.add(headerFile);
         }
 
         // --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main
