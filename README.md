@@ -59,6 +59,7 @@ Example Usage
 
 *** Special notes: ***
 
+- Version 1.7.0 requires at least maven 3.6.3
 - Version 1.6.0 requires at least maven 3.5.0
 - Use version 1.5.1 with 'inlineScript' set to true if using startupScript to call a program with scriptArgs.
 - Use version 1.3.0 or better for full windows support without having to pre-install bash.
