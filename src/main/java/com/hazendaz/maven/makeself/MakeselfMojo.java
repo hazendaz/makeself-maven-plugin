@@ -388,6 +388,8 @@ public class MakeselfMojo extends AbstractMojo {
     /**
      * --preextract: Specify a pre-extraction script. The script is executed with the same environment and initial
      * `script_args` as `startup_script`.
+     *
+     * @since 1.7.0
      */
     @Parameter(property = "preextractScript")
     private String preextractScript;
