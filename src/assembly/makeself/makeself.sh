@@ -17,7 +17,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.5.1.snapshot.2024-03-06
+MS_VERSION=2.5.1.snapshot.2024-05-11
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -93,6 +93,7 @@ MS_Usage()
     echo "    --nocrc            : Don't calculate a CRC for archive"
     echo "    --sha256           : Compute a SHA256 checksum for the archive"
     echo "    --header file      : Specify location of the header script"
+    echo "    --preextract file  : Specify a pre-extraction script"
     echo "    --cleanup file     : Specify a cleanup script that executes on interrupt and when finished successfully."
     echo "    --follow           : Follow the symlinks in the archive"
     echo "    --noprogress       : Do not show the progress during the decompression"
@@ -311,6 +312,12 @@ do
   HEADER="$2"
     shift 2 || { MS_Usage; exit 1; }
   ;;
+    --preextract)
+    preextract_file="$2"
+    shift 2 || { MS_Usage; exit 1; }
+    test -r "$preextract_file" || { echo "Unable to open pre-extraction script: $preextract_file" >&2; exit 1; }
+    PREEXTRACT_ENCODED=`base64 "$preextract_file"`
+    ;;
     --cleanup)
     CLEANUP_SCRIPT="$2"
     shift 2 || { MS_Usage; exit 1; }
