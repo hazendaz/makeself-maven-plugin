@@ -489,8 +489,8 @@ public class MakeselfMojo extends AbstractMojo {
     private String untarExtraOpt;
 
     /**
-     * --target dir : Specify the directory where the archive will be extracted. This option implies --notemp and ddoes
-     * not require aq startup_script.
+     * --target dir : Specify the directory where the archive will be extracted. This option implies --notemp and does
+     * not require a startup_script.
      *
      * @since 1.6.0
      */
@@ -1077,8 +1077,7 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option
-        // implies
-        // --notemp and does not require aq startup_script.
+        // implies --notemp and does not require a startup_script.
         if (isTrue(current)) {
             args.add("--current");
         }
@@ -1187,7 +1186,7 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // --target dir : Specify the directory where the archive will be extracted. This option implies
-        // --notemp and ddoes not require aq startup_script.
+        // --notemp and does not require a startup_script.
         if (extractTargetDir != null) {
             args.add("--target");
             args.add(extractTargetDir);
