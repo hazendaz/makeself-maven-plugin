@@ -645,13 +645,6 @@ public class MakeselfMojo extends AbstractMojo {
             if (scriptArgs != null) {
                 target.addAll(scriptArgs);
             }
-            if (cleanupScript != null) {
-                target.add(cleanupScript);
-                // Pass original arguments again
-                if (scriptArgs != null) {
-                    target.addAll(scriptArgs);
-                }
-            }
 
             // Indicate makeself running
             getLog().info("Running makeself build");
@@ -1101,6 +1094,13 @@ public class MakeselfMojo extends AbstractMojo {
         if (preextractScript != null) {
             args.add("--reextract");
             args.add(preextractScript);
+        }
+
+        // --cleanup : Specify a script that is run when execution is interrupted or finishes successfully. The script
+        // is executed with the same environment and initial `script_args` as `startup_script`.
+        if (cleanupScript != null) {
+            args.add("--cleanup");
+            args.add(cleanupScript);
         }
 
         // --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main
