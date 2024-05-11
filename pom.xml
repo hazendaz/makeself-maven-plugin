@@ -94,7 +94,7 @@
         <compress.version>1.26.1</compress.version>
 
         <!-- Git -->
-        <git.version>2.44.0.1</git.version>
+        <git.version>2.45.0.1</git.version>
 
         <!-- Guava -->
         <guava.version>33.2.0-jre</guava.version>
