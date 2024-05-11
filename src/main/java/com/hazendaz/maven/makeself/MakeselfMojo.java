@@ -414,7 +414,7 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(property = "nox11")
     private Boolean nox11;
 
-    /** --nowait :  Do not wait for user input after executing embedded program from an xterm. */
+    /** --nowait : Do not wait for user input after executing embedded program from an xterm. */
     @Parameter(property = "nowait")
     private Boolean nowait;
 
@@ -560,7 +560,7 @@ public class MakeselfMojo extends AbstractMojo {
     private ArtifactRepository localRepository;
 
     /** Maven Remote Artifacts Repositories. */
-    @Parameter(property = "project.remoteArtifactRepositories")
+    @Parameter(defaultValue = "${project.remoteArtifactRepositories}", readonly = true, required = true)
     private List<ArtifactRepository> remoteRepositories;
 
     /** The makeself. */
