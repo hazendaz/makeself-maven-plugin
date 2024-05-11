@@ -401,8 +401,15 @@ public class MakeselfMojo extends AbstractMojo {
     private String headerFile;
 
     /**
-     * .--cleanup: Specify a script that is run when execution is interrupted or finishes successfully. The script is
-     * executed with the same environment and initial `script_agrs` as `startup_script`.
+     * --preextract: Specify a pre-extraction script. The script is executed with the same environment and initial
+     * `script_args` as `startup_script`.
+     */
+    @Parameter(property = "preextractScript")
+    private String preextractScript;
+
+    /**
+     * --cleanup: Specify a script that is run when execution is interrupted or finishes successfully. The script is
+     * executed with the same environment and initial `script_args` as `startup_script`.
      */
     @Parameter(property = "cleanupScript")
     private String cleanupScript;
@@ -1106,6 +1113,13 @@ public class MakeselfMojo extends AbstractMojo {
         if (headerFile != null) {
             args.add("--header");
             args.add(headerFile);
+        }
+
+        // --preextract : Specify a pre-extraction script. The script is executed with the same environment and initial
+        // `script_args` as `startup_script`.
+        if (preextractScript != null) {
+            args.add("--reextract");
+            args.add(preextractScript);
         }
 
         // --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main
