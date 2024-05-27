@@ -112,6 +112,16 @@
         <modernizer.plugin>2.7.0</modernizer.plugin>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.github.hazendaz.git</groupId>
+                <artifactId>git-for-windows</artifactId>
+                <version>${git.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- Maven -->
         <dependency>
