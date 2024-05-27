@@ -83,7 +83,7 @@
 
         <!-- Maven Artifacts -->
         <download-plugin.version>1.9.0</download-plugin.version>
-        <invoker-plugin.version>3.6.1</invoker-plugin.version>
+        <invoker-plugin.version>3.7.0</invoker-plugin.version>
         <maven.version>3.9.7</maven.version>
         <maven-plugin.version>3.13.0</maven-plugin.version>
         <plexus-utils.version>4.0.1</plexus-utils.version>
