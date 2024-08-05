@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PortableGit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">makeself-maven-plugin</a> &gt; <a href="index.source.html" class="el_package">com.hazendaz.maven.makeself</a> &gt; <span class="el_source">PortableGit.java</span></div><h1>PortableGit.java</h1><pre class="source lang-java linenums">/*
- *    Copyright 2011-2022 the original author or authors.
+ *    Copyright 2011-2024 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -32,27 +32,27 @@ import org.apache.maven.plugin.logging.Log;
 public class PortableGit {
 
     /** The group id. */
-<span class="fc" id="L35">    @Getter</span>
+    @Getter
     private String groupId;
 
     /** The artifact id. */
-<span class="fc" id="L39">    @Getter</span>
+    @Getter
     private String artifactId;
 
     /** The version. */
-<span class="fc" id="L43">    @Getter</span>
+    @Getter
     private String version;
 
-    /** The type. */
-<span class="fc" id="L47">    @Getter</span>
-    private String type;
+    /** The extension. */
+    @Getter
+    private String extension;
 
     /** The classifier. */
-<span class="fc" id="L51">    @Getter</span>
+    @Getter
     private String classifier;
 
     /** The name. */
-<span class="fc" id="L55">    @Getter</span>
+    @Getter
     private String name;
 
     /**
@@ -72,7 +72,7 @@ public class PortableGit {
 <span class="fc" id="L72">            this.groupId = properties.getProperty(&quot;portable.git.groupId&quot;);</span>
 <span class="fc" id="L73">            this.artifactId = properties.getProperty(&quot;portable.git.artifactId&quot;);</span>
 <span class="fc" id="L74">            this.version = properties.getProperty(&quot;portable.git.version&quot;);</span>
-<span class="fc" id="L75">            this.type = properties.getProperty(&quot;portable.git.type&quot;);</span>
+<span class="fc" id="L75">            this.extension = properties.getProperty(&quot;portable.git.extension&quot;);</span>
 <span class="fc" id="L76">            this.classifier = properties.getProperty(&quot;portable.git.classifier&quot;);</span>
 <span class="fc" id="L77">            this.name = properties.getProperty(&quot;portable.git.name&quot;);</span>
 <span class="nc" id="L78">        } catch (final IOException e) {</span>
