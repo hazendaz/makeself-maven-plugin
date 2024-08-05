@@ -41,9 +41,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.ArtifactRepository;
-import org.apache.maven.artifact.resolver.ArtifactResolutionRequest;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -53,7 +50,14 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.apache.maven.repository.RepositorySystem;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
 
 /**
  * The Class MakeselfMojo.
@@ -555,13 +559,13 @@ public class MakeselfMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
-    /** Maven Local Repository. */
-    @Parameter(defaultValue = "${localRepository}", readonly = true, required = true)
-    private ArtifactRepository localRepository;
+    /** Maven Repository System Session. */
+    @Parameter(defaultValue = "${repositorySystemSession}", readonly = true, required = true)
+    private RepositorySystemSession repoSession;
 
-    /** Maven Remote Artifacts Repositories. */
-    @Parameter(defaultValue = "${project.remoteArtifactRepositories}", readonly = true, required = true)
-    private List<ArtifactRepository> remoteRepositories;
+    /** Maven Remote Repositories. */
+    @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true, required = true)
+    protected List<RemoteRepository> remoteRepositories;
 
     /** The makeself. */
     private File makeself;
@@ -692,8 +696,8 @@ public class MakeselfMojo extends AbstractMojo {
         if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
             getLog().debug("Environment Variables: " + envs);
-            final String location = localRepository.getBasedir() + File.separator + this.portableGit.getName()
-                    + File.separator + this.portableGit.getVersion();
+            final String location = repoSession.getLocalRepository().getBasedir() + File.separator
+                    + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
             // Windows cmd/powershell shows "Path" in this case
             if (envs.get("Path") != null) {
                 envs.put("Path", location + "/usr/bin;" + envs.get("Path"));
@@ -794,10 +798,13 @@ public class MakeselfMojo extends AbstractMojo {
 
     /**
      * Extract Portable Git.
+     *
+     * @throws MojoFailureException
+     *             failure retrieving portable git
      */
-    private void extractPortableGit() {
-        final String location = localRepository.getBasedir() + File.separator + this.portableGit.getName()
-                + File.separator + this.portableGit.getVersion();
+    private void extractPortableGit() throws MojoFailureException {
+        final String location = repoSession.getLocalRepository().getBasedir() + File.separator
+                + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
         if (new File(location).exists()) {
             getLog().debug("Existing 'PortableGit' folder found at " + location);
             gitPath = location + "/usr/bin/";
@@ -805,18 +812,24 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         getLog().info("Loading portable git");
-        final Artifact artifact = repositorySystem.createArtifactWithClassifier(this.portableGit.getGroupId(),
-                this.portableGit.getArtifactId(), this.portableGit.getVersion(), this.portableGit.getType(),
-                this.portableGit.getClassifier());
-
-        final ArtifactResolutionRequest artifactResolutionRequest = new ArtifactResolutionRequest();
-        artifactResolutionRequest.setArtifact(artifact);
-        artifactResolutionRequest.setResolveTransitively(true);
-        artifactResolutionRequest.setLocalRepository(localRepository);
-        artifactResolutionRequest.setRemoteRepositories(remoteRepositories);
-        repositorySystem.resolve(artifactResolutionRequest);
-
-        this.installGit(artifact, location);
+        final Artifact artifact = new DefaultArtifact(this.portableGit.getGroupId(), this.portableGit.getArtifactId(),
+                this.portableGit.getClassifier(), this.portableGit.getExtension(), this.portableGit.getVersion());
+        final ArtifactRequest artifactRequest = new ArtifactRequest().setRepositories(this.remoteRepositories)
+                .setArtifact(artifact);
+        ArtifactResult resolutionResult = null;
+        try {
+            resolutionResult = repositorySystem.resolveArtifact(repoSession, artifactRequest);
+            if (!resolutionResult.isResolved()) {
+                throw new MojoFailureException("Unable to resolve artifact: " + artifact.getGroupId() + ":"
+                        + artifact.getArtifactId() + ":" + artifact.getVersion() + ":" + artifact.getExtension() + ":"
+                        + artifact.getClassifier());
+            }
+        } catch (ArtifactResolutionException e) {
+            throw new MojoFailureException(
+                    "Unable to resolve artifact: " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":"
+                            + artifact.getVersion() + ":" + artifact.getExtension() + ":" + artifact.getClassifier());
+        }
+        this.installGit(resolutionResult.getArtifact(), location);
     }
 
     /**
@@ -835,7 +848,8 @@ public class MakeselfMojo extends AbstractMojo {
         try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(
                 new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
             TarArchiveEntry entry;
-            String directory = localRepository.getBasedir() + File.separator + this.portableGit.getName();
+            String directory = repoSession.getLocalRepository().getBasedir() + File.separator
+                    + this.portableGit.getName();
             while ((entry = tarArchiveInputStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;

@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011-2022 the original author or authors.
+ *    Copyright 2011-2024 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ public class PortableGitTest {
         Assertions.assertEquals("portable", portableGit.getClassifier());
         Assertions.assertEquals("com.github.hazendaz.git", portableGit.getGroupId());
         Assertions.assertEquals("PortableGit", portableGit.getName());
-        Assertions.assertEquals("tar.gz", portableGit.getType());
+        Assertions.assertEquals("tar.gz", portableGit.getExtension());
         Assertions.assertNotEquals("${git.version}", portableGit.getVersion());
     }
 

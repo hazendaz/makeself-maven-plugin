@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011-2022 the original author or authors.
+ *    Copyright 2011-2024 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -43,9 +43,9 @@ public class PortableGit {
     @Getter
     private String version;
 
-    /** The type. */
+    /** The extension. */
     @Getter
-    private String type;
+    private String extension;
 
     /** The classifier. */
     @Getter
@@ -72,7 +72,7 @@ public class PortableGit {
             this.groupId = properties.getProperty("portable.git.groupId");
             this.artifactId = properties.getProperty("portable.git.artifactId");
             this.version = properties.getProperty("portable.git.version");
-            this.type = properties.getProperty("portable.git.type");
+            this.extension = properties.getProperty("portable.git.extension");
             this.classifier = properties.getProperty("portable.git.classifier");
             this.name = properties.getProperty("portable.git.name");
         } catch (final IOException e) {
