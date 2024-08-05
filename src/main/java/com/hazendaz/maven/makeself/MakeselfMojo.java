@@ -821,13 +821,13 @@ public class MakeselfMojo extends AbstractMojo {
             resolutionResult = repositorySystem.resolveArtifact(repoSession, artifactRequest);
             if (!resolutionResult.isResolved()) {
                 throw new MojoFailureException("Unable to resolve artifact: " + artifact.getGroupId() + ":"
-                        + artifact.getArtifactId() + ":" + artifact.getVersion() + ":" + artifact.getExtension() + ":"
-                        + artifact.getClassifier());
+                        + artifact.getArtifactId() + ":" + artifact.getVersion() + ":" + artifact.getClassifier() + ":"
+                        + artifact.getExtension());
             }
         } catch (ArtifactResolutionException e) {
             throw new MojoFailureException(
                     "Unable to resolve artifact: " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":"
-                            + artifact.getVersion() + ":" + artifact.getExtension() + ":" + artifact.getClassifier());
+                            + artifact.getVersion() + ":" + artifact.getClassifier() + ":" + artifact.getExtension());
         }
         this.installGit(resolutionResult.getArtifact(), location);
     }
