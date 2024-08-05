@@ -72,6 +72,10 @@
     </distributionManagement>
 
     <properties>
+        <!-- Java Runtime Requirements -->
+        <java.version>11</java.version>
+        <java.release.version>11</java.release.version>
+
         <!-- Checkstyle -->
         <checkstyle.config>checkstyle-4space.xml</checkstyle.config>
 
