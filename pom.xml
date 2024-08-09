@@ -109,7 +109,7 @@
         <!-- Targeted patches -->
         <io.version>2.16.1</io.version>
         <lang3.version>3.16.0</lang3.version>
-        <slf4j.version>2.0.14</slf4j.version>
+        <slf4j.version>2.0.15</slf4j.version>
 
         <!-- Drop modernizer back to 2.7.0 until they fix maven requirement -->
         <modernizer.version>2.7.0</modernizer.version>
