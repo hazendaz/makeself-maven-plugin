@@ -24,4 +24,4 @@ jobs:
       - name: Build Setup
         run: ./mvnw -B -V clean install -D"license.skip=true" --no-transfer-progress
       - name: Integration Test with Maven
-        run: ./mvnw -Prun-it install -B -D"license.skip=true" --no-transfer-progress
+        run: ./mvnw -Prun-it verify -B -D"license.skip=true" --no-transfer-progress

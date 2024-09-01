@@ -15,8 +15,8 @@ jobs:
           java-version: 21
           distribution: 'zulu'
       - name: Load Maven 3.6.3
-        run: ./mvnw -B -V org.apache.maven.plugins:maven-wrapper-plugin:3.3.2:wrapper -Dmaven=3.6.3 --no-transfer-progress
+        run: mvn -B -V org.apache.maven.plugins:maven-wrapper-plugin:3.3.2:wrapper -Dmaven=3.6.3 --no-transfer-progress
       - name: Build Setup
         run: ./mvnw -B -V clean install -Dmaven.min-version=3.6.3 -Dlicense.skip=true --no-transfer-progress
       - name: Integration Test with Maven
-        run: ./mvnw -B -V -Prun-it install -Dmaven.min-version=3.6.3 -Dlicense.skip=true --no-transfer-progress
+        run: ./mvnw -B -V -Prun-it verify -Dmaven.min-version=3.6.3 -Dlicense.skip=true --no-transfer-progress
