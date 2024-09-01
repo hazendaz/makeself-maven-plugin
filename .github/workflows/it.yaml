@@ -25,6 +25,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # Due to needing git bash, run main integration tests on all 3 platforms
         os: [ubuntu-latest, macOS-latest, windows-latest]
         java: [21]
       fail-fast: false
@@ -39,6 +40,6 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: zulu
       - name: Build Setup
-        run: ./mvnw -B -V clean install -Dlicense.skip=true --no-transfer-progress
+        run: ./mvnw -B -V clean install -D"license.skip=true" --no-transfer-progress
       - name: Integration Test with Maven
-        run: ./mvnw -Prun-it clean install -B -Dlicense.skip=true --no-transfer-progress
+        run: ./mvnw -Prun-it install -B -D"license.skip=true" --no-transfer-progress
