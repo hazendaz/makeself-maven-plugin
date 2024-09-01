@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -44,7 +46,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -63,17 +64,17 @@ import org.eclipse.aether.resolution.ArtifactResult;
  * The Class MakeselfMojo.
  */
 @Mojo(name = &quot;makeself&quot;, defaultPhase = LifecyclePhase.VERIFY, requiresProject = false)
-<span class="nc" id="L66">public class MakeselfMojo extends AbstractMojo {</span>
+<span class="nc" id="L67">public class MakeselfMojo extends AbstractMojo {</span>
 
     /**
      * isWindows is detected at start of plugin to ensure windows needs.
      */
-<span class="nc" id="L71">    private static final boolean WINDOWS = System.getProperty(&quot;os.name&quot;).startsWith(&quot;Windows&quot;);</span>
+<span class="nc" id="L72">    private static final boolean WINDOWS = System.getProperty(&quot;os.name&quot;).startsWith(&quot;Windows&quot;);</span>
 
     /**
      * The path to git which is left blank unless portable git is used.
      */
-<span class="nc" id="L76">    private String gitPath = &quot;&quot;;</span>
+<span class="nc" id="L77">    private String gitPath = &quot;&quot;;</span>
 
     /**
      * archive_dir is the name of the directory that contains the files to be archived.
@@ -548,11 +549,11 @@ import org.eclipse.aether.resolution.ArtifactResult;
     private File makeselfTempDirectory;
 
     /** Maven ProjectHelper. */
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
     /** Maven Artifact Factory. */
-    @Component
+    @Inject
     private RepositorySystem repositorySystem;
 
     /** Maven Project. */
@@ -579,208 +580,208 @@ import org.eclipse.aether.resolution.ArtifactResult;
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         // Check if plugin run should be skipped
-<span class="nc bnc" id="L582" title="All 2 branches missed.">        if (this.skip) {</span>
-<span class="nc" id="L583">            getLog().info(&quot;Makeself is skipped&quot;);</span>
-<span class="nc" id="L584">            return;</span>
+<span class="nc bnc" id="L583" title="All 2 branches missed.">        if (this.skip) {</span>
+<span class="nc" id="L584">            getLog().info(&quot;Makeself is skipped&quot;);</span>
+<span class="nc" id="L585">            return;</span>
         }
 
         // Validate archive directory exists
-<span class="nc" id="L588">        File file = new File(buildTarget.concat(archiveDir));</span>
-<span class="nc bnc" id="L589" title="All 2 branches missed.">        if (!file.exists()) {</span>
-<span class="nc" id="L590">            throw new MojoExecutionException(&quot;ArchiveDir: missing '&quot; + buildTarget.concat(archiveDir) + &quot;'&quot;);</span>
+<span class="nc" id="L589">        File file = new File(buildTarget.concat(archiveDir));</span>
+<span class="nc bnc" id="L590" title="All 2 branches missed.">        if (!file.exists()) {</span>
+<span class="nc" id="L591">            throw new MojoExecutionException(&quot;ArchiveDir: missing '&quot; + buildTarget.concat(archiveDir) + &quot;'&quot;);</span>
         }
 
         // Validate inline script or startup script file
-<span class="nc bnc" id="L594" title="All 2 branches missed.">        if (inlineScript) {</span>
+<span class="nc bnc" id="L595" title="All 2 branches missed.">        if (inlineScript) {</span>
             // Validate inline script has script args
-<span class="nc bnc" id="L596" title="All 2 branches missed.">            if (scriptArgs == null) {</span>
-<span class="nc" id="L597">                throw new MojoExecutionException(&quot;ScriptArgs required when running inlineScript&quot;);</span>
+<span class="nc bnc" id="L597" title="All 2 branches missed.">            if (scriptArgs == null) {</span>
+<span class="nc" id="L598">                throw new MojoExecutionException(&quot;ScriptArgs required when running inlineScript&quot;);</span>
             }
         } else {
             // Validate startupScript file starts with './'
-<span class="nc bnc" id="L601" title="All 2 branches missed.">            if (!startupScript.startsWith(&quot;./&quot;)) {</span>
-<span class="nc" id="L602">                throw new MojoExecutionException(&quot;StartupScript required to start with './'&quot;);</span>
+<span class="nc bnc" id="L602" title="All 2 branches missed.">            if (!startupScript.startsWith(&quot;./&quot;)) {</span>
+<span class="nc" id="L603">                throw new MojoExecutionException(&quot;StartupScript required to start with './'&quot;);</span>
             }
 
             // Validate startupScript file exists
-<span class="nc" id="L606">            file = new File(buildTarget.concat(archiveDir).concat(startupScript.substring(1)));</span>
-<span class="nc bnc" id="L607" title="All 2 branches missed.">            if (!file.exists()) {</span>
-<span class="nc" id="L608">                throw new MojoExecutionException(&quot;StartupScript: missing '&quot;</span>
-<span class="nc" id="L609">                        + buildTarget.concat(archiveDir).concat(startupScript.substring(1)) + &quot;'&quot;);</span>
+<span class="nc" id="L607">            file = new File(buildTarget.concat(archiveDir).concat(startupScript.substring(1)));</span>
+<span class="nc bnc" id="L608" title="All 2 branches missed.">            if (!file.exists()) {</span>
+<span class="nc" id="L609">                throw new MojoExecutionException(&quot;StartupScript: missing '&quot;</span>
+<span class="nc" id="L610">                        + buildTarget.concat(archiveDir).concat(startupScript.substring(1)) + &quot;'&quot;);</span>
             }
         }
 
         // Setup make self files
-<span class="nc" id="L614">        this.extractMakeself();</span>
+<span class="nc" id="L615">        this.extractMakeself();</span>
 
         // Check git setup
-<span class="nc bnc" id="L617" title="All 2 branches missed.">        if (MakeselfMojo.WINDOWS) {</span>
-<span class="nc" id="L618">            this.checkGitSetup();</span>
+<span class="nc bnc" id="L618" title="All 2 branches missed.">        if (MakeselfMojo.WINDOWS) {</span>
+<span class="nc" id="L619">            this.checkGitSetup();</span>
         }
 
         try {
             // Output version of bash
-<span class="nc" id="L623">            getLog().debug(&quot;Execute Bash Version&quot;);</span>
-<span class="nc" id="L624">            execute(Arrays.asList(gitPath + &quot;bash&quot;, &quot;--version&quot;), !ATTACH_ARTIFACT);</span>
+<span class="nc" id="L624">            getLog().debug(&quot;Execute Bash Version&quot;);</span>
+<span class="nc" id="L625">            execute(Arrays.asList(gitPath + &quot;bash&quot;, &quot;--version&quot;), !ATTACH_ARTIFACT);</span>
 
             // Output version of makeself.sh
-<span class="nc" id="L627">            getLog().debug(&quot;Execute Makeself Version&quot;);</span>
-<span class="nc" id="L628">            execute(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath(), &quot;--version&quot;), !ATTACH_ARTIFACT);</span>
+<span class="nc" id="L628">            getLog().debug(&quot;Execute Makeself Version&quot;);</span>
+<span class="nc" id="L629">            execute(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath(), &quot;--version&quot;), !ATTACH_ARTIFACT);</span>
 
             // If version arguments supplied, exit as we just printed version.
-<span class="nc bnc" id="L631" title="All 2 branches missed.">            if (isTrue(version)) {</span>
-<span class="nc" id="L632">                return;</span>
+<span class="nc bnc" id="L632" title="All 2 branches missed.">            if (isTrue(version)) {</span>
+<span class="nc" id="L633">                return;</span>
             }
 
             // If help arguments supplied, write output and get out of code.
-<span class="nc bnc" id="L636" title="All 2 branches missed.">            if (isTrue(help)) {</span>
-<span class="nc" id="L637">                getLog().debug(&quot;Execute Makeself Help&quot;);</span>
-<span class="nc" id="L638">                execute(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath(), &quot;--help&quot;), !ATTACH_ARTIFACT);</span>
-<span class="nc" id="L639">                return;</span>
+<span class="nc bnc" id="L637" title="All 2 branches missed.">            if (isTrue(help)) {</span>
+<span class="nc" id="L638">                getLog().debug(&quot;Execute Makeself Help&quot;);</span>
+<span class="nc" id="L639">                execute(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath(), &quot;--help&quot;), !ATTACH_ARTIFACT);</span>
+<span class="nc" id="L640">                return;</span>
             }
 
             // Basic Configuration
-<span class="nc" id="L643">            getLog().debug(&quot;Loading Makeself Basic Configuration&quot;);</span>
-<span class="nc" id="L644">            List&lt;String&gt; target = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L645">            target.addAll(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath()));</span>
-<span class="nc" id="L646">            target.addAll(loadArgs());</span>
-<span class="nc" id="L647">            target.add(buildTarget.concat(archiveDir));</span>
-<span class="nc" id="L648">            target.add(buildTarget.concat(fileName));</span>
-<span class="nc" id="L649">            target.add(label);</span>
-<span class="nc" id="L650">            target.add(startupScript);</span>
-<span class="nc bnc" id="L651" title="All 2 branches missed.">            if (scriptArgs != null) {</span>
-<span class="nc" id="L652">                target.addAll(scriptArgs);</span>
+<span class="nc" id="L644">            getLog().debug(&quot;Loading Makeself Basic Configuration&quot;);</span>
+<span class="nc" id="L645">            List&lt;String&gt; target = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L646">            target.addAll(Arrays.asList(gitPath + &quot;bash&quot;, makeself.getAbsolutePath()));</span>
+<span class="nc" id="L647">            target.addAll(loadArgs());</span>
+<span class="nc" id="L648">            target.add(buildTarget.concat(archiveDir));</span>
+<span class="nc" id="L649">            target.add(buildTarget.concat(fileName));</span>
+<span class="nc" id="L650">            target.add(label);</span>
+<span class="nc" id="L651">            target.add(startupScript);</span>
+<span class="nc bnc" id="L652" title="All 2 branches missed.">            if (scriptArgs != null) {</span>
+<span class="nc" id="L653">                target.addAll(scriptArgs);</span>
             }
 
             // Indicate makeself running
-<span class="nc" id="L656">            getLog().info(&quot;Running makeself build&quot;);</span>
+<span class="nc" id="L657">            getLog().info(&quot;Running makeself build&quot;);</span>
 
             // Execute main run of makeself.sh
-<span class="nc" id="L659">            getLog().debug(&quot;Execute Makeself Build&quot;);</span>
-<span class="nc" id="L660">            execute(target, ATTACH_ARTIFACT);</span>
+<span class="nc" id="L660">            getLog().debug(&quot;Execute Makeself Build&quot;);</span>
+<span class="nc" id="L661">            execute(target, ATTACH_ARTIFACT);</span>
 
             // Output info on file makeself created
-<span class="nc" id="L663">            getLog().debug(&quot;Execute Makeself Info on Resulting Shell Script&quot;);</span>
-<span class="nc" id="L664">            execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName), &quot;--info&quot;), !ATTACH_ARTIFACT);</span>
+<span class="nc" id="L664">            getLog().debug(&quot;Execute Makeself Info on Resulting Shell Script&quot;);</span>
+<span class="nc" id="L665">            execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName), &quot;--info&quot;), !ATTACH_ARTIFACT);</span>
 
             // Output list on file makeself created (non windows need)
-<span class="nc bnc" id="L667" title="All 2 branches missed.">            if (!MakeselfMojo.WINDOWS) {</span>
-<span class="nc" id="L668">                getLog().debug(&quot;Execute Makeself List on Resulting Shell Script&quot;);</span>
-<span class="nc" id="L669">                execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName), &quot;--list&quot;), !ATTACH_ARTIFACT);</span>
+<span class="nc bnc" id="L668" title="All 2 branches missed.">            if (!MakeselfMojo.WINDOWS) {</span>
+<span class="nc" id="L669">                getLog().debug(&quot;Execute Makeself List on Resulting Shell Script&quot;);</span>
+<span class="nc" id="L670">                execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName), &quot;--list&quot;), !ATTACH_ARTIFACT);</span>
             }
 
             // auto run script
-<span class="nc bnc" id="L673" title="All 2 branches missed.">            if (this.autoRun) {</span>
-<span class="nc" id="L674">                getLog().info(&quot;Auto-run created shell (this may take a few minutes)&quot;);</span>
-<span class="nc" id="L675">                execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName)), !ATTACH_ARTIFACT);</span>
+<span class="nc bnc" id="L674" title="All 2 branches missed.">            if (this.autoRun) {</span>
+<span class="nc" id="L675">                getLog().info(&quot;Auto-run created shell (this may take a few minutes)&quot;);</span>
+<span class="nc" id="L676">                execute(Arrays.asList(gitPath + &quot;bash&quot;, buildTarget.concat(fileName)), !ATTACH_ARTIFACT);</span>
             }
-<span class="nc" id="L677">        } catch (IOException e) {</span>
-<span class="nc" id="L678">            getLog().error(&quot;&quot;, e);</span>
-<span class="nc" id="L679">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L680">            getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L678">        } catch (IOException e) {</span>
+<span class="nc" id="L679">            getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L680">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L681">            getLog().error(&quot;&quot;, e);</span>
             // restore interruption status of the corresponding thread
-<span class="nc" id="L682">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L683">        }</span>
-<span class="nc" id="L684">    }</span>
+<span class="nc" id="L683">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L684">        }</span>
+<span class="nc" id="L685">    }</span>
 
     private void execute(List&lt;String&gt; target, boolean attach) throws IOException, InterruptedException {
 
         // Log execution target
-<span class="nc" id="L689">        getLog().debug(&quot;Execution commands: &quot; + target);</span>
+<span class="nc" id="L690">        getLog().debug(&quot;Execution commands: &quot; + target);</span>
 
         // Create Process Builder
-<span class="nc" id="L692">        ProcessBuilder processBuilder = new ProcessBuilder(target);</span>
-<span class="nc" id="L693">        processBuilder.redirectErrorStream(true);</span>
+<span class="nc" id="L693">        ProcessBuilder processBuilder = new ProcessBuilder(target);</span>
+<span class="nc" id="L694">        processBuilder.redirectErrorStream(true);</span>
 
         // Add portable git to windows environment
-<span class="nc bnc" id="L696" title="All 2 branches missed.">        if (MakeselfMojo.WINDOWS) {</span>
-<span class="nc" id="L697">            Map&lt;String, String&gt; envs = processBuilder.environment();</span>
-<span class="nc" id="L698">            getLog().debug(&quot;Environment Variables: &quot; + envs);</span>
-<span class="nc" id="L699">            final String location = repoSession.getLocalRepository().getBasedir() + File.separator</span>
-<span class="nc" id="L700">                    + this.portableGit.getName() + File.separator + this.portableGit.getVersion();</span>
+<span class="nc bnc" id="L697" title="All 2 branches missed.">        if (MakeselfMojo.WINDOWS) {</span>
+<span class="nc" id="L698">            Map&lt;String, String&gt; envs = processBuilder.environment();</span>
+<span class="nc" id="L699">            getLog().debug(&quot;Environment Variables: &quot; + envs);</span>
+<span class="nc" id="L700">            final String location = repoSession.getLocalRepository().getBasedir() + File.separator</span>
+<span class="nc" id="L701">                    + this.portableGit.getName() + File.separator + this.portableGit.getVersion();</span>
             // Windows cmd/powershell shows &quot;Path&quot; in this case
-<span class="nc bnc" id="L702" title="All 2 branches missed.">            if (envs.get(&quot;Path&quot;) != null) {</span>
-<span class="nc" id="L703">                envs.put(&quot;Path&quot;, location + &quot;/usr/bin;&quot; + envs.get(&quot;Path&quot;));</span>
-<span class="nc" id="L704">                getLog().debug(&quot;Environment Path Variable: &quot; + envs.get(&quot;Path&quot;));</span>
+<span class="nc bnc" id="L703" title="All 2 branches missed.">            if (envs.get(&quot;Path&quot;) != null) {</span>
+<span class="nc" id="L704">                envs.put(&quot;Path&quot;, location + &quot;/usr/bin;&quot; + envs.get(&quot;Path&quot;));</span>
+<span class="nc" id="L705">                getLog().debug(&quot;Environment Path Variable: &quot; + envs.get(&quot;Path&quot;));</span>
                 // Windows bash shows &quot;PATH&quot; in this case and has issues with spacing as in 'Program Files'
-<span class="nc bnc" id="L706" title="All 2 branches missed.">            } else if (envs.get(&quot;PATH&quot;) != null) {</span>
-<span class="nc" id="L707">                envs.put(&quot;PATH&quot;,</span>
-<span class="nc" id="L708">                        location + &quot;/usr/bin;&quot; + envs.get(&quot;PATH&quot;).replace(&quot;Program Files&quot;, &quot;\&quot;Program Files\&quot;&quot;));</span>
-<span class="nc" id="L709">                getLog().debug(&quot;Environment Path Variable: &quot; + envs.get(&quot;PATH&quot;));</span>
+<span class="nc bnc" id="L707" title="All 2 branches missed.">            } else if (envs.get(&quot;PATH&quot;) != null) {</span>
+<span class="nc" id="L708">                envs.put(&quot;PATH&quot;,</span>
+<span class="nc" id="L709">                        location + &quot;/usr/bin;&quot; + envs.get(&quot;PATH&quot;).replace(&quot;Program Files&quot;, &quot;\&quot;Program Files\&quot;&quot;));</span>
+<span class="nc" id="L710">                getLog().debug(&quot;Environment Path Variable: &quot; + envs.get(&quot;PATH&quot;));</span>
             }
         }
 
         // Create Process
-<span class="nc" id="L714">        Process process = processBuilder.start();</span>
+<span class="nc" id="L715">        Process process = processBuilder.start();</span>
 
         // Write process output
-<span class="nc" id="L717">        try (BufferedReader reader = new BufferedReader(</span>
-<span class="nc" id="L718">                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {</span>
-<span class="nc" id="L719">            String line = &quot;&quot;;</span>
-<span class="nc bnc" id="L720" title="All 2 branches missed.">            while ((line = reader.readLine()) != null) {</span>
-<span class="nc" id="L721">                getLog().info(line);</span>
+<span class="nc" id="L718">        try (BufferedReader reader = new BufferedReader(</span>
+<span class="nc" id="L719">                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {</span>
+<span class="nc" id="L720">            String line = &quot;&quot;;</span>
+<span class="nc bnc" id="L721" title="All 2 branches missed.">            while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L722">                getLog().info(line);</span>
             }
-<span class="nc" id="L723">            getLog().info(&quot;&quot;);</span>
+<span class="nc" id="L724">            getLog().info(&quot;&quot;);</span>
         }
 
         // Wait for process completion
-<span class="nc" id="L727">        int status = process.waitFor();</span>
-<span class="nc bnc" id="L728" title="All 2 branches missed.">        if (status &gt; 0) {</span>
-<span class="nc" id="L729">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;makeself failed with error status:&quot;, status));</span>
+<span class="nc" id="L728">        int status = process.waitFor();</span>
+<span class="nc bnc" id="L729" title="All 2 branches missed.">        if (status &gt; 0) {</span>
+<span class="nc" id="L730">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;makeself failed with error status:&quot;, status));</span>
         }
 
         // Attach artifact to maven build for install/deploy/release on success
-<span class="nc bnc" id="L733" title="All 4 branches missed.">        if (status == 0 &amp;&amp; attach) {</span>
-<span class="nc" id="L734">            projectHelper.attachArtifact(project, this.extension, this.classifier,</span>
-<span class="nc" id="L735">                    new File(buildTarget, FilenameUtils.getName(fileName)));</span>
+<span class="nc bnc" id="L734" title="All 4 branches missed.">        if (status == 0 &amp;&amp; attach) {</span>
+<span class="nc" id="L735">            projectHelper.attachArtifact(project, this.extension, this.classifier,</span>
+<span class="nc" id="L736">                    new File(buildTarget, FilenameUtils.getName(fileName)));</span>
         }
-<span class="nc" id="L737">    }</span>
+<span class="nc" id="L738">    }</span>
 
     /**
      * Extract makeself.
      */
     private void extractMakeself() {
-<span class="nc" id="L743">        getLog().debug(&quot;Extracting Makeself&quot;);</span>
+<span class="nc" id="L744">        getLog().debug(&quot;Extracting Makeself&quot;);</span>
 
         // Create makeself directory
-<span class="nc" id="L746">        File makeselfTemp = new File(makeselfTempDirectory.getAbsolutePath());</span>
-<span class="nc bnc" id="L747" title="All 4 branches missed.">        if (!makeselfTemp.exists() &amp;&amp; !makeselfTemp.mkdirs()) {</span>
-<span class="nc" id="L748">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;Unable to make directory&quot;, makeselfTempDirectory.getAbsolutePath()));</span>
-<span class="nc" id="L749">            return;</span>
+<span class="nc" id="L747">        File makeselfTemp = new File(makeselfTempDirectory.getAbsolutePath());</span>
+<span class="nc bnc" id="L748" title="All 4 branches missed.">        if (!makeselfTemp.exists() &amp;&amp; !makeselfTemp.mkdirs()) {</span>
+<span class="nc" id="L749">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;Unable to make directory&quot;, makeselfTempDirectory.getAbsolutePath()));</span>
+<span class="nc" id="L750">            return;</span>
         } else {
-<span class="nc" id="L751">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Created directory for&quot;, makeselfTempDirectory.getAbsolutePath()));</span>
+<span class="nc" id="L752">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Created directory for&quot;, makeselfTempDirectory.getAbsolutePath()));</span>
         }
 
-<span class="nc" id="L754">        ClassLoader classloader = this.getClass().getClassLoader();</span>
+<span class="nc" id="L755">        ClassLoader classloader = this.getClass().getClassLoader();</span>
 
         // Write makeself script
-<span class="nc" id="L757">        makeself = new File(makeselfTempDirectory, &quot;makeself.sh&quot;);</span>
-<span class="nc bnc" id="L758" title="All 2 branches missed.">        if (!makeself.exists()) {</span>
-<span class="nc" id="L759">            getLog().debug(&quot;Writing makeself.sh&quot;);</span>
-<span class="nc" id="L760">            try (InputStream link = classloader.getResourceAsStream(&quot;META-INF/makeself/makeself.sh&quot;)) {</span>
-<span class="nc" id="L761">                Path path = makeself.getAbsoluteFile().toPath();</span>
-<span class="nc" id="L762">                Files.copy(link, path);</span>
-<span class="nc" id="L763">                setFilePermissions(makeself);</span>
-<span class="nc" id="L764">                setPosixFilePermissions(path);</span>
-<span class="nc" id="L765">            } catch (IOException e) {</span>
-<span class="nc" id="L766">                getLog().error(&quot;&quot;, e);</span>
-<span class="nc" id="L767">            }</span>
+<span class="nc" id="L758">        makeself = new File(makeselfTempDirectory, &quot;makeself.sh&quot;);</span>
+<span class="nc bnc" id="L759" title="All 2 branches missed.">        if (!makeself.exists()) {</span>
+<span class="nc" id="L760">            getLog().debug(&quot;Writing makeself.sh&quot;);</span>
+<span class="nc" id="L761">            try (InputStream link = classloader.getResourceAsStream(&quot;META-INF/makeself/makeself.sh&quot;)) {</span>
+<span class="nc" id="L762">                Path path = makeself.getAbsoluteFile().toPath();</span>
+<span class="nc" id="L763">                Files.copy(link, path);</span>
+<span class="nc" id="L764">                setFilePermissions(makeself);</span>
+<span class="nc" id="L765">                setPosixFilePermissions(path);</span>
+<span class="nc" id="L766">            } catch (IOException e) {</span>
+<span class="nc" id="L767">                getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L768">            }</span>
         }
 
         // Write makeself-header script
-<span class="nc" id="L771">        File makeselfHeader = new File(makeselfTempDirectory, &quot;makeself-header.sh&quot;);</span>
-<span class="nc bnc" id="L772" title="All 2 branches missed.">        if (!makeselfHeader.exists()) {</span>
-<span class="nc" id="L773">            getLog().debug(&quot;Writing makeself-header.sh&quot;);</span>
-<span class="nc" id="L774">            try (InputStream link = classloader.getResourceAsStream(&quot;META-INF/makeself/makeself-header.sh&quot;)) {</span>
-<span class="nc" id="L775">                Path path = makeselfHeader.getAbsoluteFile().toPath();</span>
-<span class="nc" id="L776">                Files.copy(link, path);</span>
-<span class="nc" id="L777">                setFilePermissions(makeselfHeader);</span>
-<span class="nc" id="L778">                setPosixFilePermissions(path);</span>
-<span class="nc" id="L779">            } catch (IOException e) {</span>
-<span class="nc" id="L780">                getLog().error(&quot;&quot;, e);</span>
-<span class="nc" id="L781">            }</span>
+<span class="nc" id="L772">        File makeselfHeader = new File(makeselfTempDirectory, &quot;makeself-header.sh&quot;);</span>
+<span class="nc bnc" id="L773" title="All 2 branches missed.">        if (!makeselfHeader.exists()) {</span>
+<span class="nc" id="L774">            getLog().debug(&quot;Writing makeself-header.sh&quot;);</span>
+<span class="nc" id="L775">            try (InputStream link = classloader.getResourceAsStream(&quot;META-INF/makeself/makeself-header.sh&quot;)) {</span>
+<span class="nc" id="L776">                Path path = makeselfHeader.getAbsoluteFile().toPath();</span>
+<span class="nc" id="L777">                Files.copy(link, path);</span>
+<span class="nc" id="L778">                setFilePermissions(makeselfHeader);</span>
+<span class="nc" id="L779">                setPosixFilePermissions(path);</span>
+<span class="nc" id="L780">            } catch (IOException e) {</span>
+<span class="nc" id="L781">                getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L782">            }</span>
         }
-<span class="nc" id="L783">    }</span>
+<span class="nc" id="L784">    }</span>
 
     /**
      * Check Git Setup.
@@ -790,11 +791,11 @@ import org.eclipse.aether.resolution.ArtifactResult;
      */
     private void checkGitSetup() throws MojoFailureException {
         // Get Portable Git Maven Information
-<span class="nc" id="L793">        this.portableGit = new PortableGit(getLog());</span>
+<span class="nc" id="L794">        this.portableGit = new PortableGit(getLog());</span>
 
         // Extract Portable Git
-<span class="nc" id="L796">        this.extractPortableGit();</span>
-<span class="nc" id="L797">    }</span>
+<span class="nc" id="L797">        this.extractPortableGit();</span>
+<span class="nc" id="L798">    }</span>
 
     /**
      * Extract Portable Git.
@@ -803,34 +804,34 @@ import org.eclipse.aether.resolution.ArtifactResult;
      *             failure retrieving portable git
      */
     private void extractPortableGit() throws MojoFailureException {
-<span class="nc" id="L806">        final String location = repoSession.getLocalRepository().getBasedir() + File.separator</span>
-<span class="nc" id="L807">                + this.portableGit.getName() + File.separator + this.portableGit.getVersion();</span>
-<span class="nc bnc" id="L808" title="All 2 branches missed.">        if (new File(location).exists()) {</span>
-<span class="nc" id="L809">            getLog().debug(&quot;Existing 'PortableGit' folder found at &quot; + location);</span>
-<span class="nc" id="L810">            gitPath = location + &quot;/usr/bin/&quot;;</span>
-<span class="nc" id="L811">            return;</span>
+<span class="nc" id="L807">        final String location = repoSession.getLocalRepository().getBasedir() + File.separator</span>
+<span class="nc" id="L808">                + this.portableGit.getName() + File.separator + this.portableGit.getVersion();</span>
+<span class="nc bnc" id="L809" title="All 2 branches missed.">        if (new File(location).exists()) {</span>
+<span class="nc" id="L810">            getLog().debug(&quot;Existing 'PortableGit' folder found at &quot; + location);</span>
+<span class="nc" id="L811">            gitPath = location + &quot;/usr/bin/&quot;;</span>
+<span class="nc" id="L812">            return;</span>
         }
 
-<span class="nc" id="L814">        getLog().info(&quot;Loading portable git&quot;);</span>
-<span class="nc" id="L815">        final Artifact artifact = new DefaultArtifact(this.portableGit.getGroupId(), this.portableGit.getArtifactId(),</span>
-<span class="nc" id="L816">                this.portableGit.getClassifier(), this.portableGit.getExtension(), this.portableGit.getVersion());</span>
-<span class="nc" id="L817">        final ArtifactRequest artifactRequest = new ArtifactRequest().setRepositories(this.remoteRepositories)</span>
-<span class="nc" id="L818">                .setArtifact(artifact);</span>
-<span class="nc" id="L819">        ArtifactResult resolutionResult = null;</span>
+<span class="nc" id="L815">        getLog().info(&quot;Loading portable git&quot;);</span>
+<span class="nc" id="L816">        final Artifact artifact = new DefaultArtifact(this.portableGit.getGroupId(), this.portableGit.getArtifactId(),</span>
+<span class="nc" id="L817">                this.portableGit.getClassifier(), this.portableGit.getExtension(), this.portableGit.getVersion());</span>
+<span class="nc" id="L818">        final ArtifactRequest artifactRequest = new ArtifactRequest().setRepositories(this.remoteRepositories)</span>
+<span class="nc" id="L819">                .setArtifact(artifact);</span>
+<span class="nc" id="L820">        ArtifactResult resolutionResult = null;</span>
         try {
-<span class="nc" id="L821">            resolutionResult = repositorySystem.resolveArtifact(repoSession, artifactRequest);</span>
-<span class="nc bnc" id="L822" title="All 2 branches missed.">            if (!resolutionResult.isResolved()) {</span>
-<span class="nc" id="L823">                throw new MojoFailureException(&quot;Unable to resolve artifact: &quot; + artifact.getGroupId() + &quot;:&quot;</span>
-<span class="nc" id="L824">                        + artifact.getArtifactId() + &quot;:&quot; + artifact.getVersion() + &quot;:&quot; + artifact.getClassifier() + &quot;:&quot;</span>
-<span class="nc" id="L825">                        + artifact.getExtension());</span>
+<span class="nc" id="L822">            resolutionResult = repositorySystem.resolveArtifact(repoSession, artifactRequest);</span>
+<span class="nc bnc" id="L823" title="All 2 branches missed.">            if (!resolutionResult.isResolved()) {</span>
+<span class="nc" id="L824">                throw new MojoFailureException(&quot;Unable to resolve artifact: &quot; + artifact.getGroupId() + &quot;:&quot;</span>
+<span class="nc" id="L825">                        + artifact.getArtifactId() + &quot;:&quot; + artifact.getVersion() + &quot;:&quot; + artifact.getClassifier() + &quot;:&quot;</span>
+<span class="nc" id="L826">                        + artifact.getExtension());</span>
             }
-<span class="nc" id="L827">        } catch (ArtifactResolutionException e) {</span>
-<span class="nc" id="L828">            throw new MojoFailureException(</span>
-<span class="nc" id="L829">                    &quot;Unable to resolve artifact: &quot; + artifact.getGroupId() + &quot;:&quot; + artifact.getArtifactId() + &quot;:&quot;</span>
-<span class="nc" id="L830">                            + artifact.getVersion() + &quot;:&quot; + artifact.getClassifier() + &quot;:&quot; + artifact.getExtension());</span>
-<span class="nc" id="L831">        }</span>
-<span class="nc" id="L832">        this.installGit(resolutionResult.getArtifact(), location);</span>
-<span class="nc" id="L833">    }</span>
+<span class="nc" id="L828">        } catch (ArtifactResolutionException e) {</span>
+<span class="nc" id="L829">            throw new MojoFailureException(</span>
+<span class="nc" id="L830">                    &quot;Unable to resolve artifact: &quot; + artifact.getGroupId() + &quot;:&quot; + artifact.getArtifactId() + &quot;:&quot;</span>
+<span class="nc" id="L831">                            + artifact.getVersion() + &quot;:&quot; + artifact.getClassifier() + &quot;:&quot; + artifact.getExtension());</span>
+<span class="nc" id="L832">        }</span>
+<span class="nc" id="L833">        this.installGit(resolutionResult.getArtifact(), location);</span>
+<span class="nc" id="L834">    }</span>
 
     /**
      * Install Git extracts git to .m2/repository under PortableGit.
@@ -841,71 +842,71 @@ import org.eclipse.aether.resolution.ArtifactResult;
      *            the location in maven repository to store portable git
      */
     private void installGit(final Artifact artifact, final String location) {
-<span class="nc" id="L844">        File currentFile = null;</span>
+<span class="nc" id="L845">        File currentFile = null;</span>
 
         // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into
         // .m2/repository/PortableGit
-<span class="nc" id="L848">        try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(</span>
-<span class="nc" id="L849">                new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {</span>
+<span class="nc" id="L849">        try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(</span>
+<span class="nc" id="L850">                new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {</span>
             TarArchiveEntry entry;
-<span class="nc" id="L851">            String directory = repoSession.getLocalRepository().getBasedir() + File.separator</span>
-<span class="nc" id="L852">                    + this.portableGit.getName();</span>
-<span class="nc bnc" id="L853" title="All 2 branches missed.">            while ((entry = tarArchiveInputStream.getNextEntry()) != null) {</span>
-<span class="nc bnc" id="L854" title="All 2 branches missed.">                if (entry.isDirectory()) {</span>
-<span class="nc" id="L855">                    continue;</span>
+<span class="nc" id="L852">            String directory = repoSession.getLocalRepository().getBasedir() + File.separator</span>
+<span class="nc" id="L853">                    + this.portableGit.getName();</span>
+<span class="nc bnc" id="L854" title="All 2 branches missed.">            while ((entry = tarArchiveInputStream.getNextEntry()) != null) {</span>
+<span class="nc bnc" id="L855" title="All 2 branches missed.">                if (entry.isDirectory()) {</span>
+<span class="nc" id="L856">                    continue;</span>
                 }
-<span class="nc" id="L857">                currentFile = new File(directory, entry.getName());</span>
-<span class="nc bnc" id="L858" title="All 2 branches missed.">                if (!currentFile.toPath().normalize().startsWith(directory)) {</span>
-<span class="nc" id="L859">                    throw new IOException(&quot;Bad zip entry, possible directory traversal&quot;);</span>
+<span class="nc" id="L858">                currentFile = new File(directory, entry.getName());</span>
+<span class="nc bnc" id="L859" title="All 2 branches missed.">                if (!currentFile.toPath().normalize().startsWith(directory)) {</span>
+<span class="nc" id="L860">                    throw new IOException(&quot;Bad zip entry, possible directory traversal&quot;);</span>
                 }
-<span class="nc" id="L861">                File parent = currentFile.getParentFile();</span>
-<span class="nc bnc" id="L862" title="All 2 branches missed.">                if (!parent.exists()) {</span>
-<span class="nc" id="L863">                    parent.mkdirs();</span>
+<span class="nc" id="L862">                File parent = currentFile.getParentFile();</span>
+<span class="nc bnc" id="L863" title="All 2 branches missed.">                if (!parent.exists()) {</span>
+<span class="nc" id="L864">                    parent.mkdirs();</span>
                 }
-<span class="nc" id="L865">                getLog().debug(&quot;Current file: &quot; + currentFile.getName());</span>
-<span class="nc" id="L866">                Files.copy(tarArchiveInputStream, currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);</span>
-<span class="nc" id="L867">            }</span>
-<span class="nc" id="L868">        } catch (IOException e) {</span>
-<span class="nc" id="L869">            getLog().error(&quot;&quot;, e);</span>
-<span class="nc" id="L870">        }</span>
+<span class="nc" id="L866">                getLog().debug(&quot;Current file: &quot; + currentFile.getName());</span>
+<span class="nc" id="L867">                Files.copy(tarArchiveInputStream, currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);</span>
+<span class="nc" id="L868">            }</span>
+<span class="nc" id="L869">        } catch (IOException e) {</span>
+<span class="nc" id="L870">            getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L871">        }</span>
 
         try {
-<span class="nc bnc" id="L873" title="All 2 branches missed.">            if (currentFile != null) {</span>
+<span class="nc bnc" id="L874" title="All 2 branches missed.">            if (currentFile != null) {</span>
                 // Extract Portable Git
-<span class="nc" id="L875">                getLog().debug(&quot;Extract Portable Git&quot;);</span>
-<span class="nc" id="L876">                execute(Arrays.asList(currentFile.toPath().toString(), &quot;-y&quot;, &quot;-o&quot;, location), !ATTACH_ARTIFACT);</span>
-<span class="nc" id="L877">                gitPath = location + &quot;/usr/bin/&quot;;</span>
+<span class="nc" id="L876">                getLog().debug(&quot;Extract Portable Git&quot;);</span>
+<span class="nc" id="L877">                execute(Arrays.asList(currentFile.toPath().toString(), &quot;-y&quot;, &quot;-o&quot;, location), !ATTACH_ARTIFACT);</span>
+<span class="nc" id="L878">                gitPath = location + &quot;/usr/bin/&quot;;</span>
             }
-<span class="nc" id="L879">        } catch (IOException e) {</span>
-<span class="nc" id="L880">            getLog().error(&quot;&quot;, e);</span>
-<span class="nc" id="L881">        } catch (InterruptedException e) {</span>
-<span class="nc" id="L882">            getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L880">        } catch (IOException e) {</span>
+<span class="nc" id="L881">            getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L882">        } catch (InterruptedException e) {</span>
+<span class="nc" id="L883">            getLog().error(&quot;&quot;, e);</span>
             // restore interruption status of the corresponding thread
-<span class="nc" id="L884">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L885">        }</span>
-<span class="nc" id="L886">    }</span>
+<span class="nc" id="L885">            Thread.currentThread().interrupt();</span>
+<span class="nc" id="L886">        }</span>
+<span class="nc" id="L887">    }</span>
 
     private void setFilePermissions(File file) {
-<span class="nc bnc" id="L889" title="All 2 branches missed.">        if (!file.setExecutable(true, true)) {</span>
-<span class="nc" id="L890">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;Unable to set executable:&quot;, file.getName()));</span>
+<span class="nc bnc" id="L890" title="All 2 branches missed.">        if (!file.setExecutable(true, true)) {</span>
+<span class="nc" id="L891">            getLog().error(Joiner.on(&quot; &quot;).join(&quot;Unable to set executable:&quot;, file.getName()));</span>
         } else {
-<span class="nc" id="L892">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Set executable for&quot;, file.getName()));</span>
+<span class="nc" id="L893">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Set executable for&quot;, file.getName()));</span>
         }
-<span class="nc" id="L894">    }</span>
+<span class="nc" id="L895">    }</span>
 
     private void setPosixFilePermissions(Path path) {
-<span class="nc" id="L897">        final Set&lt;PosixFilePermission&gt; permissions = PosixFilePermissions.fromString(&quot;rwxr-xr--&quot;);</span>
+<span class="nc" id="L898">        final Set&lt;PosixFilePermission&gt; permissions = PosixFilePermissions.fromString(&quot;rwxr-xr--&quot;);</span>
 
         try {
-<span class="nc" id="L900">            Files.setPosixFilePermissions(path, permissions);</span>
-<span class="nc" id="L901">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Set Posix File Permissions for&quot;, path, &quot;as&quot;, permissions));</span>
-<span class="nc" id="L902">        } catch (IOException e) {</span>
-<span class="nc" id="L903">            getLog().error(&quot;Failed attempted Posix permissions&quot;, e);</span>
-<span class="nc" id="L904">        } catch (UnsupportedOperationException e) {</span>
+<span class="nc" id="L901">            Files.setPosixFilePermissions(path, permissions);</span>
+<span class="nc" id="L902">            getLog().debug(Joiner.on(&quot; &quot;).join(&quot;Set Posix File Permissions for&quot;, path, &quot;as&quot;, permissions));</span>
+<span class="nc" id="L903">        } catch (IOException e) {</span>
+<span class="nc" id="L904">            getLog().error(&quot;Failed attempted Posix permissions&quot;, e);</span>
+<span class="nc" id="L905">        } catch (UnsupportedOperationException e) {</span>
             // Attempting but don't care about status if it fails
-<span class="nc" id="L906">            getLog().debug(&quot;Failed attempted Posix permissions&quot;, e);</span>
-<span class="nc" id="L907">        }</span>
-<span class="nc" id="L908">    }</span>
+<span class="nc" id="L907">            getLog().debug(&quot;Failed attempted Posix permissions&quot;, e);</span>
+<span class="nc" id="L908">        }</span>
+<span class="nc" id="L909">    }</span>
 
     /**
      * Load args.
@@ -913,338 +914,338 @@ import org.eclipse.aether.resolution.ArtifactResult;
      * @return the string
      */
     private List&lt;String&gt; loadArgs() {
-<span class="nc" id="L916">        getLog().debug(&quot;Loading arguments&quot;);</span>
+<span class="nc" id="L917">        getLog().debug(&quot;Loading arguments&quot;);</span>
 
-<span class="nc" id="L918">        List&lt;String&gt; args = new ArrayList&lt;&gt;(50);</span>
+<span class="nc" id="L919">        List&lt;String&gt; args = new ArrayList&lt;&gt;(50);</span>
 
         // &quot; --tar-quietly : Suppress verbose output from the tar command&quot;
-<span class="nc bnc" id="L921" title="All 2 branches missed.">        if (isTrue(tarQuietly)) {</span>
-<span class="nc" id="L922">            args.add(&quot;--tar-quietly&quot;);</span>
+<span class="nc bnc" id="L922" title="All 2 branches missed.">        if (isTrue(tarQuietly)) {</span>
+<span class="nc" id="L923">            args.add(&quot;--tar-quietly&quot;);</span>
         }
 
         // &quot; --quiet | -q : Do not print any messages other than errors.&quot;
-<span class="nc bnc" id="L926" title="All 2 branches missed.">        if (isTrue(quiet)) {</span>
-<span class="nc" id="L927">            args.add(&quot;--quiet&quot;);</span>
+<span class="nc bnc" id="L927" title="All 2 branches missed.">        if (isTrue(quiet)) {</span>
+<span class="nc" id="L928">            args.add(&quot;--quiet&quot;);</span>
         }
 
         // --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)
-<span class="nc bnc" id="L931" title="All 2 branches missed.">        if (isTrue(gzip)) {</span>
-<span class="nc" id="L932">            args.add(&quot;--gzip&quot;);</span>
+<span class="nc bnc" id="L932" title="All 2 branches missed.">        if (isTrue(gzip)) {</span>
+<span class="nc" id="L933">            args.add(&quot;--gzip&quot;);</span>
         }
 
         // --bzip2 : Use bzip2 instead of gzip for better compression. The bzip2 command must be available in the
         // command path. It is recommended that the archive prefix be set to something like '.bz2.run', so that
         // potential users know that they'll need bzip2 to extract it.
-<span class="nc bnc" id="L938" title="All 2 branches missed.">        if (isTrue(bzip2)) {</span>
-<span class="nc" id="L939">            args.add(&quot;--bzip2&quot;);</span>
+<span class="nc bnc" id="L939" title="All 2 branches missed.">        if (isTrue(bzip2)) {</span>
+<span class="nc" id="L940">            args.add(&quot;--bzip2&quot;);</span>
         }
 
         // --bzip3 : Use bzip3 instead of gzip for better compression. The bzip3 command must be available in the
         // command path. It is recommended that the archive prefix be set to something like '.bz3.run', so that
         // potential users know that they'll need bzip3 to extract it.
-<span class="nc bnc" id="L945" title="All 2 branches missed.">        if (isTrue(bzip3)) {</span>
-<span class="nc" id="L946">            args.add(&quot;--bzip3&quot;);</span>
+<span class="nc bnc" id="L946" title="All 2 branches missed.">        if (isTrue(bzip3)) {</span>
+<span class="nc" id="L947">            args.add(&quot;--bzip3&quot;);</span>
         }
 
         // --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs.
         // The pbzip2 command must be available in the command path. It is recommended that the archive prefix be
         // set to something like '.pbz2.run', so that potential users know that they'll need bzip2 to extract it.
-<span class="nc bnc" id="L952" title="All 2 branches missed.">        if (isTrue(pbzip2)) {</span>
-<span class="nc" id="L953">            args.add(&quot;--pbzip2&quot;);</span>
+<span class="nc bnc" id="L953" title="All 2 branches missed.">        if (isTrue(pbzip2)) {</span>
+<span class="nc" id="L954">            args.add(&quot;--pbzip2&quot;);</span>
         }
 
         // --xz : Use xz instead of gzip for better compression. The xz command must be available in the command path.
         // It is recommended that the archive prefix be set to something like '.xz.run' for the archive, so that
         // potential users know that they'll need xz to extract it.
-<span class="nc bnc" id="L959" title="All 2 branches missed.">        if (isTrue(xz)) {</span>
-<span class="nc" id="L960">            args.add(&quot;--xz&quot;);</span>
+<span class="nc bnc" id="L960" title="All 2 branches missed.">        if (isTrue(xz)) {</span>
+<span class="nc" id="L961">            args.add(&quot;--xz&quot;);</span>
         }
 
         // --lzo : Use lzop instead of gzip for better compression. The lzop command must be available in the command
         // path. It is recommended that the archive prefix be set to something like '.lzo.run' for the archive, so
         // that potential users know that they'll need lzop to extract it.
-<span class="nc bnc" id="L966" title="All 2 branches missed.">        if (isTrue(lzo)) {</span>
-<span class="nc" id="L967">            args.add(&quot;--lzo&quot;);</span>
+<span class="nc bnc" id="L967" title="All 2 branches missed.">        if (isTrue(lzo)) {</span>
+<span class="nc" id="L968">            args.add(&quot;--lzo&quot;);</span>
         }
 
         // --lz4 : Use lz4 instead of gzip for better compression. The lz4 command must be available in the command
         // path. It is recommended that the archive prefix be set to something like '.lz4.run' for the archive, so
         // that potential users know that they'll need lz4 to extract it.
-<span class="nc bnc" id="L973" title="All 2 branches missed.">        if (isTrue(lz4)) {</span>
-<span class="nc" id="L974">            args.add(&quot;--lz4&quot;);</span>
+<span class="nc bnc" id="L974" title="All 2 branches missed.">        if (isTrue(lz4)) {</span>
+<span class="nc" id="L975">            args.add(&quot;--lz4&quot;);</span>
         }
 
         // --zstd : Use zstd for compression.
-<span class="nc bnc" id="L978" title="All 2 branches missed.">        if (isTrue(zstd)) {</span>
-<span class="nc" id="L979">            args.add(&quot;--zstd&quot;);</span>
+<span class="nc bnc" id="L979" title="All 2 branches missed.">        if (isTrue(zstd)) {</span>
+<span class="nc" id="L980">            args.add(&quot;--zstd&quot;);</span>
         }
 
         // --pigz : Use pigz for compression.
-<span class="nc bnc" id="L983" title="All 2 branches missed.">        if (isTrue(pigz)) {</span>
-<span class="nc" id="L984">            args.add(&quot;--pigz&quot;);</span>
+<span class="nc bnc" id="L984" title="All 2 branches missed.">        if (isTrue(pigz)) {</span>
+<span class="nc" id="L985">            args.add(&quot;--pigz&quot;);</span>
         }
 
         // --base64 : Encode the archive to ASCII in Base64 format (base64 command required).
-<span class="nc bnc" id="L988" title="All 2 branches missed.">        if (isTrue(base64)) {</span>
-<span class="nc" id="L989">            args.add(&quot;--base64&quot;);</span>
+<span class="nc bnc" id="L989" title="All 2 branches missed.">        if (isTrue(base64)) {</span>
+<span class="nc" id="L990">            args.add(&quot;--base64&quot;);</span>
         }
 
         // --gpg-encrypt : Encrypt the archive using gpg -ac -z $COMPRESS_LEVEL. This will prompt for a password to
         // encrypt with. Assumes that potential users have gpg installed.
-<span class="nc bnc" id="L994" title="All 2 branches missed.">        if (isTrue(gpgEncrypt)) {</span>
-<span class="nc" id="L995">            args.add(&quot;--gpg-encrypt&quot;);</span>
+<span class="nc bnc" id="L995" title="All 2 branches missed.">        if (isTrue(gpgEncrypt)) {</span>
+<span class="nc" id="L996">            args.add(&quot;--gpg-encrypt&quot;);</span>
         }
 
         // --gpg-asymmetric-encrypt-sign : Instead of compressing, asymmetrically encrypt and sign the data using GPG
-<span class="nc bnc" id="L999" title="All 2 branches missed.">        if (isTrue(gpgAsymmetricEncryptSign)) {</span>
-<span class="nc" id="L1000">            args.add(&quot;--gpg-asymmetric-encrypt-sign&quot;);</span>
+<span class="nc bnc" id="L1000" title="All 2 branches missed.">        if (isTrue(gpgAsymmetricEncryptSign)) {</span>
+<span class="nc" id="L1001">            args.add(&quot;--gpg-asymmetric-encrypt-sign&quot;);</span>
         }
 
         // --ssl-encrypt : Encrypt the archive using openssl aes-256-cbc -a -salt. This will prompt for a password to
         // encrypt with. Assumes that the potential users have the OpenSSL tools installed.
-<span class="nc bnc" id="L1005" title="All 2 branches missed.">        if (isTrue(sslEncrypt)) {</span>
-<span class="nc" id="L1006">            args.add(&quot;--ssl-encrypt&quot;);</span>
+<span class="nc bnc" id="L1006" title="All 2 branches missed.">        if (isTrue(sslEncrypt)) {</span>
+<span class="nc" id="L1007">            args.add(&quot;--ssl-encrypt&quot;);</span>
         }
 
         // --ssl-passwd pass : Use the given password to encrypt the data using OpenSSL.
-<span class="nc bnc" id="L1010" title="All 2 branches missed.">        if (sslPasswd != null) {</span>
-<span class="nc" id="L1011">            args.add(&quot;--ssl-passwd&quot;);</span>
-<span class="nc" id="L1012">            args.add(sslPasswd);</span>
+<span class="nc bnc" id="L1011" title="All 2 branches missed.">        if (sslPasswd != null) {</span>
+<span class="nc" id="L1012">            args.add(&quot;--ssl-passwd&quot;);</span>
+<span class="nc" id="L1013">            args.add(sslPasswd);</span>
         }
 
         // --ssl-pass-src src : Use the given src as the source of password to encrypt the data using OpenSSL. See
         // \&quot;PASS PHRASE ARGUMENTS\&quot; in man openssl. If this option is not supplied, the user wil be asked to enter
         // encryption pasword on the current terminal.
-<span class="nc bnc" id="L1018" title="All 2 branches missed.">        if (sslPassSrc != null) {</span>
-<span class="nc" id="L1019">            args.add(&quot;--ssl-pass-src&quot;);</span>
-<span class="nc" id="L1020">            args.add(sslPassSrc);</span>
+<span class="nc bnc" id="L1019" title="All 2 branches missed.">        if (sslPassSrc != null) {</span>
+<span class="nc" id="L1020">            args.add(&quot;--ssl-pass-src&quot;);</span>
+<span class="nc" id="L1021">            args.add(sslPassSrc);</span>
         }
 
         // --ssl-no-md : Do not use \&quot;-md\&quot; option not supported by older OpenSSL.
-<span class="nc bnc" id="L1024" title="All 2 branches missed.">        if (isTrue(sslNoMd)) {</span>
-<span class="nc" id="L1025">            args.add(&quot;--ssl-no-md&quot;);</span>
+<span class="nc bnc" id="L1025" title="All 2 branches missed.">        if (isTrue(sslNoMd)) {</span>
+<span class="nc" id="L1026">            args.add(&quot;--ssl-no-md&quot;);</span>
         }
 
         // --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms
         // that don't have gzip available.
-<span class="nc bnc" id="L1030" title="All 2 branches missed.">        if (isTrue(compress)) {</span>
-<span class="nc" id="L1031">            args.add(&quot;--compress&quot;);</span>
+<span class="nc bnc" id="L1031" title="All 2 branches missed.">        if (isTrue(compress)) {</span>
+<span class="nc" id="L1032">            args.add(&quot;--compress&quot;);</span>
         }
 
         // --complevel : Specify the compression level for gzip, bzip2, bzip3, pbzip2, xz, lzo or lz4. (defaults to 9)
-<span class="nc bnc" id="L1035" title="All 2 branches missed.">        if (complevel != null) {</span>
-<span class="nc" id="L1036">            args.add(&quot;--complevel&quot;);</span>
-<span class="nc" id="L1037">            args.add(complevel.toString());</span>
+<span class="nc bnc" id="L1036" title="All 2 branches missed.">        if (complevel != null) {</span>
+<span class="nc" id="L1037">            args.add(&quot;--complevel&quot;);</span>
+<span class="nc" id="L1038">            args.add(complevel.toString());</span>
         }
 
         // --nochown : Do not give the target folder to the current user (default)
-<span class="nc bnc" id="L1041" title="All 2 branches missed.">        if (isTrue(nochown)) {</span>
-<span class="nc" id="L1042">            args.add(&quot;--nochown&quot;);</span>
+<span class="nc bnc" id="L1042" title="All 2 branches missed.">        if (isTrue(nochown)) {</span>
+<span class="nc" id="L1043">            args.add(&quot;--nochown&quot;);</span>
         }
 
         // --chown : Give the target folder to the current user recursively.
-<span class="nc bnc" id="L1046" title="All 2 branches missed.">        if (isTrue(chown)) {</span>
-<span class="nc" id="L1047">            args.add(&quot;--chown&quot;);</span>
+<span class="nc bnc" id="L1047" title="All 2 branches missed.">        if (isTrue(chown)) {</span>
+<span class="nc" id="L1048">            args.add(&quot;--chown&quot;);</span>
         }
 
         // --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.
-<span class="nc bnc" id="L1051" title="All 2 branches missed.">        if (isTrue(nocomp)) {</span>
-<span class="nc" id="L1052">            args.add(&quot;--nocomp&quot;);</span>
+<span class="nc bnc" id="L1052" title="All 2 branches missed.">        if (isTrue(nocomp)) {</span>
+<span class="nc" id="L1053">            args.add(&quot;--nocomp&quot;);</span>
         }
 
         // --threads thds : Number of threads to be used by compressors that support parallelization.
         // Omit to use compressor's default. Most useful (and required) for opting into xz's threading,
         // usually with '--threads=0' for all available cores.pbzip2 and pigz are parallel by default,
         // and setting this value allows limiting the number of threads they use.
-<span class="nc bnc" id="L1059" title="All 2 branches missed.">        if (threads != null) {</span>
-<span class="nc" id="L1060">            args.add(&quot;--threads&quot;);</span>
-<span class="nc" id="L1061">            args.add(threads.toString());</span>
+<span class="nc bnc" id="L1060" title="All 2 branches missed.">        if (threads != null) {</span>
+<span class="nc" id="L1061">            args.add(&quot;--threads&quot;);</span>
+<span class="nc" id="L1062">            args.add(threads.toString());</span>
         }
 
         // --notemp : The generated archive will not extract the files to a temporary directory, but in a new directory
         // created in the current directory. This is better to distribute software packages that may extract and compile
         // by themselves (i.e. launch the compilation through the embedded script).
-<span class="nc bnc" id="L1067" title="All 2 branches missed.">        if (isTrue(notemp)) {</span>
-<span class="nc" id="L1068">            args.add(&quot;--notemp&quot;);</span>
+<span class="nc bnc" id="L1068" title="All 2 branches missed.">        if (isTrue(notemp)) {</span>
+<span class="nc" id="L1069">            args.add(&quot;--notemp&quot;);</span>
         }
 
         // --needroot : Check that the root user is extracting the archive before proceeding
-<span class="nc bnc" id="L1072" title="All 2 branches missed.">        if (isTrue(needroot)) {</span>
-<span class="nc" id="L1073">            args.add(&quot;--needroot&quot;);</span>
+<span class="nc bnc" id="L1073" title="All 2 branches missed.">        if (isTrue(needroot)) {</span>
+<span class="nc" id="L1074">            args.add(&quot;--needroot&quot;);</span>
         }
 
         // --current : Files will be extracted to the current directory, instead of in a sub-directory. This option
         // implies --notemp and does not require a startup_script.
-<span class="nc bnc" id="L1078" title="All 2 branches missed.">        if (isTrue(current)) {</span>
-<span class="nc" id="L1079">            args.add(&quot;--current&quot;);</span>
+<span class="nc bnc" id="L1079" title="All 2 branches missed.">        if (isTrue(current)) {</span>
+<span class="nc" id="L1080">            args.add(&quot;--current&quot;);</span>
         }
 
         // --follow : Follow the symbolic links inside of the archive directory, i.e. store the files that are being
         // pointed to instead of the links themselves.
-<span class="nc bnc" id="L1084" title="All 2 branches missed.">        if (isTrue(follow)) {</span>
-<span class="nc" id="L1085">            args.add(&quot;--follow&quot;);</span>
+<span class="nc bnc" id="L1085" title="All 2 branches missed.">        if (isTrue(follow)) {</span>
+<span class="nc" id="L1086">            args.add(&quot;--follow&quot;);</span>
         }
 
         // --noprogress : Do not show the progress during the decompression
-<span class="nc bnc" id="L1089" title="All 2 branches missed.">        if (isTrue(noprogress)) {</span>
-<span class="nc" id="L1090">            args.add(&quot;--noprogress&quot;);</span>
+<span class="nc bnc" id="L1090" title="All 2 branches missed.">        if (isTrue(noprogress)) {</span>
+<span class="nc" id="L1091">            args.add(&quot;--noprogress&quot;);</span>
         }
 
         // --append (new in 2.1.x): Append data to an existing archive, instead of creating a new one. In this mode, the
         // settings from the original archive are reused (compression type, label, embedded script), and thus don't need
         // to be specified again on the command line.
-<span class="nc bnc" id="L1096" title="All 2 branches missed.">        if (isTrue(append)) {</span>
-<span class="nc" id="L1097">            args.add(&quot;--append&quot;);</span>
+<span class="nc bnc" id="L1097" title="All 2 branches missed.">        if (isTrue(append)) {</span>
+<span class="nc" id="L1098">            args.add(&quot;--append&quot;);</span>
         }
 
         // --header : Makeself 2.0 uses a separate file to store the header stub, called makeself-header.sh. By default,
         // it is assumed that it is stored in the same location as makeself.sh. This option can be used to specify its
         // actual location if it is stored someplace else.
-<span class="nc bnc" id="L1103" title="All 2 branches missed.">        if (headerFile != null) {</span>
-<span class="nc" id="L1104">            args.add(&quot;--header&quot;);</span>
-<span class="nc" id="L1105">            args.add(headerFile);</span>
+<span class="nc bnc" id="L1104" title="All 2 branches missed.">        if (headerFile != null) {</span>
+<span class="nc" id="L1105">            args.add(&quot;--header&quot;);</span>
+<span class="nc" id="L1106">            args.add(headerFile);</span>
         }
 
         // --preextract : Specify a pre-extraction script. The script is executed with the same environment and initial
         // `script_args` as `startup_script`.
-<span class="nc bnc" id="L1110" title="All 2 branches missed.">        if (preextractScript != null) {</span>
-<span class="nc" id="L1111">            args.add(&quot;--reextract&quot;);</span>
-<span class="nc" id="L1112">            args.add(preextractScript);</span>
+<span class="nc bnc" id="L1111" title="All 2 branches missed.">        if (preextractScript != null) {</span>
+<span class="nc" id="L1112">            args.add(&quot;--reextract&quot;);</span>
+<span class="nc" id="L1113">            args.add(preextractScript);</span>
         }
 
         // --cleanup : Specify a script that is run when execution is interrupted or finishes successfully. The script
         // is executed with the same environment and initial `script_args` as `startup_script`.
-<span class="nc bnc" id="L1117" title="All 2 branches missed.">        if (cleanupScript != null) {</span>
-<span class="nc" id="L1118">            args.add(&quot;--cleanup&quot;);</span>
-<span class="nc" id="L1119">            args.add(cleanupScript);</span>
+<span class="nc bnc" id="L1118" title="All 2 branches missed.">        if (cleanupScript != null) {</span>
+<span class="nc" id="L1119">            args.add(&quot;--cleanup&quot;);</span>
+<span class="nc" id="L1120">            args.add(cleanupScript);</span>
         }
 
         // --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main
         // application of this is to allow self-contained installers stored in a Makeself archive on a CD, when the
         // installer program will later need to unmount the CD and allow a new one to be inserted. This prevents
         // &quot;File system busy&quot; errors for installers that span multiple CDs.
-<span class="nc bnc" id="L1126" title="All 2 branches missed.">        if (isTrue(copy)) {</span>
-<span class="nc" id="L1127">            args.add(&quot;--copy&quot;);</span>
+<span class="nc bnc" id="L1127" title="All 2 branches missed.">        if (isTrue(copy)) {</span>
+<span class="nc" id="L1128">            args.add(&quot;--copy&quot;);</span>
         }
 
         // --nox11 : Disable the automatic spawning of a new terminal in X11.
-<span class="nc bnc" id="L1131" title="All 2 branches missed.">        if (isTrue(nox11)) {</span>
-<span class="nc" id="L1132">            args.add(&quot;--nox11&quot;);</span>
+<span class="nc bnc" id="L1132" title="All 2 branches missed.">        if (isTrue(nox11)) {</span>
+<span class="nc" id="L1133">            args.add(&quot;--nox11&quot;);</span>
         }
 
         // --nowait : When executed from a new X11 terminal, disable the user prompt at the end of the script execution.
-<span class="nc bnc" id="L1136" title="All 2 branches missed.">        if (isTrue(nowait)) {</span>
-<span class="nc" id="L1137">            args.add(&quot;--nowait&quot;);</span>
+<span class="nc bnc" id="L1137" title="All 2 branches missed.">        if (isTrue(nowait)) {</span>
+<span class="nc" id="L1138">            args.add(&quot;--nowait&quot;);</span>
         }
 
         // --nomd5 : Disable the creation of a MD5 checksum for the archive. This speeds up the extraction process if
         // integrity checking is not necessary.
-<span class="nc bnc" id="L1142" title="All 2 branches missed.">        if (isTrue(nomd5)) {</span>
-<span class="nc" id="L1143">            args.add(&quot;--nomd5&quot;);</span>
+<span class="nc bnc" id="L1143" title="All 2 branches missed.">        if (isTrue(nomd5)) {</span>
+<span class="nc" id="L1144">            args.add(&quot;--nomd5&quot;);</span>
         }
 
         // --nocrc : Disable the creation of a CRC checksum for the archive. This speeds up the extraction process if
         // integrity checking is not necessary.
-<span class="nc bnc" id="L1148" title="All 2 branches missed.">        if (isTrue(nocrc)) {</span>
-<span class="nc" id="L1149">            args.add(&quot;--nocrc&quot;);</span>
+<span class="nc bnc" id="L1149" title="All 2 branches missed.">        if (isTrue(nocrc)) {</span>
+<span class="nc" id="L1150">            args.add(&quot;--nocrc&quot;);</span>
         }
 
         // --sha256 : Compute a SHA256 checksum for the archive.
-<span class="nc bnc" id="L1153" title="All 2 branches missed.">        if (isTrue(sha256)) {</span>
-<span class="nc" id="L1154">            args.add(&quot;--sha256&quot;);</span>
+<span class="nc bnc" id="L1154" title="All 2 branches missed.">        if (isTrue(sha256)) {</span>
+<span class="nc" id="L1155">            args.add(&quot;--sha256&quot;);</span>
         }
 
         // --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are
         // describing a software package in a way that is easily parseable. The LSM entry can then be later retrieved
         // using the --lsm argument to the archive. An example of a LSM file is provided
         // with Makeself.
-<span class="nc bnc" id="L1161" title="All 2 branches missed.">        if (lsmFile != null) {</span>
-<span class="nc" id="L1162">            args.add(&quot;--lsm&quot;);</span>
-<span class="nc" id="L1163">            args.add(lsmFile);</span>
+<span class="nc bnc" id="L1162" title="All 2 branches missed.">        if (lsmFile != null) {</span>
+<span class="nc" id="L1163">            args.add(&quot;--lsm&quot;);</span>
+<span class="nc" id="L1164">            args.add(lsmFile);</span>
         }
 
         // --gpg-extra opt : Append more options to the gpg command line.
-<span class="nc bnc" id="L1167" title="All 2 branches missed.">        if (gpgExtraOpt != null) {</span>
-<span class="nc" id="L1168">            args.add(&quot;--gpg-extra&quot;);</span>
-<span class="nc" id="L1169">            args.add(gpgExtraOpt);</span>
+<span class="nc bnc" id="L1168" title="All 2 branches missed.">        if (gpgExtraOpt != null) {</span>
+<span class="nc" id="L1169">            args.add(&quot;--gpg-extra&quot;);</span>
+<span class="nc" id="L1170">            args.add(gpgExtraOpt);</span>
         }
 
         // --tar-format opt : Specify the tar archive format (default is ustar); you may use any value accepted by your
         // tar command (such as posix, v7, etc).
-<span class="nc bnc" id="L1174" title="All 2 branches missed.">        if (tarFormatOpt != null) {</span>
-<span class="nc" id="L1175">            args.add(&quot;--tar-format&quot;);</span>
-<span class="nc" id="L1176">            args.add(tarFormatOpt);</span>
+<span class="nc bnc" id="L1175" title="All 2 branches missed.">        if (tarFormatOpt != null) {</span>
+<span class="nc" id="L1176">            args.add(&quot;--tar-format&quot;);</span>
+<span class="nc" id="L1177">            args.add(tarFormatOpt);</span>
         }
 
         // --tar-extra opt : Append more options to the tar command line.
         // For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar,
         // one can use makeself.sh --tar-extra &quot;--exclude=.git&quot; ...
-<span class="nc bnc" id="L1182" title="All 2 branches missed.">        if (tarExtraOpt != null) {</span>
-<span class="nc" id="L1183">            args.add(&quot;--tar-extra&quot;);</span>
-<span class="nc" id="L1184">            args.add(tarExtraOpt);</span>
+<span class="nc bnc" id="L1183" title="All 2 branches missed.">        if (tarExtraOpt != null) {</span>
+<span class="nc" id="L1184">            args.add(&quot;--tar-extra&quot;);</span>
+<span class="nc" id="L1185">            args.add(tarExtraOpt);</span>
         }
 
         // --untar-extra opt : Append more options to the during the extraction of the tar archive.
-<span class="nc bnc" id="L1188" title="All 2 branches missed.">        if (untarExtraOpt != null) {</span>
-<span class="nc" id="L1189">            args.add(&quot;--untar-extra&quot;);</span>
-<span class="nc" id="L1190">            args.add(untarExtraOpt);</span>
+<span class="nc bnc" id="L1189" title="All 2 branches missed.">        if (untarExtraOpt != null) {</span>
+<span class="nc" id="L1190">            args.add(&quot;--untar-extra&quot;);</span>
+<span class="nc" id="L1191">            args.add(untarExtraOpt);</span>
         }
 
         // --sign passphrase : Signature private key to sign the package with
-<span class="nc bnc" id="L1194" title="All 2 branches missed.">        if (signPassphrase != null) {</span>
-<span class="nc" id="L1195">            args.add(&quot;--sign&quot;);</span>
-<span class="nc" id="L1196">            args.add(signPassphrase);</span>
+<span class="nc bnc" id="L1195" title="All 2 branches missed.">        if (signPassphrase != null) {</span>
+<span class="nc" id="L1196">            args.add(&quot;--sign&quot;);</span>
+<span class="nc" id="L1197">            args.add(signPassphrase);</span>
         }
 
         // --target dir : Specify the directory where the archive will be extracted. This option implies
         // --notemp and does not require a startup_script.
-<span class="nc bnc" id="L1201" title="All 2 branches missed.">        if (extractTargetDir != null) {</span>
-<span class="nc" id="L1202">            args.add(&quot;--target&quot;);</span>
-<span class="nc" id="L1203">            args.add(extractTargetDir);</span>
+<span class="nc bnc" id="L1202" title="All 2 branches missed.">        if (extractTargetDir != null) {</span>
+<span class="nc" id="L1203">            args.add(&quot;--target&quot;);</span>
+<span class="nc" id="L1204">            args.add(extractTargetDir);</span>
         }
 
         // --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting
         // archive.
-<span class="nc bnc" id="L1208" title="All 2 branches missed.">        if (isTrue(keepUmask)) {</span>
-<span class="nc" id="L1209">            args.add(&quot;--keep-umask&quot;);</span>
+<span class="nc bnc" id="L1209" title="All 2 branches missed.">        if (isTrue(keepUmask)) {</span>
+<span class="nc" id="L1210">            args.add(&quot;--keep-umask&quot;);</span>
         }
 
         // --export-conf : Export configuration variables to startup_script&quot;
-<span class="nc bnc" id="L1213" title="All 2 branches missed.">        if (isTrue(exportConf)) {</span>
-<span class="nc" id="L1214">            args.add(&quot;--export-conf&quot;);</span>
+<span class="nc bnc" id="L1214" title="All 2 branches missed.">        if (isTrue(exportConf)) {</span>
+<span class="nc" id="L1215">            args.add(&quot;--export-conf&quot;);</span>
         }
 
         // --packaging-date date : Use provided string as the packaging date instead of the current date.
-<span class="nc bnc" id="L1218" title="All 2 branches missed.">        if (packagingDate != null) {</span>
-<span class="nc" id="L1219">            args.add(&quot;--packaging-date&quot;);</span>
-<span class="nc" id="L1220">            args.add(packagingDate);</span>
+<span class="nc bnc" id="L1219" title="All 2 branches missed.">        if (packagingDate != null) {</span>
+<span class="nc" id="L1220">            args.add(&quot;--packaging-date&quot;);</span>
+<span class="nc" id="L1221">            args.add(packagingDate);</span>
         }
 
         // --license : Append a license file.
-<span class="nc bnc" id="L1224" title="All 2 branches missed.">        if (licenseFile != null) {</span>
-<span class="nc" id="L1225">            args.add(&quot;--license&quot;);</span>
-<span class="nc" id="L1226">            args.add(licenseFile);</span>
+<span class="nc bnc" id="L1225" title="All 2 branches missed.">        if (licenseFile != null) {</span>
+<span class="nc" id="L1226">            args.add(&quot;--license&quot;);</span>
+<span class="nc" id="L1227">            args.add(licenseFile);</span>
         }
 
         // --nooverwrite : Do not extract the archive if the specified target directory already exists.
-<span class="nc bnc" id="L1230" title="All 2 branches missed.">        if (isTrue(nooverwrite)) {</span>
-<span class="nc" id="L1231">            args.add(&quot;--nooverwrite&quot;);</span>
+<span class="nc bnc" id="L1231" title="All 2 branches missed.">        if (isTrue(nooverwrite)) {</span>
+<span class="nc" id="L1232">            args.add(&quot;--nooverwrite&quot;);</span>
         }
 
         // --help-header file : Add a header to the archive's --help output.
-<span class="nc bnc" id="L1235" title="All 2 branches missed.">        if (helpHeaderFile != null) {</span>
-<span class="nc" id="L1236">            args.add(&quot;--help-header&quot;);</span>
-<span class="nc" id="L1237">            args.add(helpHeaderFile);</span>
+<span class="nc bnc" id="L1236" title="All 2 branches missed.">        if (helpHeaderFile != null) {</span>
+<span class="nc" id="L1237">            args.add(&quot;--help-header&quot;);</span>
+<span class="nc" id="L1238">            args.add(helpHeaderFile);</span>
         }
 
-<span class="nc" id="L1240">        return args;</span>
+<span class="nc" id="L1241">        return args;</span>
     }
 
     private boolean isTrue(Boolean value) {
-<span class="nc bnc" id="L1244" title="All 2 branches missed.">        if (value != null) {</span>
-<span class="nc" id="L1245">            return value.booleanValue();</span>
+<span class="nc bnc" id="L1245" title="All 2 branches missed.">        if (value != null) {</span>
+<span class="nc" id="L1246">            return value.booleanValue();</span>
         }
-<span class="nc" id="L1247">        return false;</span>
+<span class="nc" id="L1248">        return false;</span>
     }
 
 }
