@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -44,7 +46,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -548,11 +549,11 @@ public class MakeselfMojo extends AbstractMojo {
     private File makeselfTempDirectory;
 
     /** Maven ProjectHelper. */
-    @Component
+    @Inject
     private MavenProjectHelper projectHelper;
 
     /** Maven Artifact Factory. */
-    @Component
+    @Inject
     private RepositorySystem repositorySystem;
 
     /** Maven Project. */
