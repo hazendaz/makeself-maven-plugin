@@ -17,7 +17,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.5.1.snapshot.2024-05-11
+MS_VERSION=2.5.1.snapshot.2024-08-31
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -316,7 +316,7 @@ do
     preextract_file="$2"
     shift 2 || { MS_Usage; exit 1; }
     test -r "$preextract_file" || { echo "Unable to open pre-extraction script: $preextract_file" >&2; exit 1; }
-    PREEXTRACT_ENCODED=`base64 "$preextract_file"`
+    PREEXTRACT_ENCODED=`base64 < "$preextract_file"`
     ;;
     --cleanup)
     CLEANUP_SCRIPT="$2"
