@@ -39,6 +39,6 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: zulu
       - name: Build Setup
-        run: ./mvnw clean install
+        run: ./mvnw -B -V clean install -Dlicense.skip=true --no-transfer-progress
       - name: Integration Test with Maven
-        run: ./mvnw -Prun-it clean install -B
+        run: ./mvnw -Prun-it clean install -B -Dlicense.skip=true --no-transfer-progress
