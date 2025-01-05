@@ -14,6 +14,8 @@ jobs:
         with:
           java-version: 21
           distribution: 'zulu'
+      - name: Set MVNW_VERBOSE
+        run: echo "MVNW_VERBOSE=true" >> $GITHUB_ENV
       - name: Load Maven 4.0.0-rc-2
         run: mvn -B -V org.apache.maven.plugins:maven-wrapper-plugin:3.3.2:wrapper -Dmaven=4.0.0-rc-2 --no-transfer-progress
       - name: Integration Test with Maven
