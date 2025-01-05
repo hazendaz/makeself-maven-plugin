@@ -2,6 +2,7 @@ Makeself Maven Plugin
 =====================
 
 [![Java CI](https://github.com/hazendaz/makeself-maven-plugin/workflows/Java%20CI/badge.svg)](https://github.com/hazendaz/makeself-maven-plugin/actions?query=workflow%3A%22Java+CI%22)
+[![Coverage Status](https://coveralls.io/repos/github/hazendaz/makeself-maven-plugin/badge.svg?branch=master)](https://coveralls.io/github/hazendaz/makeself-maven-plugin?branch=master)
 [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.hazendaz.maven/makeself-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.hazendaz.maven/makeself-maven-plugin)
 [![License](http://img.shields.io/:license-glp-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
