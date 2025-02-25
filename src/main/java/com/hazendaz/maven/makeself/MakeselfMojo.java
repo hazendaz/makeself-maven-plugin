@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011-2024 the original author or authors.
+ *    Copyright 2011-2025 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -569,7 +569,7 @@ public class MakeselfMojo extends AbstractMojo {
     protected List<RemoteRepository> remoteRepositories;
 
     /** The makeself. */
-    private File makeself;
+    private Path makeself;
 
     /** Static ATTACH_ARTIFACT to maven lifecycle. */
     private static final boolean ATTACH_ARTIFACT = true;
@@ -586,8 +586,8 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // Validate archive directory exists
-        File file = new File(buildTarget.concat(archiveDir));
-        if (!file.exists()) {
+        Path path = Path.of(buildTarget.concat(archiveDir));
+        if (!Files.exists(path)) {
             throw new MojoExecutionException("ArchiveDir: missing '" + buildTarget.concat(archiveDir) + "'");
         }
 
@@ -604,8 +604,8 @@ public class MakeselfMojo extends AbstractMojo {
             }
 
             // Validate startupScript file exists
-            file = new File(buildTarget.concat(archiveDir).concat(startupScript.substring(1)));
-            if (!file.exists()) {
+            path = Path.of(buildTarget.concat(archiveDir).concat(startupScript.substring(1)));
+            if (!Files.exists(path)) {
                 throw new MojoExecutionException("StartupScript: missing '"
                         + buildTarget.concat(archiveDir).concat(startupScript.substring(1)) + "'");
             }
@@ -626,7 +626,8 @@ public class MakeselfMojo extends AbstractMojo {
 
             // Output version of makeself.sh
             getLog().debug("Execute Makeself Version");
-            execute(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath(), "--version"), !ATTACH_ARTIFACT);
+            execute(Arrays.asList(gitPath + "bash", makeself.toAbsolutePath().toString(), "--version"),
+                    !ATTACH_ARTIFACT);
 
             // If version arguments supplied, exit as we just printed version.
             if (isTrue(version)) {
@@ -636,14 +637,15 @@ public class MakeselfMojo extends AbstractMojo {
             // If help arguments supplied, write output and get out of code.
             if (isTrue(help)) {
                 getLog().debug("Execute Makeself Help");
-                execute(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath(), "--help"), !ATTACH_ARTIFACT);
+                execute(Arrays.asList(gitPath + "bash", makeself.toAbsolutePath().toString(), "--help"),
+                        !ATTACH_ARTIFACT);
                 return;
             }
 
             // Basic Configuration
             getLog().debug("Loading Makeself Basic Configuration");
             List<String> target = new ArrayList<>();
-            target.addAll(Arrays.asList(gitPath + "bash", makeself.getAbsolutePath()));
+            target.addAll(Arrays.asList(gitPath + "bash", makeself.toAbsolutePath().toString()));
             target.addAll(loadArgs());
             target.add(buildTarget.concat(archiveDir));
             target.add(buildTarget.concat(fileName));
@@ -733,7 +735,7 @@ public class MakeselfMojo extends AbstractMojo {
         // Attach artifact to maven build for install/deploy/release on success
         if (status == 0 && attach) {
             projectHelper.attachArtifact(project, this.extension, this.classifier,
-                    new File(buildTarget, FilenameUtils.getName(fileName)));
+                    Path.of(buildTarget, FilenameUtils.getName(fileName)).toFile());
         }
     }
 
@@ -744,8 +746,8 @@ public class MakeselfMojo extends AbstractMojo {
         getLog().debug("Extracting Makeself");
 
         // Create makeself directory
-        File makeselfTemp = new File(makeselfTempDirectory.getAbsolutePath());
-        if (!makeselfTemp.exists() && !makeselfTemp.mkdirs()) {
+        Path makeselfTemp = Path.of(makeselfTempDirectory.getAbsolutePath());
+        if (!Files.exists(makeselfTemp) && !makeselfTemp.toFile().mkdirs()) {
             getLog().error(Joiner.on(" ").join("Unable to make directory", makeselfTempDirectory.getAbsolutePath()));
             return;
         } else {
@@ -755,13 +757,13 @@ public class MakeselfMojo extends AbstractMojo {
         ClassLoader classloader = this.getClass().getClassLoader();
 
         // Write makeself script
-        makeself = new File(makeselfTempDirectory, "makeself.sh");
-        if (!makeself.exists()) {
+        makeself = makeselfTempDirectory.toPath().resolve("makeself.sh");
+        if (!Files.exists(makeself)) {
             getLog().debug("Writing makeself.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself.sh")) {
-                Path path = makeself.getAbsoluteFile().toPath();
+                Path path = makeself.toAbsolutePath();
                 Files.copy(link, path);
-                setFilePermissions(makeself);
+                setFilePermissions(makeself.toFile());
                 setPosixFilePermissions(path);
             } catch (IOException e) {
                 getLog().error("", e);
@@ -769,13 +771,13 @@ public class MakeselfMojo extends AbstractMojo {
         }
 
         // Write makeself-header script
-        File makeselfHeader = new File(makeselfTempDirectory, "makeself-header.sh");
-        if (!makeselfHeader.exists()) {
+        Path makeselfHeader = makeselfTempDirectory.toPath().resolve("makeself-header.sh");
+        if (!Files.exists(makeselfHeader)) {
             getLog().debug("Writing makeself-header.sh");
             try (InputStream link = classloader.getResourceAsStream("META-INF/makeself/makeself-header.sh")) {
-                Path path = makeselfHeader.getAbsoluteFile().toPath();
+                Path path = makeselfHeader.toAbsolutePath();
                 Files.copy(link, path);
-                setFilePermissions(makeselfHeader);
+                setFilePermissions(makeselfHeader.toFile());
                 setPosixFilePermissions(path);
             } catch (IOException e) {
                 getLog().error("", e);
@@ -806,7 +808,7 @@ public class MakeselfMojo extends AbstractMojo {
     private void extractPortableGit() throws MojoFailureException {
         final String location = repoSession.getLocalRepository().getBasedir() + File.separator
                 + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
-        if (new File(location).exists()) {
+        if (Files.exists(Path.of(location))) {
             getLog().debug("Existing 'PortableGit' folder found at " + location);
             gitPath = location + "/usr/bin/";
             return;
@@ -842,7 +844,7 @@ public class MakeselfMojo extends AbstractMojo {
      *            the location in maven repository to store portable git
      */
     private void installGit(final Artifact artifact, final String location) {
-        File currentFile = null;
+        Path currentFile = null;
 
         // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into
         // .m2/repository/PortableGit
@@ -855,16 +857,16 @@ public class MakeselfMojo extends AbstractMojo {
                 if (entry.isDirectory()) {
                     continue;
                 }
-                currentFile = new File(directory, entry.getName());
-                if (!currentFile.toPath().normalize().startsWith(directory)) {
+                currentFile = Path.of(directory, entry.getName());
+                if (!currentFile.normalize().startsWith(directory)) {
                     throw new IOException("Bad zip entry, possible directory traversal");
                 }
-                File parent = currentFile.getParentFile();
-                if (!parent.exists()) {
-                    parent.mkdirs();
+                Path parent = currentFile.getParent();
+                if (!Files.exists(parent)) {
+                    Files.createDirectory(parent);
                 }
-                getLog().debug("Current file: " + currentFile.getName());
-                Files.copy(tarArchiveInputStream, currentFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                getLog().debug("Current file: " + currentFile.getFileName());
+                Files.copy(tarArchiveInputStream, currentFile, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
             getLog().error("", e);
@@ -874,7 +876,7 @@ public class MakeselfMojo extends AbstractMojo {
             if (currentFile != null) {
                 // Extract Portable Git
                 getLog().debug("Extract Portable Git");
-                execute(Arrays.asList(currentFile.toPath().toString(), "-y", "-o", location), !ATTACH_ARTIFACT);
+                execute(Arrays.asList(currentFile.toString(), "-y", "-o", location), !ATTACH_ARTIFACT);
                 gitPath = location + "/usr/bin/";
             }
         } catch (IOException e) {
