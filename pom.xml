@@ -160,7 +160,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Targeted patches -->
+        <!-- Targeted patches for commons compress -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
