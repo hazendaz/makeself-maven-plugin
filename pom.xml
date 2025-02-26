@@ -90,9 +90,6 @@
         <invoker-plugin.version>3.9.0</invoker-plugin.version>
         <maven.version>3.9.9</maven.version>
         <maven-plugin.version>3.15.1</maven-plugin.version>
-        <plexus-utils.version>4.0.2</plexus-utils.version>
-        <plexus-xml.version>3.0.1</plexus-xml.version>
-        <shared-utils.version>3.4.2</shared-utils.version>
 
         <!-- Compress -->
         <compress.version>1.27.1</compress.version>
@@ -143,26 +140,6 @@
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-resolver-provider</artifactId>
             <version>${maven.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.shared</groupId>
-            <artifactId>maven-shared-utils</artifactId>
-            <version>${shared-utils.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- Plexus -->
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>${plexus-utils.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-xml</artifactId>
-            <version>${plexus-xml.version}</version>
             <scope>provided</scope>
         </dependency>
 
