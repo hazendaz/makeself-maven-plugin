@@ -17,8 +17,6 @@
  */
 package com.hazendaz.maven.makeself;
 
-import com.google.common.base.Joiner;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -70,6 +68,11 @@ public class MakeselfMojo extends AbstractMojo {
      * isWindows is detected at start of plugin to ensure windows needs.
      */
     private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Windows");
+
+    /**
+     * Permissions for makeself script results.
+     */
+    private static final String PERMISSIONS = "rwxr-xr--";
 
     /**
      * The path to git which is left blank unless portable git is used.
@@ -729,7 +732,7 @@ public class MakeselfMojo extends AbstractMojo {
         // Wait for process completion
         int status = process.waitFor();
         if (status > 0) {
-            getLog().error(Joiner.on(" ").join("makeself failed with error status:", status));
+            getLog().error(String.join(" ", "makeself failed with error status:", String.valueOf(status)));
         }
 
         // Attach artifact to maven build for install/deploy/release on success
@@ -748,10 +751,10 @@ public class MakeselfMojo extends AbstractMojo {
         // Create makeself directory
         Path makeselfTemp = Path.of(makeselfTempDirectory.getAbsolutePath());
         if (!Files.exists(makeselfTemp) && !makeselfTemp.toFile().mkdirs()) {
-            getLog().error(Joiner.on(" ").join("Unable to make directory", makeselfTempDirectory.getAbsolutePath()));
+            getLog().error(String.join(" ", "Unable to make directory", makeselfTempDirectory.getAbsolutePath()));
             return;
         } else {
-            getLog().debug(Joiner.on(" ").join("Created directory for", makeselfTempDirectory.getAbsolutePath()));
+            getLog().debug(String.join(" ", "Created directory for", makeselfTempDirectory.getAbsolutePath()));
         }
 
         ClassLoader classloader = this.getClass().getClassLoader();
@@ -890,18 +893,18 @@ public class MakeselfMojo extends AbstractMojo {
 
     private void setFilePermissions(File file) {
         if (!file.setExecutable(true, true)) {
-            getLog().error(Joiner.on(" ").join("Unable to set executable:", file.getName()));
+            getLog().error(String.join(" ", "Unable to set executable:", file.getName()));
         } else {
-            getLog().debug(Joiner.on(" ").join("Set executable for", file.getName()));
+            getLog().debug(String.join(" ", "Set executable for", file.getName()));
         }
     }
 
     private void setPosixFilePermissions(Path path) {
-        final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString("rwxr-xr--");
+        final Set<PosixFilePermission> permissions = PosixFilePermissions.fromString(PERMISSIONS);
 
         try {
             Files.setPosixFilePermissions(path, permissions);
-            getLog().debug(Joiner.on(" ").join("Set Posix File Permissions for", path, "as", permissions));
+            getLog().debug(String.join(" ", "Set Posix File Permissions for", path.toString(), "as", PERMISSIONS));
         } catch (IOException e) {
             getLog().error("Failed attempted Posix permissions", e);
         } catch (UnsupportedOperationException e) {
