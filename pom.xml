@@ -100,9 +100,6 @@
         <!-- Git -->
         <git.version>2.48.1.1</git.version>
 
-        <!-- Guava -->
-        <guava.version>33.4.0-jre</guava.version>
-
         <!-- Junit -->
         <junit.version>5.12.0</junit.version>
 
@@ -174,14 +171,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>${compress.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- Guava -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
             <scope>compile</scope>
         </dependency>
 
