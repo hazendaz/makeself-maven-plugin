@@ -86,7 +86,7 @@
         <project.build.outputTimestamp>1736983149</project.build.outputTimestamp>
 
         <!-- Maven Artifacts -->
-        <download-plugin.version>1.13.0</download-plugin.version>
+        <download-plugin.version>2.0.0</download-plugin.version>
         <invoker-plugin.version>3.9.0</invoker-plugin.version>
         <maven.version>3.9.9</maven.version>
         <maven-plugin.version>3.15.1</maven-plugin.version>
@@ -365,7 +365,7 @@
                 <plugins>
                     <!-- Download -->
                     <plugin>
-                        <groupId>com.googlecode.maven-download-plugin</groupId>
+                        <groupId>io.github.download-maven-plugin</groupId>
                         <artifactId>download-maven-plugin</artifactId>
                         <version>${download-plugin.version}</version>
                         <executions>
