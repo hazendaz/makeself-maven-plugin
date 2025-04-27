@@ -214,6 +214,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Xz Library -->
+        <dependency>
+            <groupId>org.tukaani</groupId>
+            <artifactId>xz</artifactId>
+            <version>1.12</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Junit -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
