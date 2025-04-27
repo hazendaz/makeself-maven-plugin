@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011-2024 the original author or authors.
+ *    Copyright 2011-2025 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import lombok.Getter;
-
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 
@@ -32,28 +30,76 @@ import org.apache.maven.plugin.logging.Log;
 public class PortableGit {
 
     /** The group id. */
-    @Getter
     private String groupId;
 
     /** The artifact id. */
-    @Getter
     private String artifactId;
 
     /** The version. */
-    @Getter
     private String version;
 
     /** The extension. */
-    @Getter
     private String extension;
 
     /** The classifier. */
-    @Getter
     private String classifier;
 
     /** The name. */
-    @Getter
     private String name;
+
+    /**
+     * Gets the group id.
+     *
+     * @return the group id
+     */
+    public String getGroupId() {
+        return groupId;
+    }
+
+    /**
+     * Gets the artifact id.
+     *
+     * @return the artifact id
+     */
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    /**
+     * Gets the version.
+     *
+     * @return the version
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Gets the extension.
+     *
+     * @return the extension
+     */
+    public String getExtension() {
+        return extension;
+    }
+
+    /**
+     * Gets the classifier.
+     *
+     * @return the classifier
+     */
+    public String getClassifier() {
+        return classifier;
+    }
+
+    /**
+     * Gets the name.
+     *
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
 
     /**
      * Load portable git artifact from makeself.properties file.
