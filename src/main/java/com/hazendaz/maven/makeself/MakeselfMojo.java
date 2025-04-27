@@ -37,6 +37,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -852,12 +854,13 @@ public class MakeselfMojo extends AbstractMojo {
         // Unzip 'git-for-windows-*-portable.tar.gz' from '.m2/repository/com/github/hazendaz/git/git-for-windows'
         // into '.m2/repository/PortableGit'
         try (InputStream inputStream = Files.newInputStream(artifact.getFile().toPath());
-                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(
-                        new GzipCompressorInputStream(new BufferedInputStream(inputStream)))) {
-            TarArchiveEntry entry;
+                InputStream bufferedStream = new BufferedInputStream(inputStream);
+                InputStream gzipStream = new GzipCompressorInputStream(bufferedStream);
+                ArchiveInputStream<TarArchiveEntry> tarStream = new TarArchiveInputStream(gzipStream)) {
+            ArchiveEntry entry;
             String directory = repoSession.getLocalRepository().getBasedir() + File.separator
                     + this.portableGit.getName();
-            while ((entry = tarArchiveInputStream.getNextEntry()) != null) {
+            while ((entry = tarStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
                     continue;
                 }
@@ -870,7 +873,7 @@ public class MakeselfMojo extends AbstractMojo {
                     Files.createDirectory(parent);
                 }
                 getLog().debug("Current file: " + currentFile.getFileName());
-                Files.copy(tarArchiveInputStream, currentFile, StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(tarStream, currentFile, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException e) {
             getLog().error("", e);
