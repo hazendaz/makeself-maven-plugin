@@ -849,10 +849,11 @@ public class MakeselfMojo extends AbstractMojo {
     private void installGit(final Artifact artifact, final String location) {
         Path currentFile = null;
 
-        // Unzip 'tar.gz' from repository under 'com/github/hazendaz/git/git-for-windows' into
-        // .m2/repository/PortableGit
-        try (TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(new GzipCompressorInputStream(
-                new BufferedInputStream(Files.newInputStream(artifact.getFile().toPath()))))) {
+        // Unzip 'git-for-windows-*-portable.tar.gz' from '.m2/repository/com/github/hazendaz/git/git-for-windows'
+        // into '.m2/repository/PortableGit'
+        try (InputStream inputStream = Files.newInputStream(artifact.getFile().toPath());
+                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(
+                        new GzipCompressorInputStream(new BufferedInputStream(inputStream)))) {
             TarArchiveEntry entry;
             String directory = repoSession.getLocalRepository().getBasedir() + File.separator
                     + this.portableGit.getName();
