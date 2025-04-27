@@ -17,7 +17,6 @@
  */
 package com.hazendaz.maven.makeself;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +25,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
@@ -37,11 +35,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -865,43 +858,16 @@ public class MakeselfMojo extends AbstractMojo {
      *            the location in maven repository to store portable git
      */
     private void installGit(final Artifact artifact, final String location) {
-        Path currentFile = null;
+        final File baseDirectory = repoSession.getLocalRepository().getBasedir();
 
-        // Unzip 'git-for-windows-*-portable.tar.gz' from '.m2/repository/com/github/hazendaz/git/git-for-windows'
-        // into '.m2/repository/PortableGit'
-        try (InputStream inputStream = Files.newInputStream(artifact.getFile().toPath());
-                InputStream bufferedStream = new BufferedInputStream(inputStream);
-                InputStream gzipStream = new GzipCompressorInputStream(bufferedStream);
-                ArchiveInputStream<TarArchiveEntry> tarStream = new TarArchiveInputStream(gzipStream)) {
-            ArchiveEntry entry;
-            String directory = repoSession.getLocalRepository().getBasedir() + File.separator
-                    + this.portableGit.getName();
-            while ((entry = tarStream.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
-                    continue;
-                }
-                currentFile = Path.of(directory, entry.getName());
-                if (!currentFile.normalize().startsWith(directory)) {
-                    throw new IOException("Bad zip entry, possible directory traversal");
-                }
-                Path parent = currentFile.getParent();
-                if (!Files.exists(parent)) {
-                    Files.createDirectory(parent);
-                }
-                getLog().debug("Current file: " + currentFile.getFileName());
-                Files.copy(tarStream, currentFile, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            getLog().error("", e);
-        }
+        PortableGitUtils.untarPortableGit(baseDirectory, this.portableGit, artifact, getLog());
 
         try {
-            if (currentFile != null) {
-                // Extract Portable Git
-                getLog().debug("Extract Portable Git");
-                execute(Arrays.asList(currentFile.toString(), "-y", "-o", location), !ATTACH_ARTIFACT);
-                gitPath = location + GIT_USER_BIN;
-            }
+            // Run post install script
+            getLog().debug("Run post install bat");
+            execute(Arrays.asList(location, File.separator, "git-bash.exe", "--no-needs-console", "--hide", "--no-cd",
+                    "--command=" + "post-install.bat"), !ATTACH_ARTIFACT);
+            gitPath = location + GIT_USER_BIN;
         } catch (IOException e) {
             getLog().error("", e);
         } catch (InterruptedException e) {
