@@ -651,7 +651,8 @@ public class MakeselfMojo extends AbstractMojo {
 
             // Basic Configuration
             getLog().debug("Loading Makeself Basic Configuration");
-            List<String> target = new ArrayList<>(Arrays.asList(gitPath + "bash", makeself.toAbsolutePath().toString()));
+            List<String> target = new ArrayList<>(
+                    Arrays.asList(gitPath + "bash", makeself.toAbsolutePath().toString()));
             target.addAll(loadArgs());
             target.add(buildTarget.concat(archiveDir));
             target.add(buildTarget.concat(fileName));
