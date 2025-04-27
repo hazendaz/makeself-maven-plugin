@@ -77,6 +77,11 @@ public class MakeselfMojo extends AbstractMojo {
     private static final String PERMISSIONS = "rwxr-xr--";
 
     /**
+     * Static ATTACH_ARTIFACT to maven lifecycle.
+     */
+    private static final boolean ATTACH_ARTIFACT = true;
+
+    /**
      * The path to git which is left blank unless portable git is used.
      */
     private String gitPath = "";
@@ -575,9 +580,6 @@ public class MakeselfMojo extends AbstractMojo {
 
     /** The makeself. */
     private Path makeself;
-
-    /** Static ATTACH_ARTIFACT to maven lifecycle. */
-    private static final boolean ATTACH_ARTIFACT = true;
 
     /** Portable Git. */
     private PortableGit portableGit;
