@@ -88,7 +88,7 @@
         <!-- Maven Artifacts -->
         <inject.version>1</inject.version>
         <maven.version>3.9.9</maven.version>
-        <resolver.version>1.9.22</resolver.version>
+        <resolver.version>1.9.23</resolver.version>
 
         <!-- Maven Plugins -->
         <download-plugin.version>2.0.0</download-plugin.version>
