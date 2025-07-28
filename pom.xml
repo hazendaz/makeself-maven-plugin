@@ -99,7 +99,7 @@
         <compress.version>1.27.1</compress.version>
 
         <!-- Git -->
-        <git.version>2.50.0.1</git.version>
+        <git.version>2.50.1.0</git.version>
 
         <!-- Junit -->
         <junit.version>5.13.4</junit.version>
