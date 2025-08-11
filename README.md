@@ -40,7 +40,7 @@ Example Usage
     <plugin>
         <groupId>com.github.hazendaz.maven</groupId>
         <artifactId>makeself-maven-plugin</artifactId>
-        <version>1.7.0</version>
+        <version>1.9.1</version>
         <configuration>
             <archiveDir>distro</archiveDir>
             <fileName>installDistro.sh</fileName>
@@ -60,6 +60,9 @@ Example Usage
 
 *** Special notes: ***
 
+- See release notes for more details
+- Version 1.8.1 full maven 4 compatibility
+- Version 1.8.0 requires java 11
 - Version 1.7.0 requires at least maven 3.6.3
 - Version 1.6.0 requires at least maven 3.5.0
 - Use version 1.5.1 with 'inlineScript' set to true if using startupScript to call a program with scriptArgs.
