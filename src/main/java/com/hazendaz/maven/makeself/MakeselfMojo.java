@@ -316,6 +316,12 @@ public class MakeselfMojo extends AbstractMojo {
     private Integer complevel;
 
     /**
+     * --comp-extra : Append extra options to the chosen compressor.
+     */
+    @Parameter(property = "compExtra")
+    private String compExtra;
+
+    /**
      * --nochown : Do not give the target folder to the current user (default)
      *
      * @since 1.6.0
@@ -1046,6 +1052,12 @@ public class MakeselfMojo extends AbstractMojo {
         if (complevel != null) {
             args.add("--complevel");
             args.add(complevel.toString());
+        }
+
+        // --comp-extra : Append extra options to the chosen compressor"
+        if (compExtra != null) {
+            args.add("--comp-extra");
+            args.add(compExtra);
         }
 
         // --nochown : Do not give the target folder to the current user (default)
