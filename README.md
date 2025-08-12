@@ -40,7 +40,7 @@ Example Usage
     <plugin>
         <groupId>com.github.hazendaz.maven</groupId>
         <artifactId>makeself-maven-plugin</artifactId>
-        <version>1.9.1</version>
+        <version>1.9.2</version>
         <configuration>
             <archiveDir>distro</archiveDir>
             <fileName>installDistro.sh</fileName>
@@ -61,6 +61,7 @@ Example Usage
 *** Special notes: ***
 
 - See release notes for more details
+- Version 1.9.2 now indicates what maven plugin version used within scripts to easily link back to the code used to produce it.
 - Version 1.8.1 full maven 4 compatibility
 - Version 1.8.0 requires java 11
 - Version 1.7.0 requires at least maven 3.6.3
