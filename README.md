@@ -99,3 +99,10 @@ mvn -Prun-it clean install
 ## Makeself Update ##
 
 Run 'mvn clean -Pupdate-makeself' and review results / commit / code as needed.
+
+## Release Checklist ##
+
+- Run makeself update
+- Provision any new support
+- Make sure portable 'git' is current
+- In makeself.sh, set MS_PLUGIN_VERSION to the to be released version

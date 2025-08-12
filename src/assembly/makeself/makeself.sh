@@ -18,6 +18,7 @@
 #
 
 MS_VERSION=2.5.1.snapshot.2025-06-24
+MS_PLUGIN_VERSION=1.9.2
 MS_COMMAND="$0"
 unset CDPATH
 
@@ -172,7 +173,7 @@ while true
 do
     case "$1" in
     --version | -v)
-  echo Makeself version $MS_VERSION
+  echo Makeself version $MS_VERSION via makeself-maven-plugin $MS_PLUGIN_VERSION
   exit 0
   ;;
     --pbzip2)

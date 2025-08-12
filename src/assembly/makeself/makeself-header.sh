@@ -1,6 +1,6 @@
 cat << EOF  > "$archname"
 #!/bin/sh
-# This script was generated using Makeself $MS_VERSION
+# This script was generated using Makeself $MS_VERSION via makeself-maven-plugin $MS_PLUGIN_VERSION
 # The license covering this archive and its contents, if any, is wholly independent of the Makeself license (GPL)
 
 ORIG_UMASK=\`umask\`
@@ -160,7 +160,7 @@ MS_dd_Progress()
 MS_Help()
 {
     cat << EOH >&2
-Makeself version $MS_VERSION
+Makeself version $MS_VERSION via makeself-maven-plugin $MS_PLUGIN_VERSION
  1) Getting help or info about \$0 :
   \$0 --help   Print this message
   \$0 --info   Print embedded info : title, default target directory, embedded script ...
@@ -411,7 +411,7 @@ do
       echo Encryption: $ENCRYPT
   fi
   echo Date of packaging: $DATE
-  echo Built with Makeself version $MS_VERSION
+  echo Built with Makeself version $MS_VERSION via makeself-maven-plugin $MS_PLUGIN_VERSION
   echo Build command was: "$MS_COMMAND"
   if test x"\$script" != x; then
       echo Script run after extraction:
