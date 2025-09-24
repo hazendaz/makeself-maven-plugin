@@ -106,7 +106,7 @@
 
         <!-- Targeted patches -->
         <io.version>2.20.0</io.version>
-        <lang3.version>3.18.0</lang3.version>
+        <lang3.version>3.19.0</lang3.version>
     </properties>
 
     <dependencyManagement>
