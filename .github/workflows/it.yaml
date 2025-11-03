@@ -1,27 +1,35 @@
 name: Java Integration Tests
 
-on: [push, pull_request]
+on: [workflow_dispatch, push, pull_request]
 
 permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       matrix:
-        # Due to needing git bash, run main integration tests on all 3 platforms
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        cache: [maven]
+        distribution: [temurin]
         java: [21]
+        # Due to needing git bash, run main integration tests on all 3 platforms
+        os: [macos-latest, ubuntu-latest, windows-latest]
       fail-fast: false
       max-parallel: 4
-    name: Integration Tests
+    name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - name: Set up JDK
+      - name: Setup Java ${{ matrix.java }} ${{ matrix.distribution }}
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4
         with:
+          cache: ${{ matrix.cache }}
+          distribution: ${{ matrix.distribution }}
           java-version: ${{ matrix.java }}
-          distribution: zulu
       - name: Integration Test with Maven
-        run: ./mvnw -Prun-it verify -B -D"license.skip=true" --no-transfer-progress
+        run: ./mvnw verify --batch-mode --no-transfer-progress --show-version -D"license.skip=true" -Prun-it
