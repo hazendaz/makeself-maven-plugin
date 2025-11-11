@@ -82,7 +82,7 @@ public class MakeselfMojo extends AbstractMojo {
      * The path to existing git install for windows usage. If left blank per default, portable git will be used.
      * Location should be something like 'C:/Program Files/Git'.
      */
-    @Parameter(defaultValue = "", property = "gitPath", required = true)
+    @Parameter(defaultValue = "", property = "gitPath")
     private String gitPath;
 
     /**
