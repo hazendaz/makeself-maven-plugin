@@ -66,25 +66,24 @@ import org.eclipse.aether.resolution.ArtifactResult;
 @Mojo(name = "makeself", defaultPhase = LifecyclePhase.VERIFY, requiresProject = false)
 public class MakeselfMojo extends AbstractMojo {
 
-    /**
-     * isWindows is detected at start of plugin to ensure windows needs.
-     */
+    /** isWindows is detected at start of plugin to ensure windows needs. */
     private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Windows");
 
-    /**
-     * Permissions for makeself script results.
-     */
+    /** Permissions for makeself script results. */
     private static final String PERMISSIONS = "rwxr-xr--";
 
-    /**
-     * Static ATTACH_ARTIFACT to maven lifecycle.
-     */
+    /** Static ATTACH_ARTIFACT to maven lifecycle. */
     private static final boolean ATTACH_ARTIFACT = true;
 
+    /** The Constant GIT_USER_BIN. */
+    private static final String GIT_USER_BIN = "/usr/bin/";
+
     /**
-     * The path to git which is left blank unless portable git is used.
+     * The path to existing git install for windows usage. If left blank per default, portable git will be used.
+     * Location should be something like 'C:/Program Files/Git'.
      */
-    private String gitPath = "";
+    @Parameter(defaultValue = "", property = "gitPath", required = true)
+    private String gitPath;
 
     /**
      * archive_dir is the name of the directory that contains the files to be archived.
@@ -629,7 +628,12 @@ public class MakeselfMojo extends AbstractMojo {
 
         // Check git setup
         if (MakeselfMojo.WINDOWS) {
-            this.checkGitSetup();
+            if (Files.exists(Path.of(gitPath))) {
+                getLog().debug("Using existing 'Git' found at " + gitPath);
+                gitPath = gitPath + GIT_USER_BIN;
+            } else {
+                this.checkGitSetup();
+            }
         }
 
         try {
@@ -822,7 +826,7 @@ public class MakeselfMojo extends AbstractMojo {
                 + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
         if (Files.exists(Path.of(location))) {
             getLog().debug("Existing 'PortableGit' folder found at " + location);
-            gitPath = location + "/usr/bin/";
+            gitPath = location + GIT_USER_BIN;
             return;
         }
 
@@ -891,7 +895,7 @@ public class MakeselfMojo extends AbstractMojo {
                 // Extract Portable Git
                 getLog().debug("Extract Portable Git");
                 execute(Arrays.asList(currentFile.toString(), "-y", "-o", location), !ATTACH_ARTIFACT);
-                gitPath = location + "/usr/bin/";
+                gitPath = location + GIT_USER_BIN;
             }
         } catch (IOException e) {
             getLog().error("", e);
