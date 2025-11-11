@@ -591,6 +591,11 @@ public class MakeselfMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
+        // Ensure gitPath is never null
+        if (gitPath == null) {
+            gitPath = "";
+        }
+
         // Check if plugin run should be skipped
         if (this.skip) {
             getLog().info("Makeself is skipped");
