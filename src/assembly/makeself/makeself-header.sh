@@ -17,6 +17,8 @@ USER_PWD="\$PWD"
 export USER_PWD
 ARCHIVE_DIR=\`dirname "\$0"\`
 export ARCHIVE_DIR
+ARCHIVE_NAME=\`basename "\$0"\`
+export ARCHIVE_NAME
 
 label="$LABEL"
 script="$SCRIPT"
@@ -130,7 +132,7 @@ MS_dd_Progress()
     blocks=\`expr \$length / \$bsize\`
     bytes=\`expr \$length % \$bsize\`
     (
-        dd ibs=\$offset skip=1 count=1 2>/dev/null
+        dd ibs=\$offset skip=1 count=0 2>/dev/null
         pos=\`expr \$pos \+ \$bsize\`
         MS_Printf "     0%% " 1>&2
         if test \$blocks -gt 0; then
@@ -325,7 +327,8 @@ MS_Preextract()
     echo "\$preextract" | base64 -d > "\$prescript"
     chmod a+x "\$prescript"
 
-    (cd "\$tmpdir"; eval "\"\$prescript\" \$scriptargs \"\\\$@\""); res=\$?
+    prescript_basename=\$(basename "\$prescript")
+    (cd "\$tmpdir"; eval "\"./\$prescript_basename\" \$scriptargs \"\\\$@\""); res=\$?
 
     rm -f "\$prescript"
     if test \$res -ne 0; then

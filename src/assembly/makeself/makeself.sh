@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Makeself version 2.5.x
+# Makeself version 2.6.x
 #  by Stephane Peter <megastep@megastep.org>
 #
 # Utility to create self-extracting tar.gz archives.
@@ -17,7 +17,7 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.5.1.snapshot.2025-06-24
+MS_VERSION=2.6.1.snapshot.2025-10-16
 MS_PLUGIN_VERSION=1.10.0
 MS_COMMAND="$0"
 unset CDPATH
