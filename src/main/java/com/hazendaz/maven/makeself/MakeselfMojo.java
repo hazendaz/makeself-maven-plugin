@@ -628,7 +628,7 @@ public class MakeselfMojo extends AbstractMojo {
 
         // Check git setup
         if (MakeselfMojo.WINDOWS) {
-            if (Files.exists(Path.of(gitPath))) {
+            if (!gitPath.isEmpty() && Files.exists(Path.of(gitPath))) {
                 getLog().debug("Using existing 'Git' found at " + gitPath);
                 gitPath = gitPath + GIT_USER_BIN;
             } else {
