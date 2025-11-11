@@ -1,1 +1,1 @@
-memberSearchIndex = [{"p":"com.hazendaz.maven.makeself","c":"PortableGitTest","l":"PortableGitTest()","u":"%3Cinit%3E()"}];updateSearchResults();
+memberSearchIndex = [{"p":"com.hazendaz.maven.makeself","c":"PortableGitTest","l":"PortableGitTest()","u":"%3Cinit%3E()","k":"3"}];updateSearchResults();

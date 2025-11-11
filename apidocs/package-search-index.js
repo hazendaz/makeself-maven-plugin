@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"com.github.hazendaz.maven.makeself","l":"com.github.hazendaz.maven.makeself_maven_plugin"},{"m":"com.github.hazendaz.maven.makeself","l":"com.hazendaz.maven.makeself"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"com.github.hazendaz.maven.makeself_maven_plugin"},{"l":"com.hazendaz.maven.makeself"}];updateSearchResults();
