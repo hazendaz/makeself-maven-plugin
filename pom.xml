@@ -31,7 +31,7 @@
 
     <groupId>com.github.hazendaz.maven</groupId>
     <artifactId>makeself-maven-plugin</artifactId>
-    <version>1.10.1-SNAPSHOT</version>
+    <version>1.10.1</version>
     <packaging>maven-plugin</packaging>
 
     <name>makeself-maven-plugin</name>
@@ -52,7 +52,7 @@
     <scm>
         <connection>scm:git:ssh://github.com/hazendaz/makeself-maven-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>makeself-maven-plugin-1.10.1</tag>
         <url>https://github.com/hazendaz/makeself-maven-plugin</url>
     </scm>
     <issueManagement>
@@ -83,7 +83,7 @@
         <module.name>com.github.hazendaz.maven.makeself</module.name>
 
         <!-- Reproducible Builds -->
-        <project.build.outputTimestamp>1762895502</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1765126881</project.build.outputTimestamp>
 
         <!-- Maven Artifacts -->
         <inject.version>1</inject.version>
