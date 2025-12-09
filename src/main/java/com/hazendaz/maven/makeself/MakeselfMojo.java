@@ -717,8 +717,8 @@ public class MakeselfMojo extends AbstractMojo {
         ProcessBuilder processBuilder = new ProcessBuilder(target);
         processBuilder.redirectErrorStream(true);
 
-        // Add portable git to windows environment
-        if (MakeselfMojo.WINDOWS) {
+        // Add portable git to windows environment (Helper as portable git located in .m2)
+        if (MakeselfMojo.WINDOWS && this.portableGit != null) {
             Map<String, String> envs = processBuilder.environment();
             getLog().debug("Environment Variables: " + envs);
             final String location = repoSession.getLocalRepository().getBasedir() + File.separator
@@ -727,8 +727,8 @@ public class MakeselfMojo extends AbstractMojo {
             if (envs.get("Path") != null) {
                 envs.put("Path", location + "/usr/bin;" + envs.get("Path"));
                 getLog().debug("Environment Path Variable: " + envs.get("Path"));
-                // Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'
             } else if (envs.get("PATH") != null) {
+                // Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'
                 envs.put("PATH",
                         location + "/usr/bin;" + envs.get("PATH").replace("Program Files", "\"Program Files\""));
                 getLog().debug("Environment Path Variable: " + envs.get("PATH"));
