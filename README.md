@@ -97,6 +97,14 @@ To check the files are of right permissions
 
 mvn -Prun-it clean install
 
+Current tests that exist:
+
+- ```existing-git``` where 'gitPath' is checked instead of downloading a copy of portable git inside the plugin for cases where users have existing git on windows and cannot run 'EXE' installer.  In this case, its prepared first by downloading it via the pom for use but in real usage would expect existing copy to exist so it can find /usr/bin.
+- ```inline``` where it runs an inline script.
+- ```missing-archive``` to demonstrate a missing archive
+- ```missing-script``` to demonstrate a missing script
+- ```sample``` to demonstrate a basic use-case
+
 ## Makeself Update ##
 
 Run 'mvn clean -Pupdate-makeself' and review results / commit / code as needed.
