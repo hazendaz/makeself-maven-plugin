@@ -410,9 +410,11 @@ do
   echo Target directory: "\$targetdir"
   echo Uncompressed size: $USIZE KB
   echo Compression: $COMPRESS
-  if test x"$ENCRYPT" != x""; then
-      echo Encryption: $ENCRYPT
-  fi
+    if test x"$ENCRYPT" = x"base64"; then
+        echo "Encoding: base64"
+    elif test x"$ENCRYPT" != x""; then
+        echo "Encryption: $ENCRYPT"
+    fi
   echo Date of packaging: $DATE
   echo Built with Makeself version $MS_VERSION via makeself-maven-plugin $MS_PLUGIN_VERSION
   echo Build command was: "$MS_COMMAND"
@@ -675,13 +677,13 @@ if test x"\$verbose" = xy; then
 fi
 
 if test x"\$quiet" = xn; then
-    # Decrypting with openssl will ask for password,
-    # the prompt needs to start on new line
-  if test x"$ENCRYPT" = x"openssl"; then
-      echo "Decrypting and uncompressing \$label..."
-  else
-        MS_Printf "Uncompressing \$label"
-  fi
+    action="Uncompressing"
+    if test x"\$ENCRYPT" = x"base64"; then
+        action="Decoding and uncompressing"
+    elif test x"\$ENCRYPT" != x""; then
+        action="Decrypting and uncompressing"
+    fi
+    echo "\$action \$label..."
 fi
 res=3
 if test x"\$keep" = xn; then

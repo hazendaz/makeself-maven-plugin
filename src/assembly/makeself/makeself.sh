@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Makeself version 2.6.x
+# Makeself version 2.7.2
 #  by Stephane Peter <megastep@megastep.org>
 #
 # Utility to create self-extracting tar.gz archives.
@@ -10,21 +10,39 @@
 #
 # Makeself home page: https://makeself.io/ - Version history available on GitHub
 #
-# (C) 1998-2023 by Stephane Peter <megastep@megastep.org>
+# (C) 1998-2025 by Stephane Peter <megastep@megastep.org>
 #
 # This software is released under the terms of the GNU GPL version 2 and above
 # Please read the license at http://www.gnu.org/copyleft/gpl.html
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.6.1.snapshot.2025-10-16
-MS_PLUGIN_VERSION=1.10.2
+MS_VERSION=2.7.2.snapshot.2025-12-11
+MS_PLUGIN_VERSION=1.11.0
 MS_COMMAND="$0"
+MS_SIGN_NEXT=n
 unset CDPATH
 
 for f in ${1+"$@"}; do
+    if test "$MS_SIGN_NEXT" = y; then
+        arg_value="XXXX"
+        MS_SIGN_NEXT=n
+    else
+        case "$f" in
+            --sign)
+                MS_SIGN_NEXT=y
+                arg_value="$f"
+                ;;
+            --sign=*)
+                arg_value="--sign=XXXX"
+                ;;
+            *)
+                arg_value="$f"
+                ;;
+        esac
+    fi
     MS_COMMAND="$MS_COMMAND \\\\
-    \\\"$f\\\""
+    \\\"$arg_value\\\""
 done
 
 # For Solaris systems
@@ -60,12 +78,12 @@ MS_Usage()
     echo "                         into xz's threading, usually with '--threads=0' for all available cores."
     echo "                         pbzip2 and pigz are parallel by default, and setting this value allows"
     echo "                         limiting the number of threads they use."
-    echo "    --base64           : Instead of compressing, encode the data using base64"
-    echo "    --gpg-encrypt      : Instead of compressing, encrypt the data using GPG"
+    echo "    --base64           : Base64-encode the final compressed archive (post-compression)"
+    echo "    --gpg-encrypt      : Encrypt the compressed archive using GPG"
     echo "    --gpg-asymmetric-encrypt-sign"
-    echo "                       : Instead of compressing, asymmetrically encrypt and sign the data using GPG"
+    echo "                       : Asymmetrically encrypt and sign the compressed archive using GPG"
     echo "    --gpg-extra opt    : Append more options to the gpg command line"
-    echo "    --ssl-encrypt      : Instead of compressing, encrypt the data using OpenSSL"
+    echo "    --ssl-encrypt      : Encrypt the compressed archive using OpenSSL"
     echo "    --ssl-passwd pass  : Use the given password to encrypt the data using OpenSSL"
     echo "    --ssl-pass-src src : Use the given src as the source of password to encrypt the data"
     echo "                         using OpenSSL. See \"PASS PHRASE ARGUMENTS\" in man openssl."
@@ -132,6 +150,10 @@ else
     MS_Usage
 fi
 ENCRYPT=n
+ENCRYPT_MODE=n
+ENCRYPT_CMD=""
+DECRYPT_CMD=""
+BASE64_MODE=n
 PASSWD=""
 PASSWD_SRC=""
 OPENSSL_NO_MD=n
@@ -217,25 +239,26 @@ do
   shift
   ;;
     --base64)
-  COMPRESS=base64
-  shift
+        ENCRYPT_MODE=base64
+        BASE64_MODE=y
+        shift
   ;;
     --gpg-encrypt)
-  COMPRESS=gpg
-  shift
-  ;;
+        ENCRYPT_MODE=gpg
+        shift
+        ;;
     --gpg-asymmetric-encrypt-sign)
-  COMPRESS=gpg-asymmetric
-  shift
-  ;;
+        ENCRYPT_MODE=gpg-asymmetric
+        shift
+        ;;
     --gpg-extra)
   GPG_EXTRA="$2"
     shift 2 || { MS_Usage; exit 1; }
   ;;
     --ssl-encrypt)
-  ENCRYPT=openssl
-   shift
-  ;;
+        ENCRYPT_MODE=openssl
+        shift
+        ;;
     --ssl-passwd)
   PASSWD=$2
     shift 2 || { MS_Usage; exit 1; }
@@ -531,20 +554,6 @@ lz4)
     GZIP_CMD="lz4 -c$COMPRESS_LEVEL"
     GUNZIP_CMD="lz4 -d"
     ;;
-base64)
-    GZIP_CMD="base64"
-    GUNZIP_CMD="base64 --decode -i -"
-    ;;
-gpg)
-    GZIP_CMD="gpg $GPG_EXTRA -ac -z$COMPRESS_LEVEL"
-    GUNZIP_CMD="gpg -d"
-    ENCRYPT="gpg"
-    ;;
-gpg-asymmetric)
-    GZIP_CMD="gpg $GPG_EXTRA -z$COMPRESS_LEVEL -es"
-    GUNZIP_CMD="gpg --yes -d"
-    ENCRYPT="gpg"
-    ;;
 compress)
     GZIP_CMD="compress -fc"
     GUNZIP_CMD="(type compress >/dev/null 2>&1 && compress -fcd || gzip -cd)"
@@ -559,7 +568,8 @@ if test x"$COMP_EXTRA" != "x"; then
     GZIP_CMD="$GZIP_CMD $COMP_EXTRA"
 fi
 
-if test x"$ENCRYPT" = x"openssl"; then
+case "$ENCRYPT_MODE" in
+openssl)
     if test x"$APPEND" = x"y"; then
         echo "Appending to existing archive is not compatible with OpenSSL encryption." >&2
     fi
@@ -577,7 +587,24 @@ if test x"$ENCRYPT" = x"openssl"; then
     elif test -n "$PASSWD"; then
         ENCRYPT_CMD="$ENCRYPT_CMD -pass pass:$PASSWD"
     fi
-fi
+    ;;
+gpg)
+    ENCRYPT_CMD="gpg $GPG_EXTRA -ac -z$COMPRESS_LEVEL -o -"
+    DECRYPT_CMD="gpg $GPG_EXTRA -d"
+    ;;
+gpg-asymmetric)
+    ENCRYPT_CMD="gpg $GPG_EXTRA -z$COMPRESS_LEVEL -es -o -"
+    DECRYPT_CMD="gpg $GPG_EXTRA --yes -d"
+    ;;
+base64)
+    ENCRYPT_CMD="base64"
+    DECRYPT_CMD="base64 --decode"
+    ;;
+n)
+    ;;
+esac
+
+ENCRYPT="$ENCRYPT_MODE"
 
 tmpfile="${TMPDIR:-/tmp}/mkself$$"
 
@@ -632,7 +659,11 @@ test -x "$TAR" || TAR=tar
 tmparch="${TMPDIR:-/tmp}/mkself$$.tar"
 (
     if test "$APPEND" = "y"; then
-        tail -n "+$OLDSKIP" "$archname" | eval "$GUNZIP_CMD" > "$tmparch"
+        if test x"$ENCRYPT_MODE" != xn; then
+            tail -n "+$OLDSKIP" "$archname" | eval "$DECRYPT_CMD" | eval "$GUNZIP_CMD" > "$tmparch"
+        else
+            tail -n "+$OLDSKIP" "$archname" | eval "$GUNZIP_CMD" > "$tmparch"
+        fi
     fi
     cd "$archdir"
     # "Determining if a directory is empty"
@@ -670,10 +701,14 @@ eval "$GZIP_CMD" <"$tmparch" >"$tmpfile" || {
 }
 rm -f "$tmparch"
 
-if test x"$ENCRYPT" = x"openssl"; then
-    echo "About to encrypt archive \"$archname\"..."
-    { eval "$ENCRYPT_CMD -in $tmpfile -out ${tmpfile}.enc" && mv -f ${tmpfile}.enc $tmpfile; } || \
-        { echo Aborting: could not encrypt temporary file: "$tmpfile".; rm -f "$tmpfile"; exit 1; }
+if test x"$ENCRYPT_MODE" != xn; then
+    action="encrypt"
+    if test x"$ENCRYPT_MODE" = x"base64"; then
+        action="encode"
+    fi
+    echo "About to $action archive \"$archname\"..."
+    { eval "$ENCRYPT_CMD" < "$tmpfile" > "${tmpfile}.enc" && mv -f "${tmpfile}.enc" "$tmpfile"; } || \
+        { echo Aborting: could not $action temporary file: "$tmpfile".; rm -f "$tmpfile"; exit 1; }
 fi
 
 fsize=`cat "$tmpfile" | wc -c | tr -d " "`
