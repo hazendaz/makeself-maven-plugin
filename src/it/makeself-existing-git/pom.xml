@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+       Copyright 2011-2025 the original author or authors.
+
+       This program is free software; you can redistribute it and/or
+       modify it under the terms of the GNU General Public License
+       as published by the Free Software Foundation; either version 2
+       of the License, or (at your option) any later version.
+
+       You may obtain a copy of the License at
+
+          https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+
+       This program is distributed in the hope that it will be useful,
+       but WITHOUT ANY WARRANTY; without even the implied warranty of
+       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+       GNU General Public License for more details.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.github.hazendaz</groupId>
+        <artifactId>base-parent</artifactId>
+        <version>56</version>
+    </parent>
+
+    <groupId>com.github.hazendaz</groupId>
+    <artifactId>makeself-existing-git</artifactId>
+    <version>testing</version>
+    <packaging>pom</packaging>
+
+    <name>makeself-existing-git</name>
+    <description>Makeself Existing Git Integration Test</description>
+    <url>https://hazendaz.github.io/makeself-maven-plugin/</url>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/hazendaz/makeself-maven-plugin.git</developerConnection>
+        <url>https://github.io/hazendaz/makeself-maven-plugin</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <properties>
+        <!-- Allow test to run with maven 3.6.3 or better -->
+        <maven.min-version>3.6.3</maven.min-version>
+
+        <!-- Git -->
+        <git.version>2.52.0.1</git.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.github.hazendaz.git</groupId>
+                <artifactId>git-for-windows</artifactId>
+                <version>${git.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <finalName>makeself-existing-git</finalName>
+        <plugins>
+            <!-- Assembly -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Setup local git for gitPath test -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-git-for-windows</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.github.hazendaz.git</groupId>
+                                    <artifactId>git-for-windows</artifactId>
+                                    <version>${git.version}</version>
+                                    <classifier>portable</classifier>
+                                    <type>tar.gz</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.2</version>
+                <executions>
+                    <execution>
+                        <id>extract-portable-git</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.build.directory}/PortableGit-2.52.0-64-bit.7z.exe</executable>
+                            <arguments>
+                                <argument>-o${project.build.directory}/git</argument>
+                                <argument>-y</argument>
+                            </arguments>
+                            <workingDirectory>${project.build.directory}</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.hazendaz.maven</groupId>
+                <artifactId>makeself-maven-plugin</artifactId>
+                <version>@pom.version@</version>
+                <configuration>
+                    <archiveDir>makeself-existing-git-distro</archiveDir>
+                    <fileName>makeself-existing-git.sh</fileName>
+                    <gitPath>${project.build.directory}/git</gitPath>
+                    <inlineScript>true</inlineScript>
+                    <label>Makeself Existing-Git Self Extraction</label>
+                    <scriptArgs>hello</scriptArgs>
+                    <startupScript>echo</startupScript>
+                    <sha256>true</sha256>
+                    <autoRun>true</autoRun>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>makeself</id>
+                        <goals>
+                            <goal>makeself</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <configuration>
+                    <rules>
+                        <requirePluginVersions>
+                            <!-- Allow snapshot of plugin as we are testing it -->
+                            <banSnapshots>false</banSnapshots>
+                        </requirePluginVersions>
+                    </rules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
