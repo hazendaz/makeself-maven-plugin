@@ -718,20 +718,34 @@ public class MakeselfMojo extends AbstractMojo {
         processBuilder.redirectErrorStream(true);
 
         // Add portable git to windows environment (Helper as portable git located in .m2)
-        if (MakeselfMojo.WINDOWS && this.portableGit != null) {
+        if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
             getLog().debug("Environment Variables: " + envs);
-            final String location = repoSession.getLocalRepository().getBasedir() + File.separator
-                    + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
-            // Windows cmd/powershell shows "Path" in this case
-            if (envs.get("Path") != null) {
-                envs.put("Path", location + "/usr/bin;" + envs.get("Path"));
-                getLog().debug("Environment Path Variable: " + envs.get("Path"));
-            } else if (envs.get("PATH") != null) {
-                // Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'
-                envs.put("PATH",
-                        location + "/usr/bin;" + envs.get("PATH").replace("Program Files", "\"Program Files\""));
-                getLog().debug("Environment Path Variable: " + envs.get("PATH"));
+
+            if (this.portableGit == null) {
+                final String location = gitPath;
+                // Windows cmd/powershell shows "Path" in this case
+                if (envs.get("Path") != null) {
+                    envs.put("Path", location + ";" + envs.get("Path"));
+                    getLog().debug("Environment Path Variable: " + envs.get("Path"));
+                } else if (envs.get("PATH") != null) {
+                    // Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'
+                    envs.put("PATH", location + ";" + envs.get("PATH").replace("Program Files", "\"Program Files\""));
+                    getLog().debug("Environment Path Variable: " + envs.get("PATH"));
+                }
+            } else {
+                final String location = repoSession.getLocalRepository().getBasedir() + File.separator
+                        + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
+                // Windows cmd/powershell shows "Path" in this case
+                if (envs.get("Path") != null) {
+                    envs.put("Path", location + "/usr/bin;" + envs.get("Path"));
+                    getLog().debug("Environment Path Variable: " + envs.get("Path"));
+                } else if (envs.get("PATH") != null) {
+                    // Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'
+                    envs.put("PATH",
+                            location + "/usr/bin;" + envs.get("PATH").replace("Program Files", "\"Program Files\""));
+                    getLog().debug("Environment Path Variable: " + envs.get("PATH"));
+                }
             }
         }
 
