@@ -717,12 +717,13 @@ public class MakeselfMojo extends AbstractMojo {
         ProcessBuilder processBuilder = new ProcessBuilder(target);
         processBuilder.redirectErrorStream(true);
 
-        // Add portable git to windows environment (Helper as portable git located in .m2)
+        // Add portable git to windows environment
         if (MakeselfMojo.WINDOWS) {
             Map<String, String> envs = processBuilder.environment();
             getLog().debug("Environment Variables: " + envs);
 
             if (this.portableGit == null) {
+                // Helper as git located in provided location (not real user or system path, just the process)
                 final String location = gitPath;
                 // Windows cmd/powershell shows "Path" in this case
                 if (envs.get("Path") != null) {
@@ -734,6 +735,7 @@ public class MakeselfMojo extends AbstractMojo {
                     getLog().debug("Environment Path Variable: " + envs.get("PATH"));
                 }
             } else {
+                // Helper as portable git located in .m2 (not real user or system path, just the process)
                 final String location = repoSession.getLocalRepository().getBasedir() + File.separator
                         + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
                 // Windows cmd/powershell shows "Path" in this case
