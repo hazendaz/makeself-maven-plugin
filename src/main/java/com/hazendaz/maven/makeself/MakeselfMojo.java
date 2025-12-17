@@ -80,7 +80,8 @@ public class MakeselfMojo extends AbstractMojo {
 
     /**
      * The path to existing git install for windows usage. If left blank per default, portable git will be used.
-     * Location should be something like 'C:/Program Files/Git'.
+     * Location should be something like 'C:/Program Files/Git'.  When set and not windows, it will be treated as
+     * blank.
      */
     @Parameter(defaultValue = "", property = "gitPath")
     private String gitPath;
@@ -639,6 +640,9 @@ public class MakeselfMojo extends AbstractMojo {
             } else {
                 this.checkGitSetup();
             }
+        } else {
+            // Do not use git path when not windows
+            gitPath = "";
         }
 
         try {
