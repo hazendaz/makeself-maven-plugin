@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * The path to existing git install for windows usage. If left blank per default, portable git will be used.</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     * Location should be something like 'C:/Program Files/Git'.</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     * Location should be something like 'C:/Program Files/Git'. When set and not windows, it will be treated as blank.</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      @Parameter(defaultValue = <span class="jxr_string">""</span>, property = <span class="jxr_string">"gitPath"</span>)
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">private</strong> String gitPath;
@@ -647,663 +647,666 @@
 <a class="jxr_linenumber" name="L639" href="#L639">639</a>             } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L640" href="#L640">640</a>                 <strong class="jxr_keyword">this</strong>.checkGitSetup();
 <a class="jxr_linenumber" name="L641" href="#L641">641</a>             }
-<a class="jxr_linenumber" name="L642" href="#L642">642</a>         }
-<a class="jxr_linenumber" name="L643" href="#L643">643</a> 
-<a class="jxr_linenumber" name="L644" href="#L644">644</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L645" href="#L645">645</a>             <em class="jxr_comment">// Output version of bash</em>
-<a class="jxr_linenumber" name="L646" href="#L646">646</a>             getLog().debug(<span class="jxr_string">"Execute Bash Version"</span>);
-<a class="jxr_linenumber" name="L647" href="#L647">647</a>             execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, <span class="jxr_string">"--version"</span>), !ATTACH_ARTIFACT);
-<a class="jxr_linenumber" name="L648" href="#L648">648</a> 
-<a class="jxr_linenumber" name="L649" href="#L649">649</a>             <em class="jxr_comment">// Output version of makeself.sh</em>
-<a class="jxr_linenumber" name="L650" href="#L650">650</a>             getLog().debug(<span class="jxr_string">"Execute Makeself Version"</span>);
-<a class="jxr_linenumber" name="L651" href="#L651">651</a>             execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, makeself.toAbsolutePath().toString(), <span class="jxr_string">"--version"</span>),
-<a class="jxr_linenumber" name="L652" href="#L652">652</a>                     !ATTACH_ARTIFACT);
-<a class="jxr_linenumber" name="L653" href="#L653">653</a> 
-<a class="jxr_linenumber" name="L654" href="#L654">654</a>             <em class="jxr_comment">// If version arguments supplied, exit as we just printed version.</em>
-<a class="jxr_linenumber" name="L655" href="#L655">655</a>             <strong class="jxr_keyword">if</strong> (isTrue(version)) {
-<a class="jxr_linenumber" name="L656" href="#L656">656</a>                 <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L657" href="#L657">657</a>             }
-<a class="jxr_linenumber" name="L658" href="#L658">658</a> 
-<a class="jxr_linenumber" name="L659" href="#L659">659</a>             <em class="jxr_comment">// If help arguments supplied, write output and get out of code.</em>
-<a class="jxr_linenumber" name="L660" href="#L660">660</a>             <strong class="jxr_keyword">if</strong> (isTrue(help)) {
-<a class="jxr_linenumber" name="L661" href="#L661">661</a>                 getLog().debug(<span class="jxr_string">"Execute Makeself Help"</span>);
-<a class="jxr_linenumber" name="L662" href="#L662">662</a>                 execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, makeself.toAbsolutePath().toString(), <span class="jxr_string">"--help"</span>),
-<a class="jxr_linenumber" name="L663" href="#L663">663</a>                         !ATTACH_ARTIFACT);
-<a class="jxr_linenumber" name="L664" href="#L664">664</a>                 <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L665" href="#L665">665</a>             }
-<a class="jxr_linenumber" name="L666" href="#L666">666</a> 
-<a class="jxr_linenumber" name="L667" href="#L667">667</a>             <em class="jxr_comment">// Basic Configuration</em>
-<a class="jxr_linenumber" name="L668" href="#L668">668</a>             getLog().debug(<span class="jxr_string">"Loading Makeself Basic Configuration"</span>);
-<a class="jxr_linenumber" name="L669" href="#L669">669</a>             List&lt;String&gt; target = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(
-<a class="jxr_linenumber" name="L670" href="#L670">670</a>                     Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, makeself.toAbsolutePath().toString()));
-<a class="jxr_linenumber" name="L671" href="#L671">671</a>             target.addAll(loadArgs());
-<a class="jxr_linenumber" name="L672" href="#L672">672</a>             target.add(buildTarget.concat(archiveDir));
-<a class="jxr_linenumber" name="L673" href="#L673">673</a>             target.add(buildTarget.concat(fileName));
-<a class="jxr_linenumber" name="L674" href="#L674">674</a>             target.add(label);
-<a class="jxr_linenumber" name="L675" href="#L675">675</a>             target.add(startupScript);
-<a class="jxr_linenumber" name="L676" href="#L676">676</a>             <strong class="jxr_keyword">if</strong> (scriptArgs != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L677" href="#L677">677</a>                 target.addAll(scriptArgs);
-<a class="jxr_linenumber" name="L678" href="#L678">678</a>             }
-<a class="jxr_linenumber" name="L679" href="#L679">679</a> 
-<a class="jxr_linenumber" name="L680" href="#L680">680</a>             <em class="jxr_comment">// Indicate makeself running</em>
-<a class="jxr_linenumber" name="L681" href="#L681">681</a>             getLog().info(<span class="jxr_string">"Running makeself build"</span>);
+<a class="jxr_linenumber" name="L642" href="#L642">642</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L643" href="#L643">643</a>             <em class="jxr_comment">// Do not use git path when not windows</em>
+<a class="jxr_linenumber" name="L644" href="#L644">644</a>             gitPath = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L645" href="#L645">645</a>         }
+<a class="jxr_linenumber" name="L646" href="#L646">646</a> 
+<a class="jxr_linenumber" name="L647" href="#L647">647</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L648" href="#L648">648</a>             <em class="jxr_comment">// Output version of bash</em>
+<a class="jxr_linenumber" name="L649" href="#L649">649</a>             getLog().debug(<span class="jxr_string">"Execute Bash Version"</span>);
+<a class="jxr_linenumber" name="L650" href="#L650">650</a>             execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, <span class="jxr_string">"--version"</span>), !ATTACH_ARTIFACT);
+<a class="jxr_linenumber" name="L651" href="#L651">651</a> 
+<a class="jxr_linenumber" name="L652" href="#L652">652</a>             <em class="jxr_comment">// Output version of makeself.sh</em>
+<a class="jxr_linenumber" name="L653" href="#L653">653</a>             getLog().debug(<span class="jxr_string">"Execute Makeself Version"</span>);
+<a class="jxr_linenumber" name="L654" href="#L654">654</a>             execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, makeself.toAbsolutePath().toString(), <span class="jxr_string">"--version"</span>),
+<a class="jxr_linenumber" name="L655" href="#L655">655</a>                     !ATTACH_ARTIFACT);
+<a class="jxr_linenumber" name="L656" href="#L656">656</a> 
+<a class="jxr_linenumber" name="L657" href="#L657">657</a>             <em class="jxr_comment">// If version arguments supplied, exit as we just printed version.</em>
+<a class="jxr_linenumber" name="L658" href="#L658">658</a>             <strong class="jxr_keyword">if</strong> (isTrue(version)) {
+<a class="jxr_linenumber" name="L659" href="#L659">659</a>                 <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L660" href="#L660">660</a>             }
+<a class="jxr_linenumber" name="L661" href="#L661">661</a> 
+<a class="jxr_linenumber" name="L662" href="#L662">662</a>             <em class="jxr_comment">// If help arguments supplied, write output and get out of code.</em>
+<a class="jxr_linenumber" name="L663" href="#L663">663</a>             <strong class="jxr_keyword">if</strong> (isTrue(help)) {
+<a class="jxr_linenumber" name="L664" href="#L664">664</a>                 getLog().debug(<span class="jxr_string">"Execute Makeself Help"</span>);
+<a class="jxr_linenumber" name="L665" href="#L665">665</a>                 execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, makeself.toAbsolutePath().toString(), <span class="jxr_string">"--help"</span>),
+<a class="jxr_linenumber" name="L666" href="#L666">666</a>                         !ATTACH_ARTIFACT);
+<a class="jxr_linenumber" name="L667" href="#L667">667</a>                 <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L668" href="#L668">668</a>             }
+<a class="jxr_linenumber" name="L669" href="#L669">669</a> 
+<a class="jxr_linenumber" name="L670" href="#L670">670</a>             <em class="jxr_comment">// Basic Configuration</em>
+<a class="jxr_linenumber" name="L671" href="#L671">671</a>             getLog().debug(<span class="jxr_string">"Loading Makeself Basic Configuration"</span>);
+<a class="jxr_linenumber" name="L672" href="#L672">672</a>             List&lt;String&gt; target = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(
+<a class="jxr_linenumber" name="L673" href="#L673">673</a>                     Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, makeself.toAbsolutePath().toString()));
+<a class="jxr_linenumber" name="L674" href="#L674">674</a>             target.addAll(loadArgs());
+<a class="jxr_linenumber" name="L675" href="#L675">675</a>             target.add(buildTarget.concat(archiveDir));
+<a class="jxr_linenumber" name="L676" href="#L676">676</a>             target.add(buildTarget.concat(fileName));
+<a class="jxr_linenumber" name="L677" href="#L677">677</a>             target.add(label);
+<a class="jxr_linenumber" name="L678" href="#L678">678</a>             target.add(startupScript);
+<a class="jxr_linenumber" name="L679" href="#L679">679</a>             <strong class="jxr_keyword">if</strong> (scriptArgs != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L680" href="#L680">680</a>                 target.addAll(scriptArgs);
+<a class="jxr_linenumber" name="L681" href="#L681">681</a>             }
 <a class="jxr_linenumber" name="L682" href="#L682">682</a> 
-<a class="jxr_linenumber" name="L683" href="#L683">683</a>             <em class="jxr_comment">// Execute main run of makeself.sh</em>
-<a class="jxr_linenumber" name="L684" href="#L684">684</a>             getLog().debug(<span class="jxr_string">"Execute Makeself Build"</span>);
-<a class="jxr_linenumber" name="L685" href="#L685">685</a>             execute(target, ATTACH_ARTIFACT);
-<a class="jxr_linenumber" name="L686" href="#L686">686</a> 
-<a class="jxr_linenumber" name="L687" href="#L687">687</a>             <em class="jxr_comment">// Output info on file makeself created</em>
-<a class="jxr_linenumber" name="L688" href="#L688">688</a>             getLog().debug(<span class="jxr_string">"Execute Makeself Info on Resulting Shell Script"</span>);
-<a class="jxr_linenumber" name="L689" href="#L689">689</a>             execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, buildTarget.concat(fileName), <span class="jxr_string">"--info"</span>), !ATTACH_ARTIFACT);
-<a class="jxr_linenumber" name="L690" href="#L690">690</a> 
-<a class="jxr_linenumber" name="L691" href="#L691">691</a>             <em class="jxr_comment">// Output list on file makeself created (non windows need)</em>
-<a class="jxr_linenumber" name="L692" href="#L692">692</a>             <strong class="jxr_keyword">if</strong> (!MakeselfMojo.WINDOWS) {
-<a class="jxr_linenumber" name="L693" href="#L693">693</a>                 getLog().debug(<span class="jxr_string">"Execute Makeself List on Resulting Shell Script"</span>);
-<a class="jxr_linenumber" name="L694" href="#L694">694</a>                 execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, buildTarget.concat(fileName), <span class="jxr_string">"--list"</span>), !ATTACH_ARTIFACT);
-<a class="jxr_linenumber" name="L695" href="#L695">695</a>             }
-<a class="jxr_linenumber" name="L696" href="#L696">696</a> 
-<a class="jxr_linenumber" name="L697" href="#L697">697</a>             <em class="jxr_comment">// auto run script</em>
-<a class="jxr_linenumber" name="L698" href="#L698">698</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.autoRun) {
-<a class="jxr_linenumber" name="L699" href="#L699">699</a>                 getLog().info(<span class="jxr_string">"Auto-run created shell (this may take a few minutes)"</span>);
-<a class="jxr_linenumber" name="L700" href="#L700">700</a>                 execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, buildTarget.concat(fileName)), !ATTACH_ARTIFACT);
-<a class="jxr_linenumber" name="L701" href="#L701">701</a>             }
-<a class="jxr_linenumber" name="L702" href="#L702">702</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L703" href="#L703">703</a>             getLog().error(<span class="jxr_string">""</span>, e);
-<a class="jxr_linenumber" name="L704" href="#L704">704</a>         } <strong class="jxr_keyword">catch</strong> (InterruptedException e) {
-<a class="jxr_linenumber" name="L705" href="#L705">705</a>             getLog().error(<span class="jxr_string">""</span>, e);
-<a class="jxr_linenumber" name="L706" href="#L706">706</a>             <em class="jxr_comment">// restore interruption status of the corresponding thread</em>
-<a class="jxr_linenumber" name="L707" href="#L707">707</a>             Thread.currentThread().interrupt();
-<a class="jxr_linenumber" name="L708" href="#L708">708</a>         }
-<a class="jxr_linenumber" name="L709" href="#L709">709</a>     }
-<a class="jxr_linenumber" name="L710" href="#L710">710</a> 
-<a class="jxr_linenumber" name="L711" href="#L711">711</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> execute(List&lt;String&gt; target, <strong class="jxr_keyword">boolean</strong> attach) <strong class="jxr_keyword">throws</strong> IOException, InterruptedException {
-<a class="jxr_linenumber" name="L712" href="#L712">712</a> 
-<a class="jxr_linenumber" name="L713" href="#L713">713</a>         <em class="jxr_comment">// Log execution target</em>
-<a class="jxr_linenumber" name="L714" href="#L714">714</a>         getLog().debug(<span class="jxr_string">"Execution commands: "</span> + target);
+<a class="jxr_linenumber" name="L683" href="#L683">683</a>             <em class="jxr_comment">// Indicate makeself running</em>
+<a class="jxr_linenumber" name="L684" href="#L684">684</a>             getLog().info(<span class="jxr_string">"Running makeself build"</span>);
+<a class="jxr_linenumber" name="L685" href="#L685">685</a> 
+<a class="jxr_linenumber" name="L686" href="#L686">686</a>             <em class="jxr_comment">// Execute main run of makeself.sh</em>
+<a class="jxr_linenumber" name="L687" href="#L687">687</a>             getLog().debug(<span class="jxr_string">"Execute Makeself Build"</span>);
+<a class="jxr_linenumber" name="L688" href="#L688">688</a>             execute(target, ATTACH_ARTIFACT);
+<a class="jxr_linenumber" name="L689" href="#L689">689</a> 
+<a class="jxr_linenumber" name="L690" href="#L690">690</a>             <em class="jxr_comment">// Output info on file makeself created</em>
+<a class="jxr_linenumber" name="L691" href="#L691">691</a>             getLog().debug(<span class="jxr_string">"Execute Makeself Info on Resulting Shell Script"</span>);
+<a class="jxr_linenumber" name="L692" href="#L692">692</a>             execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, buildTarget.concat(fileName), <span class="jxr_string">"--info"</span>), !ATTACH_ARTIFACT);
+<a class="jxr_linenumber" name="L693" href="#L693">693</a> 
+<a class="jxr_linenumber" name="L694" href="#L694">694</a>             <em class="jxr_comment">// Output list on file makeself created (non windows need)</em>
+<a class="jxr_linenumber" name="L695" href="#L695">695</a>             <strong class="jxr_keyword">if</strong> (!MakeselfMojo.WINDOWS) {
+<a class="jxr_linenumber" name="L696" href="#L696">696</a>                 getLog().debug(<span class="jxr_string">"Execute Makeself List on Resulting Shell Script"</span>);
+<a class="jxr_linenumber" name="L697" href="#L697">697</a>                 execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, buildTarget.concat(fileName), <span class="jxr_string">"--list"</span>), !ATTACH_ARTIFACT);
+<a class="jxr_linenumber" name="L698" href="#L698">698</a>             }
+<a class="jxr_linenumber" name="L699" href="#L699">699</a> 
+<a class="jxr_linenumber" name="L700" href="#L700">700</a>             <em class="jxr_comment">// auto run script</em>
+<a class="jxr_linenumber" name="L701" href="#L701">701</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.autoRun) {
+<a class="jxr_linenumber" name="L702" href="#L702">702</a>                 getLog().info(<span class="jxr_string">"Auto-run created shell (this may take a few minutes)"</span>);
+<a class="jxr_linenumber" name="L703" href="#L703">703</a>                 execute(Arrays.asList(gitPath + <span class="jxr_string">"bash"</span>, buildTarget.concat(fileName)), !ATTACH_ARTIFACT);
+<a class="jxr_linenumber" name="L704" href="#L704">704</a>             }
+<a class="jxr_linenumber" name="L705" href="#L705">705</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L706" href="#L706">706</a>             getLog().error(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L707" href="#L707">707</a>         } <strong class="jxr_keyword">catch</strong> (InterruptedException e) {
+<a class="jxr_linenumber" name="L708" href="#L708">708</a>             getLog().error(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L709" href="#L709">709</a>             <em class="jxr_comment">// restore interruption status of the corresponding thread</em>
+<a class="jxr_linenumber" name="L710" href="#L710">710</a>             Thread.currentThread().interrupt();
+<a class="jxr_linenumber" name="L711" href="#L711">711</a>         }
+<a class="jxr_linenumber" name="L712" href="#L712">712</a>     }
+<a class="jxr_linenumber" name="L713" href="#L713">713</a> 
+<a class="jxr_linenumber" name="L714" href="#L714">714</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> execute(List&lt;String&gt; target, <strong class="jxr_keyword">boolean</strong> attach) <strong class="jxr_keyword">throws</strong> IOException, InterruptedException {
 <a class="jxr_linenumber" name="L715" href="#L715">715</a> 
-<a class="jxr_linenumber" name="L716" href="#L716">716</a>         <em class="jxr_comment">// Create Process Builder</em>
-<a class="jxr_linenumber" name="L717" href="#L717">717</a>         ProcessBuilder processBuilder = <strong class="jxr_keyword">new</strong> ProcessBuilder(target);
-<a class="jxr_linenumber" name="L718" href="#L718">718</a>         processBuilder.redirectErrorStream(<strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L719" href="#L719">719</a> 
-<a class="jxr_linenumber" name="L720" href="#L720">720</a>         <em class="jxr_comment">// Add portable git to windows environment</em>
-<a class="jxr_linenumber" name="L721" href="#L721">721</a>         <strong class="jxr_keyword">if</strong> (MakeselfMojo.WINDOWS) {
-<a class="jxr_linenumber" name="L722" href="#L722">722</a>             Map&lt;String, String&gt; envs = processBuilder.environment();
-<a class="jxr_linenumber" name="L723" href="#L723">723</a>             getLog().debug(<span class="jxr_string">"Environment Variables: "</span> + envs);
-<a class="jxr_linenumber" name="L724" href="#L724">724</a> 
-<a class="jxr_linenumber" name="L725" href="#L725">725</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.portableGit == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L726" href="#L726">726</a>                 <em class="jxr_comment">// Helper as git located in provided location (not real user or system path, just the process)</em>
-<a class="jxr_linenumber" name="L727" href="#L727">727</a>                 <strong class="jxr_keyword">final</strong> String location = gitPath;
-<a class="jxr_linenumber" name="L728" href="#L728">728</a>                 <em class="jxr_comment">// Windows cmd/powershell shows "Path" in this case</em>
-<a class="jxr_linenumber" name="L729" href="#L729">729</a>                 <strong class="jxr_keyword">if</strong> (envs.get(<span class="jxr_string">"Path"</span>) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L730" href="#L730">730</a>                     envs.put(<span class="jxr_string">"Path"</span>, location + <span class="jxr_string">";"</span> + envs.get(<span class="jxr_string">"Path"</span>));
-<a class="jxr_linenumber" name="L731" href="#L731">731</a>                     getLog().debug(<span class="jxr_string">"Environment Path Variable: "</span> + envs.get(<span class="jxr_string">"Path"</span>));
-<a class="jxr_linenumber" name="L732" href="#L732">732</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (envs.get(<span class="jxr_string">"PATH"</span>) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L733" href="#L733">733</a>                     <em class="jxr_comment">// Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'</em>
-<a class="jxr_linenumber" name="L734" href="#L734">734</a>                     envs.put(<span class="jxr_string">"PATH"</span>, location + <span class="jxr_string">";"</span> + envs.get(<span class="jxr_string">"PATH"</span>).replace(<span class="jxr_string">"Program Files"</span>, <span class="jxr_string">"\&quot;Program Files\&quot;"</span>));
-<a class="jxr_linenumber" name="L735" href="#L735">735</a>                     getLog().debug(<span class="jxr_string">"Environment Path Variable: "</span> + envs.get(<span class="jxr_string">"PATH"</span>));
-<a class="jxr_linenumber" name="L736" href="#L736">736</a>                 }
-<a class="jxr_linenumber" name="L737" href="#L737">737</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L738" href="#L738">738</a>                 <em class="jxr_comment">// Helper as portable git located in .m2 (not real user or system path, just the process)</em>
-<a class="jxr_linenumber" name="L739" href="#L739">739</a>                 <strong class="jxr_keyword">final</strong> String location = repoSession.getLocalRepository().getBasedir() + File.separator
-<a class="jxr_linenumber" name="L740" href="#L740">740</a>                         + <strong class="jxr_keyword">this</strong>.portableGit.getName() + File.separator + <strong class="jxr_keyword">this</strong>.portableGit.getVersion();
-<a class="jxr_linenumber" name="L741" href="#L741">741</a>                 <em class="jxr_comment">// Windows cmd/powershell shows "Path" in this case</em>
-<a class="jxr_linenumber" name="L742" href="#L742">742</a>                 <strong class="jxr_keyword">if</strong> (envs.get(<span class="jxr_string">"Path"</span>) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L743" href="#L743">743</a>                     envs.put(<span class="jxr_string">"Path"</span>, location + <span class="jxr_string">"/usr/bin;"</span> + envs.get(<span class="jxr_string">"Path"</span>));
-<a class="jxr_linenumber" name="L744" href="#L744">744</a>                     getLog().debug(<span class="jxr_string">"Environment Path Variable: "</span> + envs.get(<span class="jxr_string">"Path"</span>));
-<a class="jxr_linenumber" name="L745" href="#L745">745</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (envs.get(<span class="jxr_string">"PATH"</span>) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L746" href="#L746">746</a>                     <em class="jxr_comment">// Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'</em>
-<a class="jxr_linenumber" name="L747" href="#L747">747</a>                     envs.put(<span class="jxr_string">"PATH"</span>,
-<a class="jxr_linenumber" name="L748" href="#L748">748</a>                             location + <span class="jxr_string">"/usr/bin;"</span> + envs.get(<span class="jxr_string">"PATH"</span>).replace(<span class="jxr_string">"Program Files"</span>, <span class="jxr_string">"\&quot;Program Files\&quot;"</span>));
-<a class="jxr_linenumber" name="L749" href="#L749">749</a>                     getLog().debug(<span class="jxr_string">"Environment Path Variable: "</span> + envs.get(<span class="jxr_string">"PATH"</span>));
-<a class="jxr_linenumber" name="L750" href="#L750">750</a>                 }
-<a class="jxr_linenumber" name="L751" href="#L751">751</a>             }
-<a class="jxr_linenumber" name="L752" href="#L752">752</a>         }
-<a class="jxr_linenumber" name="L753" href="#L753">753</a> 
-<a class="jxr_linenumber" name="L754" href="#L754">754</a>         <em class="jxr_comment">// Create Process</em>
-<a class="jxr_linenumber" name="L755" href="#L755">755</a>         Process process = processBuilder.start();
+<a class="jxr_linenumber" name="L716" href="#L716">716</a>         <em class="jxr_comment">// Log execution target</em>
+<a class="jxr_linenumber" name="L717" href="#L717">717</a>         getLog().debug(<span class="jxr_string">"Execution commands: "</span> + target);
+<a class="jxr_linenumber" name="L718" href="#L718">718</a> 
+<a class="jxr_linenumber" name="L719" href="#L719">719</a>         <em class="jxr_comment">// Create Process Builder</em>
+<a class="jxr_linenumber" name="L720" href="#L720">720</a>         ProcessBuilder processBuilder = <strong class="jxr_keyword">new</strong> ProcessBuilder(target);
+<a class="jxr_linenumber" name="L721" href="#L721">721</a>         processBuilder.redirectErrorStream(<strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L722" href="#L722">722</a> 
+<a class="jxr_linenumber" name="L723" href="#L723">723</a>         <em class="jxr_comment">// Add portable git to windows environment</em>
+<a class="jxr_linenumber" name="L724" href="#L724">724</a>         <strong class="jxr_keyword">if</strong> (MakeselfMojo.WINDOWS) {
+<a class="jxr_linenumber" name="L725" href="#L725">725</a>             Map&lt;String, String&gt; envs = processBuilder.environment();
+<a class="jxr_linenumber" name="L726" href="#L726">726</a>             getLog().debug(<span class="jxr_string">"Environment Variables: "</span> + envs);
+<a class="jxr_linenumber" name="L727" href="#L727">727</a> 
+<a class="jxr_linenumber" name="L728" href="#L728">728</a>             <strong class="jxr_keyword">if</strong> (<strong class="jxr_keyword">this</strong>.portableGit == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L729" href="#L729">729</a>                 <em class="jxr_comment">// Helper as git located in provided location (not real user or system path, just the process)</em>
+<a class="jxr_linenumber" name="L730" href="#L730">730</a>                 <strong class="jxr_keyword">final</strong> String location = gitPath;
+<a class="jxr_linenumber" name="L731" href="#L731">731</a>                 <em class="jxr_comment">// Windows cmd/powershell shows "Path" in this case</em>
+<a class="jxr_linenumber" name="L732" href="#L732">732</a>                 <strong class="jxr_keyword">if</strong> (envs.get(<span class="jxr_string">"Path"</span>) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L733" href="#L733">733</a>                     envs.put(<span class="jxr_string">"Path"</span>, location + <span class="jxr_string">";"</span> + envs.get(<span class="jxr_string">"Path"</span>));
+<a class="jxr_linenumber" name="L734" href="#L734">734</a>                     getLog().debug(<span class="jxr_string">"Environment Path Variable: "</span> + envs.get(<span class="jxr_string">"Path"</span>));
+<a class="jxr_linenumber" name="L735" href="#L735">735</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (envs.get(<span class="jxr_string">"PATH"</span>) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L736" href="#L736">736</a>                     <em class="jxr_comment">// Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'</em>
+<a class="jxr_linenumber" name="L737" href="#L737">737</a>                     envs.put(<span class="jxr_string">"PATH"</span>, location + <span class="jxr_string">";"</span> + envs.get(<span class="jxr_string">"PATH"</span>).replace(<span class="jxr_string">"Program Files"</span>, <span class="jxr_string">"\&quot;Program Files\&quot;"</span>));
+<a class="jxr_linenumber" name="L738" href="#L738">738</a>                     getLog().debug(<span class="jxr_string">"Environment Path Variable: "</span> + envs.get(<span class="jxr_string">"PATH"</span>));
+<a class="jxr_linenumber" name="L739" href="#L739">739</a>                 }
+<a class="jxr_linenumber" name="L740" href="#L740">740</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L741" href="#L741">741</a>                 <em class="jxr_comment">// Helper as portable git located in .m2 (not real user or system path, just the process)</em>
+<a class="jxr_linenumber" name="L742" href="#L742">742</a>                 <strong class="jxr_keyword">final</strong> String location = repoSession.getLocalRepository().getBasedir() + File.separator
+<a class="jxr_linenumber" name="L743" href="#L743">743</a>                         + <strong class="jxr_keyword">this</strong>.portableGit.getName() + File.separator + <strong class="jxr_keyword">this</strong>.portableGit.getVersion();
+<a class="jxr_linenumber" name="L744" href="#L744">744</a>                 <em class="jxr_comment">// Windows cmd/powershell shows "Path" in this case</em>
+<a class="jxr_linenumber" name="L745" href="#L745">745</a>                 <strong class="jxr_keyword">if</strong> (envs.get(<span class="jxr_string">"Path"</span>) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L746" href="#L746">746</a>                     envs.put(<span class="jxr_string">"Path"</span>, location + <span class="jxr_string">"/usr/bin;"</span> + envs.get(<span class="jxr_string">"Path"</span>));
+<a class="jxr_linenumber" name="L747" href="#L747">747</a>                     getLog().debug(<span class="jxr_string">"Environment Path Variable: "</span> + envs.get(<span class="jxr_string">"Path"</span>));
+<a class="jxr_linenumber" name="L748" href="#L748">748</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (envs.get(<span class="jxr_string">"PATH"</span>) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L749" href="#L749">749</a>                     <em class="jxr_comment">// Windows bash shows "PATH" in this case and has issues with spacing as in 'Program Files'</em>
+<a class="jxr_linenumber" name="L750" href="#L750">750</a>                     envs.put(<span class="jxr_string">"PATH"</span>,
+<a class="jxr_linenumber" name="L751" href="#L751">751</a>                             location + <span class="jxr_string">"/usr/bin;"</span> + envs.get(<span class="jxr_string">"PATH"</span>).replace(<span class="jxr_string">"Program Files"</span>, <span class="jxr_string">"\&quot;Program Files\&quot;"</span>));
+<a class="jxr_linenumber" name="L752" href="#L752">752</a>                     getLog().debug(<span class="jxr_string">"Environment Path Variable: "</span> + envs.get(<span class="jxr_string">"PATH"</span>));
+<a class="jxr_linenumber" name="L753" href="#L753">753</a>                 }
+<a class="jxr_linenumber" name="L754" href="#L754">754</a>             }
+<a class="jxr_linenumber" name="L755" href="#L755">755</a>         }
 <a class="jxr_linenumber" name="L756" href="#L756">756</a> 
-<a class="jxr_linenumber" name="L757" href="#L757">757</a>         <em class="jxr_comment">// Write process output</em>
-<a class="jxr_linenumber" name="L758" href="#L758">758</a>         <strong class="jxr_keyword">try</strong> (BufferedReader reader = <strong class="jxr_keyword">new</strong> BufferedReader(
-<a class="jxr_linenumber" name="L759" href="#L759">759</a>                 <strong class="jxr_keyword">new</strong> InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
-<a class="jxr_linenumber" name="L760" href="#L760">760</a>             String line = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L761" href="#L761">761</a>             <strong class="jxr_keyword">while</strong> ((line = reader.readLine()) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L762" href="#L762">762</a>                 getLog().info(line);
-<a class="jxr_linenumber" name="L763" href="#L763">763</a>             }
-<a class="jxr_linenumber" name="L764" href="#L764">764</a>             getLog().info(<span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L765" href="#L765">765</a>         }
-<a class="jxr_linenumber" name="L766" href="#L766">766</a> 
-<a class="jxr_linenumber" name="L767" href="#L767">767</a>         <em class="jxr_comment">// Wait for process completion</em>
-<a class="jxr_linenumber" name="L768" href="#L768">768</a>         <strong class="jxr_keyword">int</strong> status = process.waitFor();
-<a class="jxr_linenumber" name="L769" href="#L769">769</a>         <strong class="jxr_keyword">if</strong> (status &gt; 0) {
-<a class="jxr_linenumber" name="L770" href="#L770">770</a>             getLog().error(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"makeself failed with error status:"</span>, String.valueOf(status)));
-<a class="jxr_linenumber" name="L771" href="#L771">771</a>         }
-<a class="jxr_linenumber" name="L772" href="#L772">772</a> 
-<a class="jxr_linenumber" name="L773" href="#L773">773</a>         <em class="jxr_comment">// Attach artifact to maven build for install/deploy/release on success</em>
-<a class="jxr_linenumber" name="L774" href="#L774">774</a>         <strong class="jxr_keyword">if</strong> (status == 0 &amp;&amp; attach) {
-<a class="jxr_linenumber" name="L775" href="#L775">775</a>             projectHelper.attachArtifact(project, <strong class="jxr_keyword">this</strong>.extension, <strong class="jxr_keyword">this</strong>.classifier,
-<a class="jxr_linenumber" name="L776" href="#L776">776</a>                     Path.of(buildTarget, FilenameUtils.getName(fileName)).toFile());
-<a class="jxr_linenumber" name="L777" href="#L777">777</a>         }
-<a class="jxr_linenumber" name="L778" href="#L778">778</a>     }
-<a class="jxr_linenumber" name="L779" href="#L779">779</a> 
-<a class="jxr_linenumber" name="L780" href="#L780">780</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L781" href="#L781">781</a> <em class="jxr_javadoccomment">     * Extract makeself.</em>
-<a class="jxr_linenumber" name="L782" href="#L782">782</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L783" href="#L783">783</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> extractMakeself() {
-<a class="jxr_linenumber" name="L784" href="#L784">784</a>         getLog().debug(<span class="jxr_string">"Extracting Makeself"</span>);
-<a class="jxr_linenumber" name="L785" href="#L785">785</a> 
-<a class="jxr_linenumber" name="L786" href="#L786">786</a>         <em class="jxr_comment">// Create makeself directory</em>
-<a class="jxr_linenumber" name="L787" href="#L787">787</a>         Path makeselfTemp = Path.of(makeselfTempDirectory.getAbsolutePath());
-<a class="jxr_linenumber" name="L788" href="#L788">788</a>         <strong class="jxr_keyword">if</strong> (!Files.exists(makeselfTemp) &amp;&amp; !makeselfTemp.toFile().mkdirs()) {
-<a class="jxr_linenumber" name="L789" href="#L789">789</a>             getLog().error(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Unable to make directory"</span>, makeselfTempDirectory.getAbsolutePath()));
-<a class="jxr_linenumber" name="L790" href="#L790">790</a>             <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L791" href="#L791">791</a>         }
-<a class="jxr_linenumber" name="L792" href="#L792">792</a>         getLog().debug(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Created directory for"</span>, makeselfTempDirectory.getAbsolutePath()));
-<a class="jxr_linenumber" name="L793" href="#L793">793</a> 
-<a class="jxr_linenumber" name="L794" href="#L794">794</a>         ClassLoader classloader = <strong class="jxr_keyword">this</strong>.getClass().getClassLoader();
-<a class="jxr_linenumber" name="L795" href="#L795">795</a> 
-<a class="jxr_linenumber" name="L796" href="#L796">796</a>         <em class="jxr_comment">// Write makeself script</em>
-<a class="jxr_linenumber" name="L797" href="#L797">797</a>         makeself = makeselfTempDirectory.toPath().resolve(<span class="jxr_string">"makeself.sh"</span>);
-<a class="jxr_linenumber" name="L798" href="#L798">798</a>         <strong class="jxr_keyword">if</strong> (!Files.exists(makeself)) {
-<a class="jxr_linenumber" name="L799" href="#L799">799</a>             getLog().debug(<span class="jxr_string">"Writing makeself.sh"</span>);
-<a class="jxr_linenumber" name="L800" href="#L800">800</a>             <strong class="jxr_keyword">try</strong> (InputStream link = classloader.getResourceAsStream(<span class="jxr_string">"META-INF/makeself/makeself.sh"</span>)) {
-<a class="jxr_linenumber" name="L801" href="#L801">801</a>                 Path path = makeself.toAbsolutePath();
-<a class="jxr_linenumber" name="L802" href="#L802">802</a>                 Files.copy(link, path);
-<a class="jxr_linenumber" name="L803" href="#L803">803</a>                 setFilePermissions(makeself.toFile());
-<a class="jxr_linenumber" name="L804" href="#L804">804</a>                 setPosixFilePermissions(path);
-<a class="jxr_linenumber" name="L805" href="#L805">805</a>             } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L806" href="#L806">806</a>                 getLog().error(<span class="jxr_string">""</span>, e);
-<a class="jxr_linenumber" name="L807" href="#L807">807</a>             }
-<a class="jxr_linenumber" name="L808" href="#L808">808</a>         }
-<a class="jxr_linenumber" name="L809" href="#L809">809</a> 
-<a class="jxr_linenumber" name="L810" href="#L810">810</a>         <em class="jxr_comment">// Write makeself-header script</em>
-<a class="jxr_linenumber" name="L811" href="#L811">811</a>         Path makeselfHeader = makeselfTempDirectory.toPath().resolve(<span class="jxr_string">"makeself-header.sh"</span>);
-<a class="jxr_linenumber" name="L812" href="#L812">812</a>         <strong class="jxr_keyword">if</strong> (!Files.exists(makeselfHeader)) {
-<a class="jxr_linenumber" name="L813" href="#L813">813</a>             getLog().debug(<span class="jxr_string">"Writing makeself-header.sh"</span>);
-<a class="jxr_linenumber" name="L814" href="#L814">814</a>             <strong class="jxr_keyword">try</strong> (InputStream link = classloader.getResourceAsStream(<span class="jxr_string">"META-INF/makeself/makeself-header.sh"</span>)) {
-<a class="jxr_linenumber" name="L815" href="#L815">815</a>                 Path path = makeselfHeader.toAbsolutePath();
-<a class="jxr_linenumber" name="L816" href="#L816">816</a>                 Files.copy(link, path);
-<a class="jxr_linenumber" name="L817" href="#L817">817</a>                 setFilePermissions(makeselfHeader.toFile());
-<a class="jxr_linenumber" name="L818" href="#L818">818</a>                 setPosixFilePermissions(path);
-<a class="jxr_linenumber" name="L819" href="#L819">819</a>             } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L820" href="#L820">820</a>                 getLog().error(<span class="jxr_string">""</span>, e);
-<a class="jxr_linenumber" name="L821" href="#L821">821</a>             }
-<a class="jxr_linenumber" name="L822" href="#L822">822</a>         }
-<a class="jxr_linenumber" name="L823" href="#L823">823</a>     }
-<a class="jxr_linenumber" name="L824" href="#L824">824</a> 
-<a class="jxr_linenumber" name="L825" href="#L825">825</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L826" href="#L826">826</a> <em class="jxr_javadoccomment">     * Check Git Setup.</em>
-<a class="jxr_linenumber" name="L827" href="#L827">827</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L828" href="#L828">828</a> <em class="jxr_javadoccomment">     * @throws MojoFailureException</em>
-<a class="jxr_linenumber" name="L829" href="#L829">829</a> <em class="jxr_javadoccomment">     *             the mojo failure exception</em>
-<a class="jxr_linenumber" name="L830" href="#L830">830</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L831" href="#L831">831</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> checkGitSetup() <strong class="jxr_keyword">throws</strong> MojoFailureException {
-<a class="jxr_linenumber" name="L832" href="#L832">832</a>         <em class="jxr_comment">// Get Portable Git Maven Information</em>
-<a class="jxr_linenumber" name="L833" href="#L833">833</a>         <strong class="jxr_keyword">this</strong>.portableGit = <strong class="jxr_keyword">new</strong> <a name="PortableGit" href="../../../../com/hazendaz/maven/makeself/PortableGit.html#PortableGit">PortableGit</a>(getLog());
-<a class="jxr_linenumber" name="L834" href="#L834">834</a> 
-<a class="jxr_linenumber" name="L835" href="#L835">835</a>         <em class="jxr_comment">// Extract Portable Git</em>
-<a class="jxr_linenumber" name="L836" href="#L836">836</a>         <strong class="jxr_keyword">this</strong>.extractPortableGit();
-<a class="jxr_linenumber" name="L837" href="#L837">837</a>     }
-<a class="jxr_linenumber" name="L838" href="#L838">838</a> 
-<a class="jxr_linenumber" name="L839" href="#L839">839</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L840" href="#L840">840</a> <em class="jxr_javadoccomment">     * Extract Portable Git.</em>
-<a class="jxr_linenumber" name="L841" href="#L841">841</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L842" href="#L842">842</a> <em class="jxr_javadoccomment">     * @throws MojoFailureException</em>
-<a class="jxr_linenumber" name="L843" href="#L843">843</a> <em class="jxr_javadoccomment">     *             failure retrieving portable git</em>
-<a class="jxr_linenumber" name="L844" href="#L844">844</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L845" href="#L845">845</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> extractPortableGit() <strong class="jxr_keyword">throws</strong> MojoFailureException {
-<a class="jxr_linenumber" name="L846" href="#L846">846</a>         <strong class="jxr_keyword">final</strong> String location = repoSession.getLocalRepository().getBasedir() + File.separator
-<a class="jxr_linenumber" name="L847" href="#L847">847</a>                 + <strong class="jxr_keyword">this</strong>.portableGit.getName() + File.separator + <strong class="jxr_keyword">this</strong>.portableGit.getVersion();
-<a class="jxr_linenumber" name="L848" href="#L848">848</a>         <strong class="jxr_keyword">if</strong> (Files.exists(Path.of(location))) {
-<a class="jxr_linenumber" name="L849" href="#L849">849</a>             getLog().debug(<span class="jxr_string">"Existing 'PortableGit' folder found at "</span> + location);
-<a class="jxr_linenumber" name="L850" href="#L850">850</a>             gitPath = location + GIT_USER_BIN;
-<a class="jxr_linenumber" name="L851" href="#L851">851</a>             <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L852" href="#L852">852</a>         }
-<a class="jxr_linenumber" name="L853" href="#L853">853</a> 
-<a class="jxr_linenumber" name="L854" href="#L854">854</a>         getLog().info(<span class="jxr_string">"Loading portable git"</span>);
-<a class="jxr_linenumber" name="L855" href="#L855">855</a>         <strong class="jxr_keyword">final</strong> Artifact artifact = <strong class="jxr_keyword">new</strong> DefaultArtifact(<strong class="jxr_keyword">this</strong>.portableGit.getGroupId(), <strong class="jxr_keyword">this</strong>.portableGit.getArtifactId(),
-<a class="jxr_linenumber" name="L856" href="#L856">856</a>                 <strong class="jxr_keyword">this</strong>.portableGit.getClassifier(), <strong class="jxr_keyword">this</strong>.portableGit.getExtension(), <strong class="jxr_keyword">this</strong>.portableGit.getVersion());
-<a class="jxr_linenumber" name="L857" href="#L857">857</a>         <strong class="jxr_keyword">final</strong> ArtifactRequest artifactRequest = <strong class="jxr_keyword">new</strong> ArtifactRequest().setRepositories(<strong class="jxr_keyword">this</strong>.remoteRepositories)
-<a class="jxr_linenumber" name="L858" href="#L858">858</a>                 .setArtifact(artifact);
-<a class="jxr_linenumber" name="L859" href="#L859">859</a>         ArtifactResult resolutionResult = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L860" href="#L860">860</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L861" href="#L861">861</a>             resolutionResult = repositorySystem.resolveArtifact(repoSession, artifactRequest);
-<a class="jxr_linenumber" name="L862" href="#L862">862</a>             <strong class="jxr_keyword">if</strong> (!resolutionResult.isResolved()) {
-<a class="jxr_linenumber" name="L863" href="#L863">863</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoFailureException(<span class="jxr_string">"Unable to resolve artifact: "</span> + artifact.getGroupId() + <span class="jxr_string">":"</span>
-<a class="jxr_linenumber" name="L864" href="#L864">864</a>                         + artifact.getArtifactId() + <span class="jxr_string">":"</span> + artifact.getVersion() + <span class="jxr_string">":"</span> + artifact.getClassifier() + <span class="jxr_string">":"</span>
-<a class="jxr_linenumber" name="L865" href="#L865">865</a>                         + artifact.getExtension());
-<a class="jxr_linenumber" name="L866" href="#L866">866</a>             }
-<a class="jxr_linenumber" name="L867" href="#L867">867</a>         } <strong class="jxr_keyword">catch</strong> (ArtifactResolutionException e) {
-<a class="jxr_linenumber" name="L868" href="#L868">868</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoFailureException(
-<a class="jxr_linenumber" name="L869" href="#L869">869</a>                     <span class="jxr_string">"Unable to resolve artifact: "</span> + artifact.getGroupId() + <span class="jxr_string">":"</span> + artifact.getArtifactId() + <span class="jxr_string">":"</span>
-<a class="jxr_linenumber" name="L870" href="#L870">870</a>                             + artifact.getVersion() + <span class="jxr_string">":"</span> + artifact.getClassifier() + <span class="jxr_string">":"</span> + artifact.getExtension());
-<a class="jxr_linenumber" name="L871" href="#L871">871</a>         }
-<a class="jxr_linenumber" name="L872" href="#L872">872</a>         <strong class="jxr_keyword">this</strong>.installGit(resolutionResult.getArtifact(), location);
-<a class="jxr_linenumber" name="L873" href="#L873">873</a>     }
-<a class="jxr_linenumber" name="L874" href="#L874">874</a> 
-<a class="jxr_linenumber" name="L875" href="#L875">875</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L876" href="#L876">876</a> <em class="jxr_javadoccomment">     * Install Git extracts git to .m2/repository under PortableGit.</em>
-<a class="jxr_linenumber" name="L877" href="#L877">877</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L878" href="#L878">878</a> <em class="jxr_javadoccomment">     * @param artifact</em>
-<a class="jxr_linenumber" name="L879" href="#L879">879</a> <em class="jxr_javadoccomment">     *            the maven artifact representation for git</em>
-<a class="jxr_linenumber" name="L880" href="#L880">880</a> <em class="jxr_javadoccomment">     * @param location</em>
-<a class="jxr_linenumber" name="L881" href="#L881">881</a> <em class="jxr_javadoccomment">     *            the location in maven repository to store portable git</em>
-<a class="jxr_linenumber" name="L882" href="#L882">882</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L883" href="#L883">883</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> installGit(<strong class="jxr_keyword">final</strong> Artifact artifact, <strong class="jxr_keyword">final</strong> String location) {
-<a class="jxr_linenumber" name="L884" href="#L884">884</a>         Path currentFile = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L885" href="#L885">885</a> 
-<a class="jxr_linenumber" name="L886" href="#L886">886</a>         <em class="jxr_comment">// Unzip 'git-for-windows-*-portable.tar.gz' from '.m2/repository/com/github/hazendaz/git/git-for-windows'</em>
-<a class="jxr_linenumber" name="L887" href="#L887">887</a>         <em class="jxr_comment">// into '.m2/repository/PortableGit'</em>
-<a class="jxr_linenumber" name="L888" href="#L888">888</a>         <strong class="jxr_keyword">try</strong> (InputStream inputStream = Files.newInputStream(artifact.getFile().toPath());
-<a class="jxr_linenumber" name="L889" href="#L889">889</a>                 InputStream bufferedStream = <strong class="jxr_keyword">new</strong> BufferedInputStream(inputStream);
-<a class="jxr_linenumber" name="L890" href="#L890">890</a>                 InputStream gzipStream = <strong class="jxr_keyword">new</strong> GzipCompressorInputStream(bufferedStream);
-<a class="jxr_linenumber" name="L891" href="#L891">891</a>                 ArchiveInputStream&lt;TarArchiveEntry&gt; tarStream = <strong class="jxr_keyword">new</strong> TarArchiveInputStream(gzipStream)) {
-<a class="jxr_linenumber" name="L892" href="#L892">892</a>             ArchiveEntry entry;
-<a class="jxr_linenumber" name="L893" href="#L893">893</a>             String directory = repoSession.getLocalRepository().getBasedir() + File.separator
-<a class="jxr_linenumber" name="L894" href="#L894">894</a>                     + <strong class="jxr_keyword">this</strong>.portableGit.getName();
-<a class="jxr_linenumber" name="L895" href="#L895">895</a>             <strong class="jxr_keyword">while</strong> ((entry = tarStream.getNextEntry()) != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L896" href="#L896">896</a>                 <strong class="jxr_keyword">if</strong> (entry.isDirectory()) {
-<a class="jxr_linenumber" name="L897" href="#L897">897</a>                     <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L898" href="#L898">898</a>                 }
-<a class="jxr_linenumber" name="L899" href="#L899">899</a>                 currentFile = Path.of(directory, entry.getName());
-<a class="jxr_linenumber" name="L900" href="#L900">900</a>                 <strong class="jxr_keyword">if</strong> (!currentFile.normalize().startsWith(directory)) {
-<a class="jxr_linenumber" name="L901" href="#L901">901</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Bad zip entry, possible directory traversal"</span>);
-<a class="jxr_linenumber" name="L902" href="#L902">902</a>                 }
-<a class="jxr_linenumber" name="L903" href="#L903">903</a>                 Path parent = currentFile.getParent();
-<a class="jxr_linenumber" name="L904" href="#L904">904</a>                 <strong class="jxr_keyword">if</strong> (!Files.exists(parent)) {
-<a class="jxr_linenumber" name="L905" href="#L905">905</a>                     Files.createDirectory(parent);
-<a class="jxr_linenumber" name="L906" href="#L906">906</a>                 }
-<a class="jxr_linenumber" name="L907" href="#L907">907</a>                 getLog().debug(<span class="jxr_string">"Current file: "</span> + currentFile.getFileName());
-<a class="jxr_linenumber" name="L908" href="#L908">908</a>                 Files.copy(tarStream, currentFile, StandardCopyOption.REPLACE_EXISTING);
-<a class="jxr_linenumber" name="L909" href="#L909">909</a>             }
-<a class="jxr_linenumber" name="L910" href="#L910">910</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L911" href="#L911">911</a>             getLog().error(<span class="jxr_string">""</span>, e);
-<a class="jxr_linenumber" name="L912" href="#L912">912</a>         }
-<a class="jxr_linenumber" name="L913" href="#L913">913</a> 
-<a class="jxr_linenumber" name="L914" href="#L914">914</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L915" href="#L915">915</a>             <strong class="jxr_keyword">if</strong> (currentFile != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L916" href="#L916">916</a>                 <em class="jxr_comment">// Extract Portable Git</em>
-<a class="jxr_linenumber" name="L917" href="#L917">917</a>                 getLog().debug(<span class="jxr_string">"Extract Portable Git"</span>);
-<a class="jxr_linenumber" name="L918" href="#L918">918</a>                 execute(Arrays.asList(currentFile.toString(), <span class="jxr_string">"-y"</span>, <span class="jxr_string">"-o"</span>, location), !ATTACH_ARTIFACT);
-<a class="jxr_linenumber" name="L919" href="#L919">919</a>                 gitPath = location + GIT_USER_BIN;
-<a class="jxr_linenumber" name="L920" href="#L920">920</a>             }
-<a class="jxr_linenumber" name="L921" href="#L921">921</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L922" href="#L922">922</a>             getLog().error(<span class="jxr_string">""</span>, e);
-<a class="jxr_linenumber" name="L923" href="#L923">923</a>         } <strong class="jxr_keyword">catch</strong> (InterruptedException e) {
-<a class="jxr_linenumber" name="L924" href="#L924">924</a>             getLog().error(<span class="jxr_string">""</span>, e);
-<a class="jxr_linenumber" name="L925" href="#L925">925</a>             <em class="jxr_comment">// restore interruption status of the corresponding thread</em>
-<a class="jxr_linenumber" name="L926" href="#L926">926</a>             Thread.currentThread().interrupt();
-<a class="jxr_linenumber" name="L927" href="#L927">927</a>         }
-<a class="jxr_linenumber" name="L928" href="#L928">928</a>     }
-<a class="jxr_linenumber" name="L929" href="#L929">929</a> 
-<a class="jxr_linenumber" name="L930" href="#L930">930</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> setFilePermissions(File file) {
-<a class="jxr_linenumber" name="L931" href="#L931">931</a>         <strong class="jxr_keyword">if</strong> (!file.setExecutable(<strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>)) {
-<a class="jxr_linenumber" name="L932" href="#L932">932</a>             getLog().error(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Unable to set executable:"</span>, file.getName()));
-<a class="jxr_linenumber" name="L933" href="#L933">933</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L934" href="#L934">934</a>             getLog().debug(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Set executable for"</span>, file.getName()));
-<a class="jxr_linenumber" name="L935" href="#L935">935</a>         }
-<a class="jxr_linenumber" name="L936" href="#L936">936</a>     }
-<a class="jxr_linenumber" name="L937" href="#L937">937</a> 
-<a class="jxr_linenumber" name="L938" href="#L938">938</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> setPosixFilePermissions(Path path) {
-<a class="jxr_linenumber" name="L939" href="#L939">939</a>         <strong class="jxr_keyword">final</strong> Set&lt;PosixFilePermission&gt; permissions = PosixFilePermissions.fromString(PERMISSIONS);
+<a class="jxr_linenumber" name="L757" href="#L757">757</a>         <em class="jxr_comment">// Create Process</em>
+<a class="jxr_linenumber" name="L758" href="#L758">758</a>         Process process = processBuilder.start();
+<a class="jxr_linenumber" name="L759" href="#L759">759</a> 
+<a class="jxr_linenumber" name="L760" href="#L760">760</a>         <em class="jxr_comment">// Write process output</em>
+<a class="jxr_linenumber" name="L761" href="#L761">761</a>         <strong class="jxr_keyword">try</strong> (BufferedReader reader = <strong class="jxr_keyword">new</strong> BufferedReader(
+<a class="jxr_linenumber" name="L762" href="#L762">762</a>                 <strong class="jxr_keyword">new</strong> InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+<a class="jxr_linenumber" name="L763" href="#L763">763</a>             String line = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L764" href="#L764">764</a>             <strong class="jxr_keyword">while</strong> ((line = reader.readLine()) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L765" href="#L765">765</a>                 getLog().info(line);
+<a class="jxr_linenumber" name="L766" href="#L766">766</a>             }
+<a class="jxr_linenumber" name="L767" href="#L767">767</a>             getLog().info(<span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L768" href="#L768">768</a>         }
+<a class="jxr_linenumber" name="L769" href="#L769">769</a> 
+<a class="jxr_linenumber" name="L770" href="#L770">770</a>         <em class="jxr_comment">// Wait for process completion</em>
+<a class="jxr_linenumber" name="L771" href="#L771">771</a>         <strong class="jxr_keyword">int</strong> status = process.waitFor();
+<a class="jxr_linenumber" name="L772" href="#L772">772</a>         <strong class="jxr_keyword">if</strong> (status &gt; 0) {
+<a class="jxr_linenumber" name="L773" href="#L773">773</a>             getLog().error(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"makeself failed with error status:"</span>, String.valueOf(status)));
+<a class="jxr_linenumber" name="L774" href="#L774">774</a>         }
+<a class="jxr_linenumber" name="L775" href="#L775">775</a> 
+<a class="jxr_linenumber" name="L776" href="#L776">776</a>         <em class="jxr_comment">// Attach artifact to maven build for install/deploy/release on success</em>
+<a class="jxr_linenumber" name="L777" href="#L777">777</a>         <strong class="jxr_keyword">if</strong> (status == 0 &amp;&amp; attach) {
+<a class="jxr_linenumber" name="L778" href="#L778">778</a>             projectHelper.attachArtifact(project, <strong class="jxr_keyword">this</strong>.extension, <strong class="jxr_keyword">this</strong>.classifier,
+<a class="jxr_linenumber" name="L779" href="#L779">779</a>                     Path.of(buildTarget, FilenameUtils.getName(fileName)).toFile());
+<a class="jxr_linenumber" name="L780" href="#L780">780</a>         }
+<a class="jxr_linenumber" name="L781" href="#L781">781</a>     }
+<a class="jxr_linenumber" name="L782" href="#L782">782</a> 
+<a class="jxr_linenumber" name="L783" href="#L783">783</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L784" href="#L784">784</a> <em class="jxr_javadoccomment">     * Extract makeself.</em>
+<a class="jxr_linenumber" name="L785" href="#L785">785</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L786" href="#L786">786</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> extractMakeself() {
+<a class="jxr_linenumber" name="L787" href="#L787">787</a>         getLog().debug(<span class="jxr_string">"Extracting Makeself"</span>);
+<a class="jxr_linenumber" name="L788" href="#L788">788</a> 
+<a class="jxr_linenumber" name="L789" href="#L789">789</a>         <em class="jxr_comment">// Create makeself directory</em>
+<a class="jxr_linenumber" name="L790" href="#L790">790</a>         Path makeselfTemp = Path.of(makeselfTempDirectory.getAbsolutePath());
+<a class="jxr_linenumber" name="L791" href="#L791">791</a>         <strong class="jxr_keyword">if</strong> (!Files.exists(makeselfTemp) &amp;&amp; !makeselfTemp.toFile().mkdirs()) {
+<a class="jxr_linenumber" name="L792" href="#L792">792</a>             getLog().error(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Unable to make directory"</span>, makeselfTempDirectory.getAbsolutePath()));
+<a class="jxr_linenumber" name="L793" href="#L793">793</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L794" href="#L794">794</a>         }
+<a class="jxr_linenumber" name="L795" href="#L795">795</a>         getLog().debug(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Created directory for"</span>, makeselfTempDirectory.getAbsolutePath()));
+<a class="jxr_linenumber" name="L796" href="#L796">796</a> 
+<a class="jxr_linenumber" name="L797" href="#L797">797</a>         ClassLoader classloader = <strong class="jxr_keyword">this</strong>.getClass().getClassLoader();
+<a class="jxr_linenumber" name="L798" href="#L798">798</a> 
+<a class="jxr_linenumber" name="L799" href="#L799">799</a>         <em class="jxr_comment">// Write makeself script</em>
+<a class="jxr_linenumber" name="L800" href="#L800">800</a>         makeself = makeselfTempDirectory.toPath().resolve(<span class="jxr_string">"makeself.sh"</span>);
+<a class="jxr_linenumber" name="L801" href="#L801">801</a>         <strong class="jxr_keyword">if</strong> (!Files.exists(makeself)) {
+<a class="jxr_linenumber" name="L802" href="#L802">802</a>             getLog().debug(<span class="jxr_string">"Writing makeself.sh"</span>);
+<a class="jxr_linenumber" name="L803" href="#L803">803</a>             <strong class="jxr_keyword">try</strong> (InputStream link = classloader.getResourceAsStream(<span class="jxr_string">"META-INF/makeself/makeself.sh"</span>)) {
+<a class="jxr_linenumber" name="L804" href="#L804">804</a>                 Path path = makeself.toAbsolutePath();
+<a class="jxr_linenumber" name="L805" href="#L805">805</a>                 Files.copy(link, path);
+<a class="jxr_linenumber" name="L806" href="#L806">806</a>                 setFilePermissions(makeself.toFile());
+<a class="jxr_linenumber" name="L807" href="#L807">807</a>                 setPosixFilePermissions(path);
+<a class="jxr_linenumber" name="L808" href="#L808">808</a>             } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L809" href="#L809">809</a>                 getLog().error(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L810" href="#L810">810</a>             }
+<a class="jxr_linenumber" name="L811" href="#L811">811</a>         }
+<a class="jxr_linenumber" name="L812" href="#L812">812</a> 
+<a class="jxr_linenumber" name="L813" href="#L813">813</a>         <em class="jxr_comment">// Write makeself-header script</em>
+<a class="jxr_linenumber" name="L814" href="#L814">814</a>         Path makeselfHeader = makeselfTempDirectory.toPath().resolve(<span class="jxr_string">"makeself-header.sh"</span>);
+<a class="jxr_linenumber" name="L815" href="#L815">815</a>         <strong class="jxr_keyword">if</strong> (!Files.exists(makeselfHeader)) {
+<a class="jxr_linenumber" name="L816" href="#L816">816</a>             getLog().debug(<span class="jxr_string">"Writing makeself-header.sh"</span>);
+<a class="jxr_linenumber" name="L817" href="#L817">817</a>             <strong class="jxr_keyword">try</strong> (InputStream link = classloader.getResourceAsStream(<span class="jxr_string">"META-INF/makeself/makeself-header.sh"</span>)) {
+<a class="jxr_linenumber" name="L818" href="#L818">818</a>                 Path path = makeselfHeader.toAbsolutePath();
+<a class="jxr_linenumber" name="L819" href="#L819">819</a>                 Files.copy(link, path);
+<a class="jxr_linenumber" name="L820" href="#L820">820</a>                 setFilePermissions(makeselfHeader.toFile());
+<a class="jxr_linenumber" name="L821" href="#L821">821</a>                 setPosixFilePermissions(path);
+<a class="jxr_linenumber" name="L822" href="#L822">822</a>             } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L823" href="#L823">823</a>                 getLog().error(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L824" href="#L824">824</a>             }
+<a class="jxr_linenumber" name="L825" href="#L825">825</a>         }
+<a class="jxr_linenumber" name="L826" href="#L826">826</a>     }
+<a class="jxr_linenumber" name="L827" href="#L827">827</a> 
+<a class="jxr_linenumber" name="L828" href="#L828">828</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L829" href="#L829">829</a> <em class="jxr_javadoccomment">     * Check Git Setup.</em>
+<a class="jxr_linenumber" name="L830" href="#L830">830</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L831" href="#L831">831</a> <em class="jxr_javadoccomment">     * @throws MojoFailureException</em>
+<a class="jxr_linenumber" name="L832" href="#L832">832</a> <em class="jxr_javadoccomment">     *             the mojo failure exception</em>
+<a class="jxr_linenumber" name="L833" href="#L833">833</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L834" href="#L834">834</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> checkGitSetup() <strong class="jxr_keyword">throws</strong> MojoFailureException {
+<a class="jxr_linenumber" name="L835" href="#L835">835</a>         <em class="jxr_comment">// Get Portable Git Maven Information</em>
+<a class="jxr_linenumber" name="L836" href="#L836">836</a>         <strong class="jxr_keyword">this</strong>.portableGit = <strong class="jxr_keyword">new</strong> <a name="PortableGit" href="../../../../com/hazendaz/maven/makeself/PortableGit.html#PortableGit">PortableGit</a>(getLog());
+<a class="jxr_linenumber" name="L837" href="#L837">837</a> 
+<a class="jxr_linenumber" name="L838" href="#L838">838</a>         <em class="jxr_comment">// Extract Portable Git</em>
+<a class="jxr_linenumber" name="L839" href="#L839">839</a>         <strong class="jxr_keyword">this</strong>.extractPortableGit();
+<a class="jxr_linenumber" name="L840" href="#L840">840</a>     }
+<a class="jxr_linenumber" name="L841" href="#L841">841</a> 
+<a class="jxr_linenumber" name="L842" href="#L842">842</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L843" href="#L843">843</a> <em class="jxr_javadoccomment">     * Extract Portable Git.</em>
+<a class="jxr_linenumber" name="L844" href="#L844">844</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L845" href="#L845">845</a> <em class="jxr_javadoccomment">     * @throws MojoFailureException</em>
+<a class="jxr_linenumber" name="L846" href="#L846">846</a> <em class="jxr_javadoccomment">     *             failure retrieving portable git</em>
+<a class="jxr_linenumber" name="L847" href="#L847">847</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L848" href="#L848">848</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> extractPortableGit() <strong class="jxr_keyword">throws</strong> MojoFailureException {
+<a class="jxr_linenumber" name="L849" href="#L849">849</a>         <strong class="jxr_keyword">final</strong> String location = repoSession.getLocalRepository().getBasedir() + File.separator
+<a class="jxr_linenumber" name="L850" href="#L850">850</a>                 + <strong class="jxr_keyword">this</strong>.portableGit.getName() + File.separator + <strong class="jxr_keyword">this</strong>.portableGit.getVersion();
+<a class="jxr_linenumber" name="L851" href="#L851">851</a>         <strong class="jxr_keyword">if</strong> (Files.exists(Path.of(location))) {
+<a class="jxr_linenumber" name="L852" href="#L852">852</a>             getLog().debug(<span class="jxr_string">"Existing 'PortableGit' folder found at "</span> + location);
+<a class="jxr_linenumber" name="L853" href="#L853">853</a>             gitPath = location + GIT_USER_BIN;
+<a class="jxr_linenumber" name="L854" href="#L854">854</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L855" href="#L855">855</a>         }
+<a class="jxr_linenumber" name="L856" href="#L856">856</a> 
+<a class="jxr_linenumber" name="L857" href="#L857">857</a>         getLog().info(<span class="jxr_string">"Loading portable git"</span>);
+<a class="jxr_linenumber" name="L858" href="#L858">858</a>         <strong class="jxr_keyword">final</strong> Artifact artifact = <strong class="jxr_keyword">new</strong> DefaultArtifact(<strong class="jxr_keyword">this</strong>.portableGit.getGroupId(), <strong class="jxr_keyword">this</strong>.portableGit.getArtifactId(),
+<a class="jxr_linenumber" name="L859" href="#L859">859</a>                 <strong class="jxr_keyword">this</strong>.portableGit.getClassifier(), <strong class="jxr_keyword">this</strong>.portableGit.getExtension(), <strong class="jxr_keyword">this</strong>.portableGit.getVersion());
+<a class="jxr_linenumber" name="L860" href="#L860">860</a>         <strong class="jxr_keyword">final</strong> ArtifactRequest artifactRequest = <strong class="jxr_keyword">new</strong> ArtifactRequest().setRepositories(<strong class="jxr_keyword">this</strong>.remoteRepositories)
+<a class="jxr_linenumber" name="L861" href="#L861">861</a>                 .setArtifact(artifact);
+<a class="jxr_linenumber" name="L862" href="#L862">862</a>         ArtifactResult resolutionResult = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L863" href="#L863">863</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L864" href="#L864">864</a>             resolutionResult = repositorySystem.resolveArtifact(repoSession, artifactRequest);
+<a class="jxr_linenumber" name="L865" href="#L865">865</a>             <strong class="jxr_keyword">if</strong> (!resolutionResult.isResolved()) {
+<a class="jxr_linenumber" name="L866" href="#L866">866</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoFailureException(<span class="jxr_string">"Unable to resolve artifact: "</span> + artifact.getGroupId() + <span class="jxr_string">":"</span>
+<a class="jxr_linenumber" name="L867" href="#L867">867</a>                         + artifact.getArtifactId() + <span class="jxr_string">":"</span> + artifact.getVersion() + <span class="jxr_string">":"</span> + artifact.getClassifier() + <span class="jxr_string">":"</span>
+<a class="jxr_linenumber" name="L868" href="#L868">868</a>                         + artifact.getExtension());
+<a class="jxr_linenumber" name="L869" href="#L869">869</a>             }
+<a class="jxr_linenumber" name="L870" href="#L870">870</a>         } <strong class="jxr_keyword">catch</strong> (ArtifactResolutionException e) {
+<a class="jxr_linenumber" name="L871" href="#L871">871</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> MojoFailureException(
+<a class="jxr_linenumber" name="L872" href="#L872">872</a>                     <span class="jxr_string">"Unable to resolve artifact: "</span> + artifact.getGroupId() + <span class="jxr_string">":"</span> + artifact.getArtifactId() + <span class="jxr_string">":"</span>
+<a class="jxr_linenumber" name="L873" href="#L873">873</a>                             + artifact.getVersion() + <span class="jxr_string">":"</span> + artifact.getClassifier() + <span class="jxr_string">":"</span> + artifact.getExtension());
+<a class="jxr_linenumber" name="L874" href="#L874">874</a>         }
+<a class="jxr_linenumber" name="L875" href="#L875">875</a>         <strong class="jxr_keyword">this</strong>.installGit(resolutionResult.getArtifact(), location);
+<a class="jxr_linenumber" name="L876" href="#L876">876</a>     }
+<a class="jxr_linenumber" name="L877" href="#L877">877</a> 
+<a class="jxr_linenumber" name="L878" href="#L878">878</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L879" href="#L879">879</a> <em class="jxr_javadoccomment">     * Install Git extracts git to .m2/repository under PortableGit.</em>
+<a class="jxr_linenumber" name="L880" href="#L880">880</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L881" href="#L881">881</a> <em class="jxr_javadoccomment">     * @param artifact</em>
+<a class="jxr_linenumber" name="L882" href="#L882">882</a> <em class="jxr_javadoccomment">     *            the maven artifact representation for git</em>
+<a class="jxr_linenumber" name="L883" href="#L883">883</a> <em class="jxr_javadoccomment">     * @param location</em>
+<a class="jxr_linenumber" name="L884" href="#L884">884</a> <em class="jxr_javadoccomment">     *            the location in maven repository to store portable git</em>
+<a class="jxr_linenumber" name="L885" href="#L885">885</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L886" href="#L886">886</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> installGit(<strong class="jxr_keyword">final</strong> Artifact artifact, <strong class="jxr_keyword">final</strong> String location) {
+<a class="jxr_linenumber" name="L887" href="#L887">887</a>         Path currentFile = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L888" href="#L888">888</a> 
+<a class="jxr_linenumber" name="L889" href="#L889">889</a>         <em class="jxr_comment">// Unzip 'git-for-windows-*-portable.tar.gz' from '.m2/repository/com/github/hazendaz/git/git-for-windows'</em>
+<a class="jxr_linenumber" name="L890" href="#L890">890</a>         <em class="jxr_comment">// into '.m2/repository/PortableGit'</em>
+<a class="jxr_linenumber" name="L891" href="#L891">891</a>         <strong class="jxr_keyword">try</strong> (InputStream inputStream = Files.newInputStream(artifact.getFile().toPath());
+<a class="jxr_linenumber" name="L892" href="#L892">892</a>                 InputStream bufferedStream = <strong class="jxr_keyword">new</strong> BufferedInputStream(inputStream);
+<a class="jxr_linenumber" name="L893" href="#L893">893</a>                 InputStream gzipStream = <strong class="jxr_keyword">new</strong> GzipCompressorInputStream(bufferedStream);
+<a class="jxr_linenumber" name="L894" href="#L894">894</a>                 ArchiveInputStream&lt;TarArchiveEntry&gt; tarStream = <strong class="jxr_keyword">new</strong> TarArchiveInputStream(gzipStream)) {
+<a class="jxr_linenumber" name="L895" href="#L895">895</a>             ArchiveEntry entry;
+<a class="jxr_linenumber" name="L896" href="#L896">896</a>             String directory = repoSession.getLocalRepository().getBasedir() + File.separator
+<a class="jxr_linenumber" name="L897" href="#L897">897</a>                     + <strong class="jxr_keyword">this</strong>.portableGit.getName();
+<a class="jxr_linenumber" name="L898" href="#L898">898</a>             <strong class="jxr_keyword">while</strong> ((entry = tarStream.getNextEntry()) != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L899" href="#L899">899</a>                 <strong class="jxr_keyword">if</strong> (entry.isDirectory()) {
+<a class="jxr_linenumber" name="L900" href="#L900">900</a>                     <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L901" href="#L901">901</a>                 }
+<a class="jxr_linenumber" name="L902" href="#L902">902</a>                 currentFile = Path.of(directory, entry.getName());
+<a class="jxr_linenumber" name="L903" href="#L903">903</a>                 <strong class="jxr_keyword">if</strong> (!currentFile.normalize().startsWith(directory)) {
+<a class="jxr_linenumber" name="L904" href="#L904">904</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException(<span class="jxr_string">"Bad zip entry, possible directory traversal"</span>);
+<a class="jxr_linenumber" name="L905" href="#L905">905</a>                 }
+<a class="jxr_linenumber" name="L906" href="#L906">906</a>                 Path parent = currentFile.getParent();
+<a class="jxr_linenumber" name="L907" href="#L907">907</a>                 <strong class="jxr_keyword">if</strong> (!Files.exists(parent)) {
+<a class="jxr_linenumber" name="L908" href="#L908">908</a>                     Files.createDirectory(parent);
+<a class="jxr_linenumber" name="L909" href="#L909">909</a>                 }
+<a class="jxr_linenumber" name="L910" href="#L910">910</a>                 getLog().debug(<span class="jxr_string">"Current file: "</span> + currentFile.getFileName());
+<a class="jxr_linenumber" name="L911" href="#L911">911</a>                 Files.copy(tarStream, currentFile, StandardCopyOption.REPLACE_EXISTING);
+<a class="jxr_linenumber" name="L912" href="#L912">912</a>             }
+<a class="jxr_linenumber" name="L913" href="#L913">913</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L914" href="#L914">914</a>             getLog().error(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L915" href="#L915">915</a>         }
+<a class="jxr_linenumber" name="L916" href="#L916">916</a> 
+<a class="jxr_linenumber" name="L917" href="#L917">917</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L918" href="#L918">918</a>             <strong class="jxr_keyword">if</strong> (currentFile != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L919" href="#L919">919</a>                 <em class="jxr_comment">// Extract Portable Git</em>
+<a class="jxr_linenumber" name="L920" href="#L920">920</a>                 getLog().debug(<span class="jxr_string">"Extract Portable Git"</span>);
+<a class="jxr_linenumber" name="L921" href="#L921">921</a>                 execute(Arrays.asList(currentFile.toString(), <span class="jxr_string">"-y"</span>, <span class="jxr_string">"-o"</span>, location), !ATTACH_ARTIFACT);
+<a class="jxr_linenumber" name="L922" href="#L922">922</a>                 gitPath = location + GIT_USER_BIN;
+<a class="jxr_linenumber" name="L923" href="#L923">923</a>             }
+<a class="jxr_linenumber" name="L924" href="#L924">924</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L925" href="#L925">925</a>             getLog().error(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L926" href="#L926">926</a>         } <strong class="jxr_keyword">catch</strong> (InterruptedException e) {
+<a class="jxr_linenumber" name="L927" href="#L927">927</a>             getLog().error(<span class="jxr_string">""</span>, e);
+<a class="jxr_linenumber" name="L928" href="#L928">928</a>             <em class="jxr_comment">// restore interruption status of the corresponding thread</em>
+<a class="jxr_linenumber" name="L929" href="#L929">929</a>             Thread.currentThread().interrupt();
+<a class="jxr_linenumber" name="L930" href="#L930">930</a>         }
+<a class="jxr_linenumber" name="L931" href="#L931">931</a>     }
+<a class="jxr_linenumber" name="L932" href="#L932">932</a> 
+<a class="jxr_linenumber" name="L933" href="#L933">933</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> setFilePermissions(File file) {
+<a class="jxr_linenumber" name="L934" href="#L934">934</a>         <strong class="jxr_keyword">if</strong> (!file.setExecutable(<strong class="jxr_keyword">true</strong>, <strong class="jxr_keyword">true</strong>)) {
+<a class="jxr_linenumber" name="L935" href="#L935">935</a>             getLog().error(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Unable to set executable:"</span>, file.getName()));
+<a class="jxr_linenumber" name="L936" href="#L936">936</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L937" href="#L937">937</a>             getLog().debug(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Set executable for"</span>, file.getName()));
+<a class="jxr_linenumber" name="L938" href="#L938">938</a>         }
+<a class="jxr_linenumber" name="L939" href="#L939">939</a>     }
 <a class="jxr_linenumber" name="L940" href="#L940">940</a> 
-<a class="jxr_linenumber" name="L941" href="#L941">941</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L942" href="#L942">942</a>             Files.setPosixFilePermissions(path, permissions);
-<a class="jxr_linenumber" name="L943" href="#L943">943</a>             getLog().debug(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Set Posix File Permissions for"</span>, path.toString(), <span class="jxr_string">"as"</span>, PERMISSIONS));
-<a class="jxr_linenumber" name="L944" href="#L944">944</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L945" href="#L945">945</a>             getLog().error(<span class="jxr_string">"Failed attempted Posix permissions"</span>, e);
-<a class="jxr_linenumber" name="L946" href="#L946">946</a>         } <strong class="jxr_keyword">catch</strong> (UnsupportedOperationException e) {
-<a class="jxr_linenumber" name="L947" href="#L947">947</a>             <em class="jxr_comment">// Attempting but don't care about status if it fails</em>
-<a class="jxr_linenumber" name="L948" href="#L948">948</a>             getLog().debug(<span class="jxr_string">"Failed attempted Posix permissions"</span>, e);
-<a class="jxr_linenumber" name="L949" href="#L949">949</a>         }
-<a class="jxr_linenumber" name="L950" href="#L950">950</a>     }
-<a class="jxr_linenumber" name="L951" href="#L951">951</a> 
-<a class="jxr_linenumber" name="L952" href="#L952">952</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L953" href="#L953">953</a> <em class="jxr_javadoccomment">     * Load args.</em>
-<a class="jxr_linenumber" name="L954" href="#L954">954</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L955" href="#L955">955</a> <em class="jxr_javadoccomment">     * @return the string</em>
-<a class="jxr_linenumber" name="L956" href="#L956">956</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L957" href="#L957">957</a>     <strong class="jxr_keyword">private</strong> List&lt;String&gt; loadArgs() {
-<a class="jxr_linenumber" name="L958" href="#L958">958</a>         getLog().debug(<span class="jxr_string">"Loading arguments"</span>);
-<a class="jxr_linenumber" name="L959" href="#L959">959</a> 
-<a class="jxr_linenumber" name="L960" href="#L960">960</a>         List&lt;String&gt; args = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(50);
-<a class="jxr_linenumber" name="L961" href="#L961">961</a> 
-<a class="jxr_linenumber" name="L962" href="#L962">962</a>         <em class="jxr_comment">// " --tar-quietly : Suppress verbose output from the tar command"</em>
-<a class="jxr_linenumber" name="L963" href="#L963">963</a>         <strong class="jxr_keyword">if</strong> (isTrue(tarQuietly)) {
-<a class="jxr_linenumber" name="L964" href="#L964">964</a>             args.add(<span class="jxr_string">"--tar-quietly"</span>);
-<a class="jxr_linenumber" name="L965" href="#L965">965</a>         }
-<a class="jxr_linenumber" name="L966" href="#L966">966</a> 
-<a class="jxr_linenumber" name="L967" href="#L967">967</a>         <em class="jxr_comment">// " --quiet | -q : Do not print any messages other than errors."</em>
-<a class="jxr_linenumber" name="L968" href="#L968">968</a>         <strong class="jxr_keyword">if</strong> (isTrue(quiet)) {
-<a class="jxr_linenumber" name="L969" href="#L969">969</a>             args.add(<span class="jxr_string">"--quiet"</span>);
-<a class="jxr_linenumber" name="L970" href="#L970">970</a>         }
-<a class="jxr_linenumber" name="L971" href="#L971">971</a> 
-<a class="jxr_linenumber" name="L972" href="#L972">972</a>         <em class="jxr_comment">// --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)</em>
-<a class="jxr_linenumber" name="L973" href="#L973">973</a>         <strong class="jxr_keyword">if</strong> (isTrue(gzip)) {
-<a class="jxr_linenumber" name="L974" href="#L974">974</a>             args.add(<span class="jxr_string">"--gzip"</span>);
-<a class="jxr_linenumber" name="L975" href="#L975">975</a>         }
-<a class="jxr_linenumber" name="L976" href="#L976">976</a> 
-<a class="jxr_linenumber" name="L977" href="#L977">977</a>         <em class="jxr_comment">// --bzip2 : Use bzip2 instead of gzip for better compression. The bzip2 command must be available in the</em>
-<a class="jxr_linenumber" name="L978" href="#L978">978</a>         <em class="jxr_comment">// command path. It is recommended that the archive prefix be set to something like '.bz2.run', so that</em>
-<a class="jxr_linenumber" name="L979" href="#L979">979</a>         <em class="jxr_comment">// potential users know that they'll need bzip2 to extract it.</em>
-<a class="jxr_linenumber" name="L980" href="#L980">980</a>         <strong class="jxr_keyword">if</strong> (isTrue(bzip2)) {
-<a class="jxr_linenumber" name="L981" href="#L981">981</a>             args.add(<span class="jxr_string">"--bzip2"</span>);
-<a class="jxr_linenumber" name="L982" href="#L982">982</a>         }
-<a class="jxr_linenumber" name="L983" href="#L983">983</a> 
-<a class="jxr_linenumber" name="L984" href="#L984">984</a>         <em class="jxr_comment">// --bzip3 : Use bzip3 instead of gzip for better compression. The bzip3 command must be available in the</em>
-<a class="jxr_linenumber" name="L985" href="#L985">985</a>         <em class="jxr_comment">// command path. It is recommended that the archive prefix be set to something like '.bz3.run', so that</em>
-<a class="jxr_linenumber" name="L986" href="#L986">986</a>         <em class="jxr_comment">// potential users know that they'll need bzip3 to extract it.</em>
-<a class="jxr_linenumber" name="L987" href="#L987">987</a>         <strong class="jxr_keyword">if</strong> (isTrue(bzip3)) {
-<a class="jxr_linenumber" name="L988" href="#L988">988</a>             args.add(<span class="jxr_string">"--bzip3"</span>);
-<a class="jxr_linenumber" name="L989" href="#L989">989</a>         }
-<a class="jxr_linenumber" name="L990" href="#L990">990</a> 
-<a class="jxr_linenumber" name="L991" href="#L991">991</a>         <em class="jxr_comment">// --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs.</em>
-<a class="jxr_linenumber" name="L992" href="#L992">992</a>         <em class="jxr_comment">// The pbzip2 command must be available in the command path. It is recommended that the archive prefix be</em>
-<a class="jxr_linenumber" name="L993" href="#L993">993</a>         <em class="jxr_comment">// set to something like '.pbz2.run', so that potential users know that they'll need bzip2 to extract it.</em>
-<a class="jxr_linenumber" name="L994" href="#L994">994</a>         <strong class="jxr_keyword">if</strong> (isTrue(pbzip2)) {
-<a class="jxr_linenumber" name="L995" href="#L995">995</a>             args.add(<span class="jxr_string">"--pbzip2"</span>);
-<a class="jxr_linenumber" name="L996" href="#L996">996</a>         }
-<a class="jxr_linenumber" name="L997" href="#L997">997</a> 
-<a class="jxr_linenumber" name="L998" href="#L998">998</a>         <em class="jxr_comment">// --xz : Use xz instead of gzip for better compression. The xz command must be available in the command path.</em>
-<a class="jxr_linenumber" name="L999" href="#L999">999</a>         <em class="jxr_comment">// It is recommended that the archive prefix be set to something like '.xz.run' for the archive, so that</em>
-<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>         <em class="jxr_comment">// potential users know that they'll need xz to extract it.</em>
-<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>         <strong class="jxr_keyword">if</strong> (isTrue(xz)) {
-<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>             args.add(<span class="jxr_string">"--xz"</span>);
-<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>         }
-<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a> 
-<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>         <em class="jxr_comment">// --lzo : Use lzop instead of gzip for better compression. The lzop command must be available in the command</em>
-<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>         <em class="jxr_comment">// path. It is recommended that the archive prefix be set to something like '.lzo.run' for the archive, so</em>
-<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a>         <em class="jxr_comment">// that potential users know that they'll need lzop to extract it.</em>
-<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>         <strong class="jxr_keyword">if</strong> (isTrue(lzo)) {
-<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>             args.add(<span class="jxr_string">"--lzo"</span>);
-<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>         }
-<a class="jxr_linenumber" name="L1011" href="#L1011">1011</a> 
-<a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>         <em class="jxr_comment">// --lz4 : Use lz4 instead of gzip for better compression. The lz4 command must be available in the command</em>
-<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>         <em class="jxr_comment">// path. It is recommended that the archive prefix be set to something like '.lz4.run' for the archive, so</em>
-<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>         <em class="jxr_comment">// that potential users know that they'll need lz4 to extract it.</em>
-<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>         <strong class="jxr_keyword">if</strong> (isTrue(lz4)) {
-<a class="jxr_linenumber" name="L1016" href="#L1016">1016</a>             args.add(<span class="jxr_string">"--lz4"</span>);
-<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a>         }
-<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a> 
-<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>         <em class="jxr_comment">// --zstd : Use zstd for compression.</em>
-<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>         <strong class="jxr_keyword">if</strong> (isTrue(zstd)) {
-<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>             args.add(<span class="jxr_string">"--zstd"</span>);
-<a class="jxr_linenumber" name="L1022" href="#L1022">1022</a>         }
-<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a> 
-<a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>         <em class="jxr_comment">// --pigz : Use pigz for compression.</em>
-<a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>         <strong class="jxr_keyword">if</strong> (isTrue(pigz)) {
-<a class="jxr_linenumber" name="L1026" href="#L1026">1026</a>             args.add(<span class="jxr_string">"--pigz"</span>);
-<a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>         }
-<a class="jxr_linenumber" name="L1028" href="#L1028">1028</a> 
-<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>         <em class="jxr_comment">// --base64 : Encode the archive to ASCII in Base64 format (base64 command required).</em>
-<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a>         <strong class="jxr_keyword">if</strong> (isTrue(base64)) {
-<a class="jxr_linenumber" name="L1031" href="#L1031">1031</a>             args.add(<span class="jxr_string">"--base64"</span>);
-<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>         }
-<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a> 
-<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>         <em class="jxr_comment">// --gpg-encrypt : Encrypt the archive using gpg -ac -z $COMPRESS_LEVEL. This will prompt for a password to</em>
-<a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>         <em class="jxr_comment">// encrypt with. Assumes that potential users have gpg installed.</em>
-<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a>         <strong class="jxr_keyword">if</strong> (isTrue(gpgEncrypt)) {
-<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a>             args.add(<span class="jxr_string">"--gpg-encrypt"</span>);
-<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a>         }
-<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a> 
-<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>         <em class="jxr_comment">// --gpg-asymmetric-encrypt-sign : Instead of compressing, asymmetrically encrypt and sign the data using GPG</em>
-<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a>         <strong class="jxr_keyword">if</strong> (isTrue(gpgAsymmetricEncryptSign)) {
-<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>             args.add(<span class="jxr_string">"--gpg-asymmetric-encrypt-sign"</span>);
-<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a>         }
-<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a> 
-<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>         <em class="jxr_comment">// --ssl-encrypt : Encrypt the archive using openssl aes-256-cbc -a -salt. This will prompt for a password to</em>
-<a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>         <em class="jxr_comment">// encrypt with. Assumes that the potential users have the OpenSSL tools installed.</em>
-<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a>         <strong class="jxr_keyword">if</strong> (isTrue(sslEncrypt)) {
-<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>             args.add(<span class="jxr_string">"--ssl-encrypt"</span>);
-<a class="jxr_linenumber" name="L1049" href="#L1049">1049</a>         }
-<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a> 
-<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>         <em class="jxr_comment">// --ssl-passwd pass : Use the given password to encrypt the data using OpenSSL.</em>
-<a class="jxr_linenumber" name="L1052" href="#L1052">1052</a>         <strong class="jxr_keyword">if</strong> (sslPasswd != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a>             args.add(<span class="jxr_string">"--ssl-passwd"</span>);
-<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a>             args.add(sslPasswd);
-<a class="jxr_linenumber" name="L1055" href="#L1055">1055</a>         }
-<a class="jxr_linenumber" name="L1056" href="#L1056">1056</a> 
-<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a>         <em class="jxr_comment">// --ssl-pass-src src : Use the given src as the source of password to encrypt the data using OpenSSL. See</em>
-<a class="jxr_linenumber" name="L1058" href="#L1058">1058</a>         <em class="jxr_comment">// \&quot;PASS PHRASE ARGUMENTS\&quot; in man openssl. If this option is not supplied, the user wil be asked to enter</em>
-<a class="jxr_linenumber" name="L1059" href="#L1059">1059</a>         <em class="jxr_comment">// encryption pasword on the current terminal.</em>
-<a class="jxr_linenumber" name="L1060" href="#L1060">1060</a>         <strong class="jxr_keyword">if</strong> (sslPassSrc != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1061" href="#L1061">1061</a>             args.add(<span class="jxr_string">"--ssl-pass-src"</span>);
-<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a>             args.add(sslPassSrc);
-<a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>         }
-<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a> 
-<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>         <em class="jxr_comment">// --ssl-no-md : Do not use \&quot;-md\&quot; option not supported by older OpenSSL.</em>
-<a class="jxr_linenumber" name="L1066" href="#L1066">1066</a>         <strong class="jxr_keyword">if</strong> (isTrue(sslNoMd)) {
-<a class="jxr_linenumber" name="L1067" href="#L1067">1067</a>             args.add(<span class="jxr_string">"--ssl-no-md"</span>);
-<a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>         }
-<a class="jxr_linenumber" name="L1069" href="#L1069">1069</a> 
-<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>         <em class="jxr_comment">// --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms</em>
-<a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>         <em class="jxr_comment">// that don't have gzip available.</em>
-<a class="jxr_linenumber" name="L1072" href="#L1072">1072</a>         <strong class="jxr_keyword">if</strong> (isTrue(compress)) {
-<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>             args.add(<span class="jxr_string">"--compress"</span>);
-<a class="jxr_linenumber" name="L1074" href="#L1074">1074</a>         }
-<a class="jxr_linenumber" name="L1075" href="#L1075">1075</a> 
-<a class="jxr_linenumber" name="L1076" href="#L1076">1076</a>         <em class="jxr_comment">// --complevel : Specify the compression level for gzip, bzip2, bzip3, pbzip2, xz, lzo or lz4. (defaults to 9)</em>
-<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>         <strong class="jxr_keyword">if</strong> (complevel != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1078" href="#L1078">1078</a>             args.add(<span class="jxr_string">"--complevel"</span>);
-<a class="jxr_linenumber" name="L1079" href="#L1079">1079</a>             args.add(complevel.toString());
-<a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>         }
-<a class="jxr_linenumber" name="L1081" href="#L1081">1081</a> 
-<a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>         <em class="jxr_comment">// --comp-extra : Append extra options to the chosen compressor"</em>
-<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>         <strong class="jxr_keyword">if</strong> (compExtra != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1084" href="#L1084">1084</a>             args.add(<span class="jxr_string">"--comp-extra"</span>);
-<a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>             args.add(compExtra);
-<a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>         }
-<a class="jxr_linenumber" name="L1087" href="#L1087">1087</a> 
-<a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>         <em class="jxr_comment">// --nochown : Do not give the target folder to the current user (default)</em>
-<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>         <strong class="jxr_keyword">if</strong> (isTrue(nochown)) {
-<a class="jxr_linenumber" name="L1090" href="#L1090">1090</a>             args.add(<span class="jxr_string">"--nochown"</span>);
-<a class="jxr_linenumber" name="L1091" href="#L1091">1091</a>         }
-<a class="jxr_linenumber" name="L1092" href="#L1092">1092</a> 
-<a class="jxr_linenumber" name="L1093" href="#L1093">1093</a>         <em class="jxr_comment">// --chown : Give the target folder to the current user recursively.</em>
-<a class="jxr_linenumber" name="L1094" href="#L1094">1094</a>         <strong class="jxr_keyword">if</strong> (isTrue(chown)) {
-<a class="jxr_linenumber" name="L1095" href="#L1095">1095</a>             args.add(<span class="jxr_string">"--chown"</span>);
-<a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>         }
-<a class="jxr_linenumber" name="L1097" href="#L1097">1097</a> 
-<a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>         <em class="jxr_comment">// --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.</em>
-<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>         <strong class="jxr_keyword">if</strong> (isTrue(nocomp)) {
-<a class="jxr_linenumber" name="L1100" href="#L1100">1100</a>             args.add(<span class="jxr_string">"--nocomp"</span>);
-<a class="jxr_linenumber" name="L1101" href="#L1101">1101</a>         }
-<a class="jxr_linenumber" name="L1102" href="#L1102">1102</a> 
-<a class="jxr_linenumber" name="L1103" href="#L1103">1103</a>         <em class="jxr_comment">// --threads thds : Number of threads to be used by compressors that support parallelization.</em>
-<a class="jxr_linenumber" name="L1104" href="#L1104">1104</a>         <em class="jxr_comment">// Omit to use compressor's default. Most useful (and required) for opting into xz's threading,</em>
-<a class="jxr_linenumber" name="L1105" href="#L1105">1105</a>         <em class="jxr_comment">// usually with '--threads=0' for all available cores.pbzip2 and pigz are parallel by default,</em>
-<a class="jxr_linenumber" name="L1106" href="#L1106">1106</a>         <em class="jxr_comment">// and setting this value allows limiting the number of threads they use.</em>
-<a class="jxr_linenumber" name="L1107" href="#L1107">1107</a>         <strong class="jxr_keyword">if</strong> (threads != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1108" href="#L1108">1108</a>             args.add(<span class="jxr_string">"--threads"</span>);
-<a class="jxr_linenumber" name="L1109" href="#L1109">1109</a>             args.add(threads.toString());
-<a class="jxr_linenumber" name="L1110" href="#L1110">1110</a>         }
-<a class="jxr_linenumber" name="L1111" href="#L1111">1111</a> 
-<a class="jxr_linenumber" name="L1112" href="#L1112">1112</a>         <em class="jxr_comment">// --notemp : The generated archive will not extract the files to a temporary directory, but in a new directory</em>
-<a class="jxr_linenumber" name="L1113" href="#L1113">1113</a>         <em class="jxr_comment">// created in the current directory. This is better to distribute software packages that may extract and compile</em>
-<a class="jxr_linenumber" name="L1114" href="#L1114">1114</a>         <em class="jxr_comment">// by themselves (i.e. launch the compilation through the embedded script).</em>
-<a class="jxr_linenumber" name="L1115" href="#L1115">1115</a>         <strong class="jxr_keyword">if</strong> (isTrue(notemp)) {
-<a class="jxr_linenumber" name="L1116" href="#L1116">1116</a>             args.add(<span class="jxr_string">"--notemp"</span>);
-<a class="jxr_linenumber" name="L1117" href="#L1117">1117</a>         }
-<a class="jxr_linenumber" name="L1118" href="#L1118">1118</a> 
-<a class="jxr_linenumber" name="L1119" href="#L1119">1119</a>         <em class="jxr_comment">// --needroot : Check that the root user is extracting the archive before proceeding</em>
-<a class="jxr_linenumber" name="L1120" href="#L1120">1120</a>         <strong class="jxr_keyword">if</strong> (isTrue(needroot)) {
-<a class="jxr_linenumber" name="L1121" href="#L1121">1121</a>             args.add(<span class="jxr_string">"--needroot"</span>);
-<a class="jxr_linenumber" name="L1122" href="#L1122">1122</a>         }
-<a class="jxr_linenumber" name="L1123" href="#L1123">1123</a> 
-<a class="jxr_linenumber" name="L1124" href="#L1124">1124</a>         <em class="jxr_comment">// --current : Files will be extracted to the current directory, instead of in a sub-directory. This option</em>
-<a class="jxr_linenumber" name="L1125" href="#L1125">1125</a>         <em class="jxr_comment">// implies --notemp and does not require a startup_script.</em>
-<a class="jxr_linenumber" name="L1126" href="#L1126">1126</a>         <strong class="jxr_keyword">if</strong> (isTrue(current)) {
-<a class="jxr_linenumber" name="L1127" href="#L1127">1127</a>             args.add(<span class="jxr_string">"--current"</span>);
-<a class="jxr_linenumber" name="L1128" href="#L1128">1128</a>         }
-<a class="jxr_linenumber" name="L1129" href="#L1129">1129</a> 
-<a class="jxr_linenumber" name="L1130" href="#L1130">1130</a>         <em class="jxr_comment">// --follow : Follow the symbolic links inside of the archive directory, i.e. store the files that are being</em>
-<a class="jxr_linenumber" name="L1131" href="#L1131">1131</a>         <em class="jxr_comment">// pointed to instead of the links themselves.</em>
-<a class="jxr_linenumber" name="L1132" href="#L1132">1132</a>         <strong class="jxr_keyword">if</strong> (isTrue(follow)) {
-<a class="jxr_linenumber" name="L1133" href="#L1133">1133</a>             args.add(<span class="jxr_string">"--follow"</span>);
-<a class="jxr_linenumber" name="L1134" href="#L1134">1134</a>         }
-<a class="jxr_linenumber" name="L1135" href="#L1135">1135</a> 
-<a class="jxr_linenumber" name="L1136" href="#L1136">1136</a>         <em class="jxr_comment">// --noprogress : Do not show the progress during the decompression</em>
-<a class="jxr_linenumber" name="L1137" href="#L1137">1137</a>         <strong class="jxr_keyword">if</strong> (isTrue(noprogress)) {
-<a class="jxr_linenumber" name="L1138" href="#L1138">1138</a>             args.add(<span class="jxr_string">"--noprogress"</span>);
-<a class="jxr_linenumber" name="L1139" href="#L1139">1139</a>         }
-<a class="jxr_linenumber" name="L1140" href="#L1140">1140</a> 
-<a class="jxr_linenumber" name="L1141" href="#L1141">1141</a>         <em class="jxr_comment">// --append (new in 2.1.x): Append data to an existing archive, instead of creating a new one. In this mode, the</em>
-<a class="jxr_linenumber" name="L1142" href="#L1142">1142</a>         <em class="jxr_comment">// settings from the original archive are reused (compression type, label, embedded script), and thus don't need</em>
-<a class="jxr_linenumber" name="L1143" href="#L1143">1143</a>         <em class="jxr_comment">// to be specified again on the command line.</em>
-<a class="jxr_linenumber" name="L1144" href="#L1144">1144</a>         <strong class="jxr_keyword">if</strong> (isTrue(append)) {
-<a class="jxr_linenumber" name="L1145" href="#L1145">1145</a>             args.add(<span class="jxr_string">"--append"</span>);
-<a class="jxr_linenumber" name="L1146" href="#L1146">1146</a>         }
-<a class="jxr_linenumber" name="L1147" href="#L1147">1147</a> 
-<a class="jxr_linenumber" name="L1148" href="#L1148">1148</a>         <em class="jxr_comment">// --header : Makeself 2.0 uses a separate file to store the header stub, called makeself-header.sh. By default,</em>
-<a class="jxr_linenumber" name="L1149" href="#L1149">1149</a>         <em class="jxr_comment">// it is assumed that it is stored in the same location as makeself.sh. This option can be used to specify its</em>
-<a class="jxr_linenumber" name="L1150" href="#L1150">1150</a>         <em class="jxr_comment">// actual location if it is stored someplace else.</em>
-<a class="jxr_linenumber" name="L1151" href="#L1151">1151</a>         <strong class="jxr_keyword">if</strong> (headerFile != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1152" href="#L1152">1152</a>             args.add(<span class="jxr_string">"--header"</span>);
-<a class="jxr_linenumber" name="L1153" href="#L1153">1153</a>             args.add(headerFile);
-<a class="jxr_linenumber" name="L1154" href="#L1154">1154</a>         }
-<a class="jxr_linenumber" name="L1155" href="#L1155">1155</a> 
-<a class="jxr_linenumber" name="L1156" href="#L1156">1156</a>         <em class="jxr_comment">// --preextract : Specify a pre-extraction script. The script is executed with the same environment and initial</em>
-<a class="jxr_linenumber" name="L1157" href="#L1157">1157</a>         <em class="jxr_comment">// `script_args` as `startup_script`.</em>
-<a class="jxr_linenumber" name="L1158" href="#L1158">1158</a>         <strong class="jxr_keyword">if</strong> (preextractScript != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1159" href="#L1159">1159</a>             args.add(<span class="jxr_string">"--reextract"</span>);
-<a class="jxr_linenumber" name="L1160" href="#L1160">1160</a>             args.add(preextractScript);
-<a class="jxr_linenumber" name="L1161" href="#L1161">1161</a>         }
-<a class="jxr_linenumber" name="L1162" href="#L1162">1162</a> 
-<a class="jxr_linenumber" name="L1163" href="#L1163">1163</a>         <em class="jxr_comment">// --cleanup : Specify a script that is run when execution is interrupted or finishes successfully. The script</em>
-<a class="jxr_linenumber" name="L1164" href="#L1164">1164</a>         <em class="jxr_comment">// is executed with the same environment and initial `script_args` as `startup_script`.</em>
-<a class="jxr_linenumber" name="L1165" href="#L1165">1165</a>         <strong class="jxr_keyword">if</strong> (cleanupScript != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1166" href="#L1166">1166</a>             args.add(<span class="jxr_string">"--cleanup"</span>);
-<a class="jxr_linenumber" name="L1167" href="#L1167">1167</a>             args.add(cleanupScript);
-<a class="jxr_linenumber" name="L1168" href="#L1168">1168</a>         }
-<a class="jxr_linenumber" name="L1169" href="#L1169">1169</a> 
-<a class="jxr_linenumber" name="L1170" href="#L1170">1170</a>         <em class="jxr_comment">// --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main</em>
-<a class="jxr_linenumber" name="L1171" href="#L1171">1171</a>         <em class="jxr_comment">// application of this is to allow self-contained installers stored in a Makeself archive on a CD, when the</em>
-<a class="jxr_linenumber" name="L1172" href="#L1172">1172</a>         <em class="jxr_comment">// installer program will later need to unmount the CD and allow a new one to be inserted. This prevents</em>
-<a class="jxr_linenumber" name="L1173" href="#L1173">1173</a>         <em class="jxr_comment">// "File system busy" errors for installers that span multiple CDs.</em>
-<a class="jxr_linenumber" name="L1174" href="#L1174">1174</a>         <strong class="jxr_keyword">if</strong> (isTrue(copy)) {
-<a class="jxr_linenumber" name="L1175" href="#L1175">1175</a>             args.add(<span class="jxr_string">"--copy"</span>);
-<a class="jxr_linenumber" name="L1176" href="#L1176">1176</a>         }
-<a class="jxr_linenumber" name="L1177" href="#L1177">1177</a> 
-<a class="jxr_linenumber" name="L1178" href="#L1178">1178</a>         <em class="jxr_comment">// --nox11 : Disable the automatic spawning of a new terminal in X11.</em>
-<a class="jxr_linenumber" name="L1179" href="#L1179">1179</a>         <strong class="jxr_keyword">if</strong> (isTrue(nox11)) {
-<a class="jxr_linenumber" name="L1180" href="#L1180">1180</a>             args.add(<span class="jxr_string">"--nox11"</span>);
-<a class="jxr_linenumber" name="L1181" href="#L1181">1181</a>         }
-<a class="jxr_linenumber" name="L1182" href="#L1182">1182</a> 
-<a class="jxr_linenumber" name="L1183" href="#L1183">1183</a>         <em class="jxr_comment">// --nowait : When executed from a new X11 terminal, disable the user prompt at the end of the script execution.</em>
-<a class="jxr_linenumber" name="L1184" href="#L1184">1184</a>         <strong class="jxr_keyword">if</strong> (isTrue(nowait)) {
-<a class="jxr_linenumber" name="L1185" href="#L1185">1185</a>             args.add(<span class="jxr_string">"--nowait"</span>);
-<a class="jxr_linenumber" name="L1186" href="#L1186">1186</a>         }
-<a class="jxr_linenumber" name="L1187" href="#L1187">1187</a> 
-<a class="jxr_linenumber" name="L1188" href="#L1188">1188</a>         <em class="jxr_comment">// --nomd5 : Disable the creation of a MD5 checksum for the archive. This speeds up the extraction process if</em>
-<a class="jxr_linenumber" name="L1189" href="#L1189">1189</a>         <em class="jxr_comment">// integrity checking is not necessary.</em>
-<a class="jxr_linenumber" name="L1190" href="#L1190">1190</a>         <strong class="jxr_keyword">if</strong> (isTrue(nomd5)) {
-<a class="jxr_linenumber" name="L1191" href="#L1191">1191</a>             args.add(<span class="jxr_string">"--nomd5"</span>);
-<a class="jxr_linenumber" name="L1192" href="#L1192">1192</a>         }
-<a class="jxr_linenumber" name="L1193" href="#L1193">1193</a> 
-<a class="jxr_linenumber" name="L1194" href="#L1194">1194</a>         <em class="jxr_comment">// --nocrc : Disable the creation of a CRC checksum for the archive. This speeds up the extraction process if</em>
-<a class="jxr_linenumber" name="L1195" href="#L1195">1195</a>         <em class="jxr_comment">// integrity checking is not necessary.</em>
-<a class="jxr_linenumber" name="L1196" href="#L1196">1196</a>         <strong class="jxr_keyword">if</strong> (isTrue(nocrc)) {
-<a class="jxr_linenumber" name="L1197" href="#L1197">1197</a>             args.add(<span class="jxr_string">"--nocrc"</span>);
-<a class="jxr_linenumber" name="L1198" href="#L1198">1198</a>         }
-<a class="jxr_linenumber" name="L1199" href="#L1199">1199</a> 
-<a class="jxr_linenumber" name="L1200" href="#L1200">1200</a>         <em class="jxr_comment">// --sha256 : Compute a SHA256 checksum for the archive.</em>
-<a class="jxr_linenumber" name="L1201" href="#L1201">1201</a>         <strong class="jxr_keyword">if</strong> (isTrue(sha256)) {
-<a class="jxr_linenumber" name="L1202" href="#L1202">1202</a>             args.add(<span class="jxr_string">"--sha256"</span>);
-<a class="jxr_linenumber" name="L1203" href="#L1203">1203</a>         }
-<a class="jxr_linenumber" name="L1204" href="#L1204">1204</a> 
-<a class="jxr_linenumber" name="L1205" href="#L1205">1205</a>         <em class="jxr_comment">// --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are</em>
-<a class="jxr_linenumber" name="L1206" href="#L1206">1206</a>         <em class="jxr_comment">// describing a software package in a way that is easily parseable. The LSM entry can then be later retrieved</em>
-<a class="jxr_linenumber" name="L1207" href="#L1207">1207</a>         <em class="jxr_comment">// using the --lsm argument to the archive. An example of a LSM file is provided</em>
-<a class="jxr_linenumber" name="L1208" href="#L1208">1208</a>         <em class="jxr_comment">// with Makeself.</em>
-<a class="jxr_linenumber" name="L1209" href="#L1209">1209</a>         <strong class="jxr_keyword">if</strong> (lsmFile != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1210" href="#L1210">1210</a>             args.add(<span class="jxr_string">"--lsm"</span>);
-<a class="jxr_linenumber" name="L1211" href="#L1211">1211</a>             args.add(lsmFile);
-<a class="jxr_linenumber" name="L1212" href="#L1212">1212</a>         }
-<a class="jxr_linenumber" name="L1213" href="#L1213">1213</a> 
-<a class="jxr_linenumber" name="L1214" href="#L1214">1214</a>         <em class="jxr_comment">// --gpg-extra opt : Append more options to the gpg command line.</em>
-<a class="jxr_linenumber" name="L1215" href="#L1215">1215</a>         <strong class="jxr_keyword">if</strong> (gpgExtraOpt != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1216" href="#L1216">1216</a>             args.add(<span class="jxr_string">"--gpg-extra"</span>);
-<a class="jxr_linenumber" name="L1217" href="#L1217">1217</a>             args.add(gpgExtraOpt);
-<a class="jxr_linenumber" name="L1218" href="#L1218">1218</a>         }
-<a class="jxr_linenumber" name="L1219" href="#L1219">1219</a> 
-<a class="jxr_linenumber" name="L1220" href="#L1220">1220</a>         <em class="jxr_comment">// --tar-format opt : Specify the tar archive format (default is ustar); you may use any value accepted by your</em>
-<a class="jxr_linenumber" name="L1221" href="#L1221">1221</a>         <em class="jxr_comment">// tar command (such as posix, v7, etc).</em>
-<a class="jxr_linenumber" name="L1222" href="#L1222">1222</a>         <strong class="jxr_keyword">if</strong> (tarFormatOpt != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1223" href="#L1223">1223</a>             args.add(<span class="jxr_string">"--tar-format"</span>);
-<a class="jxr_linenumber" name="L1224" href="#L1224">1224</a>             args.add(tarFormatOpt);
-<a class="jxr_linenumber" name="L1225" href="#L1225">1225</a>         }
-<a class="jxr_linenumber" name="L1226" href="#L1226">1226</a> 
-<a class="jxr_linenumber" name="L1227" href="#L1227">1227</a>         <em class="jxr_comment">// --tar-extra opt : Append more options to the tar command line.</em>
-<a class="jxr_linenumber" name="L1228" href="#L1228">1228</a>         <em class="jxr_comment">// For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar,</em>
-<a class="jxr_linenumber" name="L1229" href="#L1229">1229</a>         <em class="jxr_comment">// one can use makeself.sh --tar-extra "--exclude=.git" ...</em>
-<a class="jxr_linenumber" name="L1230" href="#L1230">1230</a>         <strong class="jxr_keyword">if</strong> (tarExtraOpt != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1231" href="#L1231">1231</a>             args.add(<span class="jxr_string">"--tar-extra"</span>);
-<a class="jxr_linenumber" name="L1232" href="#L1232">1232</a>             args.add(tarExtraOpt);
-<a class="jxr_linenumber" name="L1233" href="#L1233">1233</a>         }
-<a class="jxr_linenumber" name="L1234" href="#L1234">1234</a> 
-<a class="jxr_linenumber" name="L1235" href="#L1235">1235</a>         <em class="jxr_comment">// --untar-extra opt : Append more options to the during the extraction of the tar archive.</em>
-<a class="jxr_linenumber" name="L1236" href="#L1236">1236</a>         <strong class="jxr_keyword">if</strong> (untarExtraOpt != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1237" href="#L1237">1237</a>             args.add(<span class="jxr_string">"--untar-extra"</span>);
-<a class="jxr_linenumber" name="L1238" href="#L1238">1238</a>             args.add(untarExtraOpt);
-<a class="jxr_linenumber" name="L1239" href="#L1239">1239</a>         }
-<a class="jxr_linenumber" name="L1240" href="#L1240">1240</a> 
-<a class="jxr_linenumber" name="L1241" href="#L1241">1241</a>         <em class="jxr_comment">// --sign passphrase : Signature private key to sign the package with</em>
-<a class="jxr_linenumber" name="L1242" href="#L1242">1242</a>         <strong class="jxr_keyword">if</strong> (signPassphrase != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1243" href="#L1243">1243</a>             args.add(<span class="jxr_string">"--sign"</span>);
-<a class="jxr_linenumber" name="L1244" href="#L1244">1244</a>             args.add(signPassphrase);
-<a class="jxr_linenumber" name="L1245" href="#L1245">1245</a>         }
-<a class="jxr_linenumber" name="L1246" href="#L1246">1246</a> 
-<a class="jxr_linenumber" name="L1247" href="#L1247">1247</a>         <em class="jxr_comment">// --target dir : Specify the directory where the archive will be extracted. This option implies</em>
-<a class="jxr_linenumber" name="L1248" href="#L1248">1248</a>         <em class="jxr_comment">// --notemp and does not require a startup_script.</em>
-<a class="jxr_linenumber" name="L1249" href="#L1249">1249</a>         <strong class="jxr_keyword">if</strong> (extractTargetDir != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1250" href="#L1250">1250</a>             args.add(<span class="jxr_string">"--target"</span>);
-<a class="jxr_linenumber" name="L1251" href="#L1251">1251</a>             args.add(extractTargetDir);
-<a class="jxr_linenumber" name="L1252" href="#L1252">1252</a>         }
-<a class="jxr_linenumber" name="L1253" href="#L1253">1253</a> 
-<a class="jxr_linenumber" name="L1254" href="#L1254">1254</a>         <em class="jxr_comment">// --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting</em>
-<a class="jxr_linenumber" name="L1255" href="#L1255">1255</a>         <em class="jxr_comment">// archive.</em>
-<a class="jxr_linenumber" name="L1256" href="#L1256">1256</a>         <strong class="jxr_keyword">if</strong> (isTrue(keepUmask)) {
-<a class="jxr_linenumber" name="L1257" href="#L1257">1257</a>             args.add(<span class="jxr_string">"--keep-umask"</span>);
-<a class="jxr_linenumber" name="L1258" href="#L1258">1258</a>         }
-<a class="jxr_linenumber" name="L1259" href="#L1259">1259</a> 
-<a class="jxr_linenumber" name="L1260" href="#L1260">1260</a>         <em class="jxr_comment">// --export-conf : Export configuration variables to startup_script"</em>
-<a class="jxr_linenumber" name="L1261" href="#L1261">1261</a>         <strong class="jxr_keyword">if</strong> (isTrue(exportConf)) {
-<a class="jxr_linenumber" name="L1262" href="#L1262">1262</a>             args.add(<span class="jxr_string">"--export-conf"</span>);
-<a class="jxr_linenumber" name="L1263" href="#L1263">1263</a>         }
-<a class="jxr_linenumber" name="L1264" href="#L1264">1264</a> 
-<a class="jxr_linenumber" name="L1265" href="#L1265">1265</a>         <em class="jxr_comment">// --packaging-date date : Use provided string as the packaging date instead of the current date.</em>
-<a class="jxr_linenumber" name="L1266" href="#L1266">1266</a>         <strong class="jxr_keyword">if</strong> (packagingDate != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1267" href="#L1267">1267</a>             args.add(<span class="jxr_string">"--packaging-date"</span>);
-<a class="jxr_linenumber" name="L1268" href="#L1268">1268</a>             args.add(packagingDate);
-<a class="jxr_linenumber" name="L1269" href="#L1269">1269</a>         }
-<a class="jxr_linenumber" name="L1270" href="#L1270">1270</a> 
-<a class="jxr_linenumber" name="L1271" href="#L1271">1271</a>         <em class="jxr_comment">// --license : Append a license file.</em>
-<a class="jxr_linenumber" name="L1272" href="#L1272">1272</a>         <strong class="jxr_keyword">if</strong> (licenseFile != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1273" href="#L1273">1273</a>             args.add(<span class="jxr_string">"--license"</span>);
-<a class="jxr_linenumber" name="L1274" href="#L1274">1274</a>             args.add(licenseFile);
-<a class="jxr_linenumber" name="L1275" href="#L1275">1275</a>         }
-<a class="jxr_linenumber" name="L1276" href="#L1276">1276</a> 
-<a class="jxr_linenumber" name="L1277" href="#L1277">1277</a>         <em class="jxr_comment">// --nooverwrite : Do not extract the archive if the specified target directory already exists.</em>
-<a class="jxr_linenumber" name="L1278" href="#L1278">1278</a>         <strong class="jxr_keyword">if</strong> (isTrue(nooverwrite)) {
-<a class="jxr_linenumber" name="L1279" href="#L1279">1279</a>             args.add(<span class="jxr_string">"--nooverwrite"</span>);
-<a class="jxr_linenumber" name="L1280" href="#L1280">1280</a>         }
-<a class="jxr_linenumber" name="L1281" href="#L1281">1281</a> 
-<a class="jxr_linenumber" name="L1282" href="#L1282">1282</a>         <em class="jxr_comment">// --help-header file : Add a header to the archive's --help output.</em>
-<a class="jxr_linenumber" name="L1283" href="#L1283">1283</a>         <strong class="jxr_keyword">if</strong> (helpHeaderFile != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1284" href="#L1284">1284</a>             args.add(<span class="jxr_string">"--help-header"</span>);
-<a class="jxr_linenumber" name="L1285" href="#L1285">1285</a>             args.add(helpHeaderFile);
-<a class="jxr_linenumber" name="L1286" href="#L1286">1286</a>         }
-<a class="jxr_linenumber" name="L1287" href="#L1287">1287</a> 
-<a class="jxr_linenumber" name="L1288" href="#L1288">1288</a>         <strong class="jxr_keyword">return</strong> args;
-<a class="jxr_linenumber" name="L1289" href="#L1289">1289</a>     }
+<a class="jxr_linenumber" name="L941" href="#L941">941</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> setPosixFilePermissions(Path path) {
+<a class="jxr_linenumber" name="L942" href="#L942">942</a>         <strong class="jxr_keyword">final</strong> Set&lt;PosixFilePermission&gt; permissions = PosixFilePermissions.fromString(PERMISSIONS);
+<a class="jxr_linenumber" name="L943" href="#L943">943</a> 
+<a class="jxr_linenumber" name="L944" href="#L944">944</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L945" href="#L945">945</a>             Files.setPosixFilePermissions(path, permissions);
+<a class="jxr_linenumber" name="L946" href="#L946">946</a>             getLog().debug(String.join(<span class="jxr_string">" "</span>, <span class="jxr_string">"Set Posix File Permissions for"</span>, path.toString(), <span class="jxr_string">"as"</span>, PERMISSIONS));
+<a class="jxr_linenumber" name="L947" href="#L947">947</a>         } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L948" href="#L948">948</a>             getLog().error(<span class="jxr_string">"Failed attempted Posix permissions"</span>, e);
+<a class="jxr_linenumber" name="L949" href="#L949">949</a>         } <strong class="jxr_keyword">catch</strong> (UnsupportedOperationException e) {
+<a class="jxr_linenumber" name="L950" href="#L950">950</a>             <em class="jxr_comment">// Attempting but don't care about status if it fails</em>
+<a class="jxr_linenumber" name="L951" href="#L951">951</a>             getLog().debug(<span class="jxr_string">"Failed attempted Posix permissions"</span>, e);
+<a class="jxr_linenumber" name="L952" href="#L952">952</a>         }
+<a class="jxr_linenumber" name="L953" href="#L953">953</a>     }
+<a class="jxr_linenumber" name="L954" href="#L954">954</a> 
+<a class="jxr_linenumber" name="L955" href="#L955">955</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L956" href="#L956">956</a> <em class="jxr_javadoccomment">     * Load args.</em>
+<a class="jxr_linenumber" name="L957" href="#L957">957</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L958" href="#L958">958</a> <em class="jxr_javadoccomment">     * @return the string</em>
+<a class="jxr_linenumber" name="L959" href="#L959">959</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L960" href="#L960">960</a>     <strong class="jxr_keyword">private</strong> List&lt;String&gt; loadArgs() {
+<a class="jxr_linenumber" name="L961" href="#L961">961</a>         getLog().debug(<span class="jxr_string">"Loading arguments"</span>);
+<a class="jxr_linenumber" name="L962" href="#L962">962</a> 
+<a class="jxr_linenumber" name="L963" href="#L963">963</a>         List&lt;String&gt; args = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(50);
+<a class="jxr_linenumber" name="L964" href="#L964">964</a> 
+<a class="jxr_linenumber" name="L965" href="#L965">965</a>         <em class="jxr_comment">// " --tar-quietly : Suppress verbose output from the tar command"</em>
+<a class="jxr_linenumber" name="L966" href="#L966">966</a>         <strong class="jxr_keyword">if</strong> (isTrue(tarQuietly)) {
+<a class="jxr_linenumber" name="L967" href="#L967">967</a>             args.add(<span class="jxr_string">"--tar-quietly"</span>);
+<a class="jxr_linenumber" name="L968" href="#L968">968</a>         }
+<a class="jxr_linenumber" name="L969" href="#L969">969</a> 
+<a class="jxr_linenumber" name="L970" href="#L970">970</a>         <em class="jxr_comment">// " --quiet | -q : Do not print any messages other than errors."</em>
+<a class="jxr_linenumber" name="L971" href="#L971">971</a>         <strong class="jxr_keyword">if</strong> (isTrue(quiet)) {
+<a class="jxr_linenumber" name="L972" href="#L972">972</a>             args.add(<span class="jxr_string">"--quiet"</span>);
+<a class="jxr_linenumber" name="L973" href="#L973">973</a>         }
+<a class="jxr_linenumber" name="L974" href="#L974">974</a> 
+<a class="jxr_linenumber" name="L975" href="#L975">975</a>         <em class="jxr_comment">// --gzip : Use gzip for compression (the default on platforms on which gzip is commonly available, like Linux)</em>
+<a class="jxr_linenumber" name="L976" href="#L976">976</a>         <strong class="jxr_keyword">if</strong> (isTrue(gzip)) {
+<a class="jxr_linenumber" name="L977" href="#L977">977</a>             args.add(<span class="jxr_string">"--gzip"</span>);
+<a class="jxr_linenumber" name="L978" href="#L978">978</a>         }
+<a class="jxr_linenumber" name="L979" href="#L979">979</a> 
+<a class="jxr_linenumber" name="L980" href="#L980">980</a>         <em class="jxr_comment">// --bzip2 : Use bzip2 instead of gzip for better compression. The bzip2 command must be available in the</em>
+<a class="jxr_linenumber" name="L981" href="#L981">981</a>         <em class="jxr_comment">// command path. It is recommended that the archive prefix be set to something like '.bz2.run', so that</em>
+<a class="jxr_linenumber" name="L982" href="#L982">982</a>         <em class="jxr_comment">// potential users know that they'll need bzip2 to extract it.</em>
+<a class="jxr_linenumber" name="L983" href="#L983">983</a>         <strong class="jxr_keyword">if</strong> (isTrue(bzip2)) {
+<a class="jxr_linenumber" name="L984" href="#L984">984</a>             args.add(<span class="jxr_string">"--bzip2"</span>);
+<a class="jxr_linenumber" name="L985" href="#L985">985</a>         }
+<a class="jxr_linenumber" name="L986" href="#L986">986</a> 
+<a class="jxr_linenumber" name="L987" href="#L987">987</a>         <em class="jxr_comment">// --bzip3 : Use bzip3 instead of gzip for better compression. The bzip3 command must be available in the</em>
+<a class="jxr_linenumber" name="L988" href="#L988">988</a>         <em class="jxr_comment">// command path. It is recommended that the archive prefix be set to something like '.bz3.run', so that</em>
+<a class="jxr_linenumber" name="L989" href="#L989">989</a>         <em class="jxr_comment">// potential users know that they'll need bzip3 to extract it.</em>
+<a class="jxr_linenumber" name="L990" href="#L990">990</a>         <strong class="jxr_keyword">if</strong> (isTrue(bzip3)) {
+<a class="jxr_linenumber" name="L991" href="#L991">991</a>             args.add(<span class="jxr_string">"--bzip3"</span>);
+<a class="jxr_linenumber" name="L992" href="#L992">992</a>         }
+<a class="jxr_linenumber" name="L993" href="#L993">993</a> 
+<a class="jxr_linenumber" name="L994" href="#L994">994</a>         <em class="jxr_comment">// --pbzip2 : Use pbzip2 instead of gzip for better and faster compression on machines having multiple CPUs.</em>
+<a class="jxr_linenumber" name="L995" href="#L995">995</a>         <em class="jxr_comment">// The pbzip2 command must be available in the command path. It is recommended that the archive prefix be</em>
+<a class="jxr_linenumber" name="L996" href="#L996">996</a>         <em class="jxr_comment">// set to something like '.pbz2.run', so that potential users know that they'll need bzip2 to extract it.</em>
+<a class="jxr_linenumber" name="L997" href="#L997">997</a>         <strong class="jxr_keyword">if</strong> (isTrue(pbzip2)) {
+<a class="jxr_linenumber" name="L998" href="#L998">998</a>             args.add(<span class="jxr_string">"--pbzip2"</span>);
+<a class="jxr_linenumber" name="L999" href="#L999">999</a>         }
+<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a> 
+<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>         <em class="jxr_comment">// --xz : Use xz instead of gzip for better compression. The xz command must be available in the command path.</em>
+<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>         <em class="jxr_comment">// It is recommended that the archive prefix be set to something like '.xz.run' for the archive, so that</em>
+<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>         <em class="jxr_comment">// potential users know that they'll need xz to extract it.</em>
+<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a>         <strong class="jxr_keyword">if</strong> (isTrue(xz)) {
+<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>             args.add(<span class="jxr_string">"--xz"</span>);
+<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>         }
+<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a> 
+<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>         <em class="jxr_comment">// --lzo : Use lzop instead of gzip for better compression. The lzop command must be available in the command</em>
+<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>         <em class="jxr_comment">// path. It is recommended that the archive prefix be set to something like '.lzo.run' for the archive, so</em>
+<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>         <em class="jxr_comment">// that potential users know that they'll need lzop to extract it.</em>
+<a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>         <strong class="jxr_keyword">if</strong> (isTrue(lzo)) {
+<a class="jxr_linenumber" name="L1012" href="#L1012">1012</a>             args.add(<span class="jxr_string">"--lzo"</span>);
+<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>         }
+<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a> 
+<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>         <em class="jxr_comment">// --lz4 : Use lz4 instead of gzip for better compression. The lz4 command must be available in the command</em>
+<a class="jxr_linenumber" name="L1016" href="#L1016">1016</a>         <em class="jxr_comment">// path. It is recommended that the archive prefix be set to something like '.lz4.run' for the archive, so</em>
+<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a>         <em class="jxr_comment">// that potential users know that they'll need lz4 to extract it.</em>
+<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a>         <strong class="jxr_keyword">if</strong> (isTrue(lz4)) {
+<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>             args.add(<span class="jxr_string">"--lz4"</span>);
+<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>         }
+<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a> 
+<a class="jxr_linenumber" name="L1022" href="#L1022">1022</a>         <em class="jxr_comment">// --zstd : Use zstd for compression.</em>
+<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>         <strong class="jxr_keyword">if</strong> (isTrue(zstd)) {
+<a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>             args.add(<span class="jxr_string">"--zstd"</span>);
+<a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>         }
+<a class="jxr_linenumber" name="L1026" href="#L1026">1026</a> 
+<a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>         <em class="jxr_comment">// --pigz : Use pigz for compression.</em>
+<a class="jxr_linenumber" name="L1028" href="#L1028">1028</a>         <strong class="jxr_keyword">if</strong> (isTrue(pigz)) {
+<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>             args.add(<span class="jxr_string">"--pigz"</span>);
+<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a>         }
+<a class="jxr_linenumber" name="L1031" href="#L1031">1031</a> 
+<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a>         <em class="jxr_comment">// --base64 : Encode the archive to ASCII in Base64 format (base64 command required).</em>
+<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a>         <strong class="jxr_keyword">if</strong> (isTrue(base64)) {
+<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>             args.add(<span class="jxr_string">"--base64"</span>);
+<a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>         }
+<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a> 
+<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a>         <em class="jxr_comment">// --gpg-encrypt : Encrypt the archive using gpg -ac -z $COMPRESS_LEVEL. This will prompt for a password to</em>
+<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a>         <em class="jxr_comment">// encrypt with. Assumes that potential users have gpg installed.</em>
+<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a>         <strong class="jxr_keyword">if</strong> (isTrue(gpgEncrypt)) {
+<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>             args.add(<span class="jxr_string">"--gpg-encrypt"</span>);
+<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a>         }
+<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a> 
+<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a>         <em class="jxr_comment">// --gpg-asymmetric-encrypt-sign : Instead of compressing, asymmetrically encrypt and sign the data using GPG</em>
+<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a>         <strong class="jxr_keyword">if</strong> (isTrue(gpgAsymmetricEncryptSign)) {
+<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a>             args.add(<span class="jxr_string">"--gpg-asymmetric-encrypt-sign"</span>);
+<a class="jxr_linenumber" name="L1046" href="#L1046">1046</a>         }
+<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a> 
+<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a>         <em class="jxr_comment">// --ssl-encrypt : Encrypt the archive using openssl aes-256-cbc -a -salt. This will prompt for a password to</em>
+<a class="jxr_linenumber" name="L1049" href="#L1049">1049</a>         <em class="jxr_comment">// encrypt with. Assumes that the potential users have the OpenSSL tools installed.</em>
+<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a>         <strong class="jxr_keyword">if</strong> (isTrue(sslEncrypt)) {
+<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>             args.add(<span class="jxr_string">"--ssl-encrypt"</span>);
+<a class="jxr_linenumber" name="L1052" href="#L1052">1052</a>         }
+<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a> 
+<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a>         <em class="jxr_comment">// --ssl-passwd pass : Use the given password to encrypt the data using OpenSSL.</em>
+<a class="jxr_linenumber" name="L1055" href="#L1055">1055</a>         <strong class="jxr_keyword">if</strong> (sslPasswd != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1056" href="#L1056">1056</a>             args.add(<span class="jxr_string">"--ssl-passwd"</span>);
+<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a>             args.add(sslPasswd);
+<a class="jxr_linenumber" name="L1058" href="#L1058">1058</a>         }
+<a class="jxr_linenumber" name="L1059" href="#L1059">1059</a> 
+<a class="jxr_linenumber" name="L1060" href="#L1060">1060</a>         <em class="jxr_comment">// --ssl-pass-src src : Use the given src as the source of password to encrypt the data using OpenSSL. See</em>
+<a class="jxr_linenumber" name="L1061" href="#L1061">1061</a>         <em class="jxr_comment">// \&quot;PASS PHRASE ARGUMENTS\&quot; in man openssl. If this option is not supplied, the user wil be asked to enter</em>
+<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a>         <em class="jxr_comment">// encryption pasword on the current terminal.</em>
+<a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>         <strong class="jxr_keyword">if</strong> (sslPassSrc != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>             args.add(<span class="jxr_string">"--ssl-pass-src"</span>);
+<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>             args.add(sslPassSrc);
+<a class="jxr_linenumber" name="L1066" href="#L1066">1066</a>         }
+<a class="jxr_linenumber" name="L1067" href="#L1067">1067</a> 
+<a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>         <em class="jxr_comment">// --ssl-no-md : Do not use \&quot;-md\&quot; option not supported by older OpenSSL.</em>
+<a class="jxr_linenumber" name="L1069" href="#L1069">1069</a>         <strong class="jxr_keyword">if</strong> (isTrue(sslNoMd)) {
+<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>             args.add(<span class="jxr_string">"--ssl-no-md"</span>);
+<a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>         }
+<a class="jxr_linenumber" name="L1072" href="#L1072">1072</a> 
+<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>         <em class="jxr_comment">// --compress : Use the UNIX compress command to compress the data. This should be the default on all platforms</em>
+<a class="jxr_linenumber" name="L1074" href="#L1074">1074</a>         <em class="jxr_comment">// that don't have gzip available.</em>
+<a class="jxr_linenumber" name="L1075" href="#L1075">1075</a>         <strong class="jxr_keyword">if</strong> (isTrue(compress)) {
+<a class="jxr_linenumber" name="L1076" href="#L1076">1076</a>             args.add(<span class="jxr_string">"--compress"</span>);
+<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>         }
+<a class="jxr_linenumber" name="L1078" href="#L1078">1078</a> 
+<a class="jxr_linenumber" name="L1079" href="#L1079">1079</a>         <em class="jxr_comment">// --complevel : Specify the compression level for gzip, bzip2, bzip3, pbzip2, xz, lzo or lz4. (defaults to 9)</em>
+<a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>         <strong class="jxr_keyword">if</strong> (complevel != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>             args.add(<span class="jxr_string">"--complevel"</span>);
+<a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>             args.add(complevel.toString());
+<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>         }
+<a class="jxr_linenumber" name="L1084" href="#L1084">1084</a> 
+<a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>         <em class="jxr_comment">// --comp-extra : Append extra options to the chosen compressor"</em>
+<a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>         <strong class="jxr_keyword">if</strong> (compExtra != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1087" href="#L1087">1087</a>             args.add(<span class="jxr_string">"--comp-extra"</span>);
+<a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>             args.add(compExtra);
+<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>         }
+<a class="jxr_linenumber" name="L1090" href="#L1090">1090</a> 
+<a class="jxr_linenumber" name="L1091" href="#L1091">1091</a>         <em class="jxr_comment">// --nochown : Do not give the target folder to the current user (default)</em>
+<a class="jxr_linenumber" name="L1092" href="#L1092">1092</a>         <strong class="jxr_keyword">if</strong> (isTrue(nochown)) {
+<a class="jxr_linenumber" name="L1093" href="#L1093">1093</a>             args.add(<span class="jxr_string">"--nochown"</span>);
+<a class="jxr_linenumber" name="L1094" href="#L1094">1094</a>         }
+<a class="jxr_linenumber" name="L1095" href="#L1095">1095</a> 
+<a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>         <em class="jxr_comment">// --chown : Give the target folder to the current user recursively.</em>
+<a class="jxr_linenumber" name="L1097" href="#L1097">1097</a>         <strong class="jxr_keyword">if</strong> (isTrue(chown)) {
+<a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>             args.add(<span class="jxr_string">"--chown"</span>);
+<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>         }
+<a class="jxr_linenumber" name="L1100" href="#L1100">1100</a> 
+<a class="jxr_linenumber" name="L1101" href="#L1101">1101</a>         <em class="jxr_comment">// --nocomp : Do not use any compression for the archive, which will then be an uncompressed TAR.</em>
+<a class="jxr_linenumber" name="L1102" href="#L1102">1102</a>         <strong class="jxr_keyword">if</strong> (isTrue(nocomp)) {
+<a class="jxr_linenumber" name="L1103" href="#L1103">1103</a>             args.add(<span class="jxr_string">"--nocomp"</span>);
+<a class="jxr_linenumber" name="L1104" href="#L1104">1104</a>         }
+<a class="jxr_linenumber" name="L1105" href="#L1105">1105</a> 
+<a class="jxr_linenumber" name="L1106" href="#L1106">1106</a>         <em class="jxr_comment">// --threads thds : Number of threads to be used by compressors that support parallelization.</em>
+<a class="jxr_linenumber" name="L1107" href="#L1107">1107</a>         <em class="jxr_comment">// Omit to use compressor's default. Most useful (and required) for opting into xz's threading,</em>
+<a class="jxr_linenumber" name="L1108" href="#L1108">1108</a>         <em class="jxr_comment">// usually with '--threads=0' for all available cores.pbzip2 and pigz are parallel by default,</em>
+<a class="jxr_linenumber" name="L1109" href="#L1109">1109</a>         <em class="jxr_comment">// and setting this value allows limiting the number of threads they use.</em>
+<a class="jxr_linenumber" name="L1110" href="#L1110">1110</a>         <strong class="jxr_keyword">if</strong> (threads != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1111" href="#L1111">1111</a>             args.add(<span class="jxr_string">"--threads"</span>);
+<a class="jxr_linenumber" name="L1112" href="#L1112">1112</a>             args.add(threads.toString());
+<a class="jxr_linenumber" name="L1113" href="#L1113">1113</a>         }
+<a class="jxr_linenumber" name="L1114" href="#L1114">1114</a> 
+<a class="jxr_linenumber" name="L1115" href="#L1115">1115</a>         <em class="jxr_comment">// --notemp : The generated archive will not extract the files to a temporary directory, but in a new directory</em>
+<a class="jxr_linenumber" name="L1116" href="#L1116">1116</a>         <em class="jxr_comment">// created in the current directory. This is better to distribute software packages that may extract and compile</em>
+<a class="jxr_linenumber" name="L1117" href="#L1117">1117</a>         <em class="jxr_comment">// by themselves (i.e. launch the compilation through the embedded script).</em>
+<a class="jxr_linenumber" name="L1118" href="#L1118">1118</a>         <strong class="jxr_keyword">if</strong> (isTrue(notemp)) {
+<a class="jxr_linenumber" name="L1119" href="#L1119">1119</a>             args.add(<span class="jxr_string">"--notemp"</span>);
+<a class="jxr_linenumber" name="L1120" href="#L1120">1120</a>         }
+<a class="jxr_linenumber" name="L1121" href="#L1121">1121</a> 
+<a class="jxr_linenumber" name="L1122" href="#L1122">1122</a>         <em class="jxr_comment">// --needroot : Check that the root user is extracting the archive before proceeding</em>
+<a class="jxr_linenumber" name="L1123" href="#L1123">1123</a>         <strong class="jxr_keyword">if</strong> (isTrue(needroot)) {
+<a class="jxr_linenumber" name="L1124" href="#L1124">1124</a>             args.add(<span class="jxr_string">"--needroot"</span>);
+<a class="jxr_linenumber" name="L1125" href="#L1125">1125</a>         }
+<a class="jxr_linenumber" name="L1126" href="#L1126">1126</a> 
+<a class="jxr_linenumber" name="L1127" href="#L1127">1127</a>         <em class="jxr_comment">// --current : Files will be extracted to the current directory, instead of in a sub-directory. This option</em>
+<a class="jxr_linenumber" name="L1128" href="#L1128">1128</a>         <em class="jxr_comment">// implies --notemp and does not require a startup_script.</em>
+<a class="jxr_linenumber" name="L1129" href="#L1129">1129</a>         <strong class="jxr_keyword">if</strong> (isTrue(current)) {
+<a class="jxr_linenumber" name="L1130" href="#L1130">1130</a>             args.add(<span class="jxr_string">"--current"</span>);
+<a class="jxr_linenumber" name="L1131" href="#L1131">1131</a>         }
+<a class="jxr_linenumber" name="L1132" href="#L1132">1132</a> 
+<a class="jxr_linenumber" name="L1133" href="#L1133">1133</a>         <em class="jxr_comment">// --follow : Follow the symbolic links inside of the archive directory, i.e. store the files that are being</em>
+<a class="jxr_linenumber" name="L1134" href="#L1134">1134</a>         <em class="jxr_comment">// pointed to instead of the links themselves.</em>
+<a class="jxr_linenumber" name="L1135" href="#L1135">1135</a>         <strong class="jxr_keyword">if</strong> (isTrue(follow)) {
+<a class="jxr_linenumber" name="L1136" href="#L1136">1136</a>             args.add(<span class="jxr_string">"--follow"</span>);
+<a class="jxr_linenumber" name="L1137" href="#L1137">1137</a>         }
+<a class="jxr_linenumber" name="L1138" href="#L1138">1138</a> 
+<a class="jxr_linenumber" name="L1139" href="#L1139">1139</a>         <em class="jxr_comment">// --noprogress : Do not show the progress during the decompression</em>
+<a class="jxr_linenumber" name="L1140" href="#L1140">1140</a>         <strong class="jxr_keyword">if</strong> (isTrue(noprogress)) {
+<a class="jxr_linenumber" name="L1141" href="#L1141">1141</a>             args.add(<span class="jxr_string">"--noprogress"</span>);
+<a class="jxr_linenumber" name="L1142" href="#L1142">1142</a>         }
+<a class="jxr_linenumber" name="L1143" href="#L1143">1143</a> 
+<a class="jxr_linenumber" name="L1144" href="#L1144">1144</a>         <em class="jxr_comment">// --append (new in 2.1.x): Append data to an existing archive, instead of creating a new one. In this mode, the</em>
+<a class="jxr_linenumber" name="L1145" href="#L1145">1145</a>         <em class="jxr_comment">// settings from the original archive are reused (compression type, label, embedded script), and thus don't need</em>
+<a class="jxr_linenumber" name="L1146" href="#L1146">1146</a>         <em class="jxr_comment">// to be specified again on the command line.</em>
+<a class="jxr_linenumber" name="L1147" href="#L1147">1147</a>         <strong class="jxr_keyword">if</strong> (isTrue(append)) {
+<a class="jxr_linenumber" name="L1148" href="#L1148">1148</a>             args.add(<span class="jxr_string">"--append"</span>);
+<a class="jxr_linenumber" name="L1149" href="#L1149">1149</a>         }
+<a class="jxr_linenumber" name="L1150" href="#L1150">1150</a> 
+<a class="jxr_linenumber" name="L1151" href="#L1151">1151</a>         <em class="jxr_comment">// --header : Makeself 2.0 uses a separate file to store the header stub, called makeself-header.sh. By default,</em>
+<a class="jxr_linenumber" name="L1152" href="#L1152">1152</a>         <em class="jxr_comment">// it is assumed that it is stored in the same location as makeself.sh. This option can be used to specify its</em>
+<a class="jxr_linenumber" name="L1153" href="#L1153">1153</a>         <em class="jxr_comment">// actual location if it is stored someplace else.</em>
+<a class="jxr_linenumber" name="L1154" href="#L1154">1154</a>         <strong class="jxr_keyword">if</strong> (headerFile != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1155" href="#L1155">1155</a>             args.add(<span class="jxr_string">"--header"</span>);
+<a class="jxr_linenumber" name="L1156" href="#L1156">1156</a>             args.add(headerFile);
+<a class="jxr_linenumber" name="L1157" href="#L1157">1157</a>         }
+<a class="jxr_linenumber" name="L1158" href="#L1158">1158</a> 
+<a class="jxr_linenumber" name="L1159" href="#L1159">1159</a>         <em class="jxr_comment">// --preextract : Specify a pre-extraction script. The script is executed with the same environment and initial</em>
+<a class="jxr_linenumber" name="L1160" href="#L1160">1160</a>         <em class="jxr_comment">// `script_args` as `startup_script`.</em>
+<a class="jxr_linenumber" name="L1161" href="#L1161">1161</a>         <strong class="jxr_keyword">if</strong> (preextractScript != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1162" href="#L1162">1162</a>             args.add(<span class="jxr_string">"--reextract"</span>);
+<a class="jxr_linenumber" name="L1163" href="#L1163">1163</a>             args.add(preextractScript);
+<a class="jxr_linenumber" name="L1164" href="#L1164">1164</a>         }
+<a class="jxr_linenumber" name="L1165" href="#L1165">1165</a> 
+<a class="jxr_linenumber" name="L1166" href="#L1166">1166</a>         <em class="jxr_comment">// --cleanup : Specify a script that is run when execution is interrupted or finishes successfully. The script</em>
+<a class="jxr_linenumber" name="L1167" href="#L1167">1167</a>         <em class="jxr_comment">// is executed with the same environment and initial `script_args` as `startup_script`.</em>
+<a class="jxr_linenumber" name="L1168" href="#L1168">1168</a>         <strong class="jxr_keyword">if</strong> (cleanupScript != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1169" href="#L1169">1169</a>             args.add(<span class="jxr_string">"--cleanup"</span>);
+<a class="jxr_linenumber" name="L1170" href="#L1170">1170</a>             args.add(cleanupScript);
+<a class="jxr_linenumber" name="L1171" href="#L1171">1171</a>         }
+<a class="jxr_linenumber" name="L1172" href="#L1172">1172</a> 
+<a class="jxr_linenumber" name="L1173" href="#L1173">1173</a>         <em class="jxr_comment">// --copy : Upon extraction, the archive will first extract itself to a temporary directory. The main</em>
+<a class="jxr_linenumber" name="L1174" href="#L1174">1174</a>         <em class="jxr_comment">// application of this is to allow self-contained installers stored in a Makeself archive on a CD, when the</em>
+<a class="jxr_linenumber" name="L1175" href="#L1175">1175</a>         <em class="jxr_comment">// installer program will later need to unmount the CD and allow a new one to be inserted. This prevents</em>
+<a class="jxr_linenumber" name="L1176" href="#L1176">1176</a>         <em class="jxr_comment">// "File system busy" errors for installers that span multiple CDs.</em>
+<a class="jxr_linenumber" name="L1177" href="#L1177">1177</a>         <strong class="jxr_keyword">if</strong> (isTrue(copy)) {
+<a class="jxr_linenumber" name="L1178" href="#L1178">1178</a>             args.add(<span class="jxr_string">"--copy"</span>);
+<a class="jxr_linenumber" name="L1179" href="#L1179">1179</a>         }
+<a class="jxr_linenumber" name="L1180" href="#L1180">1180</a> 
+<a class="jxr_linenumber" name="L1181" href="#L1181">1181</a>         <em class="jxr_comment">// --nox11 : Disable the automatic spawning of a new terminal in X11.</em>
+<a class="jxr_linenumber" name="L1182" href="#L1182">1182</a>         <strong class="jxr_keyword">if</strong> (isTrue(nox11)) {
+<a class="jxr_linenumber" name="L1183" href="#L1183">1183</a>             args.add(<span class="jxr_string">"--nox11"</span>);
+<a class="jxr_linenumber" name="L1184" href="#L1184">1184</a>         }
+<a class="jxr_linenumber" name="L1185" href="#L1185">1185</a> 
+<a class="jxr_linenumber" name="L1186" href="#L1186">1186</a>         <em class="jxr_comment">// --nowait : When executed from a new X11 terminal, disable the user prompt at the end of the script execution.</em>
+<a class="jxr_linenumber" name="L1187" href="#L1187">1187</a>         <strong class="jxr_keyword">if</strong> (isTrue(nowait)) {
+<a class="jxr_linenumber" name="L1188" href="#L1188">1188</a>             args.add(<span class="jxr_string">"--nowait"</span>);
+<a class="jxr_linenumber" name="L1189" href="#L1189">1189</a>         }
+<a class="jxr_linenumber" name="L1190" href="#L1190">1190</a> 
+<a class="jxr_linenumber" name="L1191" href="#L1191">1191</a>         <em class="jxr_comment">// --nomd5 : Disable the creation of a MD5 checksum for the archive. This speeds up the extraction process if</em>
+<a class="jxr_linenumber" name="L1192" href="#L1192">1192</a>         <em class="jxr_comment">// integrity checking is not necessary.</em>
+<a class="jxr_linenumber" name="L1193" href="#L1193">1193</a>         <strong class="jxr_keyword">if</strong> (isTrue(nomd5)) {
+<a class="jxr_linenumber" name="L1194" href="#L1194">1194</a>             args.add(<span class="jxr_string">"--nomd5"</span>);
+<a class="jxr_linenumber" name="L1195" href="#L1195">1195</a>         }
+<a class="jxr_linenumber" name="L1196" href="#L1196">1196</a> 
+<a class="jxr_linenumber" name="L1197" href="#L1197">1197</a>         <em class="jxr_comment">// --nocrc : Disable the creation of a CRC checksum for the archive. This speeds up the extraction process if</em>
+<a class="jxr_linenumber" name="L1198" href="#L1198">1198</a>         <em class="jxr_comment">// integrity checking is not necessary.</em>
+<a class="jxr_linenumber" name="L1199" href="#L1199">1199</a>         <strong class="jxr_keyword">if</strong> (isTrue(nocrc)) {
+<a class="jxr_linenumber" name="L1200" href="#L1200">1200</a>             args.add(<span class="jxr_string">"--nocrc"</span>);
+<a class="jxr_linenumber" name="L1201" href="#L1201">1201</a>         }
+<a class="jxr_linenumber" name="L1202" href="#L1202">1202</a> 
+<a class="jxr_linenumber" name="L1203" href="#L1203">1203</a>         <em class="jxr_comment">// --sha256 : Compute a SHA256 checksum for the archive.</em>
+<a class="jxr_linenumber" name="L1204" href="#L1204">1204</a>         <strong class="jxr_keyword">if</strong> (isTrue(sha256)) {
+<a class="jxr_linenumber" name="L1205" href="#L1205">1205</a>             args.add(<span class="jxr_string">"--sha256"</span>);
+<a class="jxr_linenumber" name="L1206" href="#L1206">1206</a>         }
+<a class="jxr_linenumber" name="L1207" href="#L1207">1207</a> 
+<a class="jxr_linenumber" name="L1208" href="#L1208">1208</a>         <em class="jxr_comment">// --lsm file : Provide and LSM file to makeself, that will be embedded in the generated archive. LSM files are</em>
+<a class="jxr_linenumber" name="L1209" href="#L1209">1209</a>         <em class="jxr_comment">// describing a software package in a way that is easily parseable. The LSM entry can then be later retrieved</em>
+<a class="jxr_linenumber" name="L1210" href="#L1210">1210</a>         <em class="jxr_comment">// using the --lsm argument to the archive. An example of a LSM file is provided</em>
+<a class="jxr_linenumber" name="L1211" href="#L1211">1211</a>         <em class="jxr_comment">// with Makeself.</em>
+<a class="jxr_linenumber" name="L1212" href="#L1212">1212</a>         <strong class="jxr_keyword">if</strong> (lsmFile != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1213" href="#L1213">1213</a>             args.add(<span class="jxr_string">"--lsm"</span>);
+<a class="jxr_linenumber" name="L1214" href="#L1214">1214</a>             args.add(lsmFile);
+<a class="jxr_linenumber" name="L1215" href="#L1215">1215</a>         }
+<a class="jxr_linenumber" name="L1216" href="#L1216">1216</a> 
+<a class="jxr_linenumber" name="L1217" href="#L1217">1217</a>         <em class="jxr_comment">// --gpg-extra opt : Append more options to the gpg command line.</em>
+<a class="jxr_linenumber" name="L1218" href="#L1218">1218</a>         <strong class="jxr_keyword">if</strong> (gpgExtraOpt != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1219" href="#L1219">1219</a>             args.add(<span class="jxr_string">"--gpg-extra"</span>);
+<a class="jxr_linenumber" name="L1220" href="#L1220">1220</a>             args.add(gpgExtraOpt);
+<a class="jxr_linenumber" name="L1221" href="#L1221">1221</a>         }
+<a class="jxr_linenumber" name="L1222" href="#L1222">1222</a> 
+<a class="jxr_linenumber" name="L1223" href="#L1223">1223</a>         <em class="jxr_comment">// --tar-format opt : Specify the tar archive format (default is ustar); you may use any value accepted by your</em>
+<a class="jxr_linenumber" name="L1224" href="#L1224">1224</a>         <em class="jxr_comment">// tar command (such as posix, v7, etc).</em>
+<a class="jxr_linenumber" name="L1225" href="#L1225">1225</a>         <strong class="jxr_keyword">if</strong> (tarFormatOpt != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1226" href="#L1226">1226</a>             args.add(<span class="jxr_string">"--tar-format"</span>);
+<a class="jxr_linenumber" name="L1227" href="#L1227">1227</a>             args.add(tarFormatOpt);
+<a class="jxr_linenumber" name="L1228" href="#L1228">1228</a>         }
+<a class="jxr_linenumber" name="L1229" href="#L1229">1229</a> 
+<a class="jxr_linenumber" name="L1230" href="#L1230">1230</a>         <em class="jxr_comment">// --tar-extra opt : Append more options to the tar command line.</em>
+<a class="jxr_linenumber" name="L1231" href="#L1231">1231</a>         <em class="jxr_comment">// For instance, in order to exclude the .git directory from the packaged archive directory using the GNU tar,</em>
+<a class="jxr_linenumber" name="L1232" href="#L1232">1232</a>         <em class="jxr_comment">// one can use makeself.sh --tar-extra "--exclude=.git" ...</em>
+<a class="jxr_linenumber" name="L1233" href="#L1233">1233</a>         <strong class="jxr_keyword">if</strong> (tarExtraOpt != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1234" href="#L1234">1234</a>             args.add(<span class="jxr_string">"--tar-extra"</span>);
+<a class="jxr_linenumber" name="L1235" href="#L1235">1235</a>             args.add(tarExtraOpt);
+<a class="jxr_linenumber" name="L1236" href="#L1236">1236</a>         }
+<a class="jxr_linenumber" name="L1237" href="#L1237">1237</a> 
+<a class="jxr_linenumber" name="L1238" href="#L1238">1238</a>         <em class="jxr_comment">// --untar-extra opt : Append more options to the during the extraction of the tar archive.</em>
+<a class="jxr_linenumber" name="L1239" href="#L1239">1239</a>         <strong class="jxr_keyword">if</strong> (untarExtraOpt != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1240" href="#L1240">1240</a>             args.add(<span class="jxr_string">"--untar-extra"</span>);
+<a class="jxr_linenumber" name="L1241" href="#L1241">1241</a>             args.add(untarExtraOpt);
+<a class="jxr_linenumber" name="L1242" href="#L1242">1242</a>         }
+<a class="jxr_linenumber" name="L1243" href="#L1243">1243</a> 
+<a class="jxr_linenumber" name="L1244" href="#L1244">1244</a>         <em class="jxr_comment">// --sign passphrase : Signature private key to sign the package with</em>
+<a class="jxr_linenumber" name="L1245" href="#L1245">1245</a>         <strong class="jxr_keyword">if</strong> (signPassphrase != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1246" href="#L1246">1246</a>             args.add(<span class="jxr_string">"--sign"</span>);
+<a class="jxr_linenumber" name="L1247" href="#L1247">1247</a>             args.add(signPassphrase);
+<a class="jxr_linenumber" name="L1248" href="#L1248">1248</a>         }
+<a class="jxr_linenumber" name="L1249" href="#L1249">1249</a> 
+<a class="jxr_linenumber" name="L1250" href="#L1250">1250</a>         <em class="jxr_comment">// --target dir : Specify the directory where the archive will be extracted. This option implies</em>
+<a class="jxr_linenumber" name="L1251" href="#L1251">1251</a>         <em class="jxr_comment">// --notemp and does not require a startup_script.</em>
+<a class="jxr_linenumber" name="L1252" href="#L1252">1252</a>         <strong class="jxr_keyword">if</strong> (extractTargetDir != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1253" href="#L1253">1253</a>             args.add(<span class="jxr_string">"--target"</span>);
+<a class="jxr_linenumber" name="L1254" href="#L1254">1254</a>             args.add(extractTargetDir);
+<a class="jxr_linenumber" name="L1255" href="#L1255">1255</a>         }
+<a class="jxr_linenumber" name="L1256" href="#L1256">1256</a> 
+<a class="jxr_linenumber" name="L1257" href="#L1257">1257</a>         <em class="jxr_comment">// --keep-umask : Keep the umask set to shell default, rather than overriding when executing self-extracting</em>
+<a class="jxr_linenumber" name="L1258" href="#L1258">1258</a>         <em class="jxr_comment">// archive.</em>
+<a class="jxr_linenumber" name="L1259" href="#L1259">1259</a>         <strong class="jxr_keyword">if</strong> (isTrue(keepUmask)) {
+<a class="jxr_linenumber" name="L1260" href="#L1260">1260</a>             args.add(<span class="jxr_string">"--keep-umask"</span>);
+<a class="jxr_linenumber" name="L1261" href="#L1261">1261</a>         }
+<a class="jxr_linenumber" name="L1262" href="#L1262">1262</a> 
+<a class="jxr_linenumber" name="L1263" href="#L1263">1263</a>         <em class="jxr_comment">// --export-conf : Export configuration variables to startup_script"</em>
+<a class="jxr_linenumber" name="L1264" href="#L1264">1264</a>         <strong class="jxr_keyword">if</strong> (isTrue(exportConf)) {
+<a class="jxr_linenumber" name="L1265" href="#L1265">1265</a>             args.add(<span class="jxr_string">"--export-conf"</span>);
+<a class="jxr_linenumber" name="L1266" href="#L1266">1266</a>         }
+<a class="jxr_linenumber" name="L1267" href="#L1267">1267</a> 
+<a class="jxr_linenumber" name="L1268" href="#L1268">1268</a>         <em class="jxr_comment">// --packaging-date date : Use provided string as the packaging date instead of the current date.</em>
+<a class="jxr_linenumber" name="L1269" href="#L1269">1269</a>         <strong class="jxr_keyword">if</strong> (packagingDate != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1270" href="#L1270">1270</a>             args.add(<span class="jxr_string">"--packaging-date"</span>);
+<a class="jxr_linenumber" name="L1271" href="#L1271">1271</a>             args.add(packagingDate);
+<a class="jxr_linenumber" name="L1272" href="#L1272">1272</a>         }
+<a class="jxr_linenumber" name="L1273" href="#L1273">1273</a> 
+<a class="jxr_linenumber" name="L1274" href="#L1274">1274</a>         <em class="jxr_comment">// --license : Append a license file.</em>
+<a class="jxr_linenumber" name="L1275" href="#L1275">1275</a>         <strong class="jxr_keyword">if</strong> (licenseFile != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1276" href="#L1276">1276</a>             args.add(<span class="jxr_string">"--license"</span>);
+<a class="jxr_linenumber" name="L1277" href="#L1277">1277</a>             args.add(licenseFile);
+<a class="jxr_linenumber" name="L1278" href="#L1278">1278</a>         }
+<a class="jxr_linenumber" name="L1279" href="#L1279">1279</a> 
+<a class="jxr_linenumber" name="L1280" href="#L1280">1280</a>         <em class="jxr_comment">// --nooverwrite : Do not extract the archive if the specified target directory already exists.</em>
+<a class="jxr_linenumber" name="L1281" href="#L1281">1281</a>         <strong class="jxr_keyword">if</strong> (isTrue(nooverwrite)) {
+<a class="jxr_linenumber" name="L1282" href="#L1282">1282</a>             args.add(<span class="jxr_string">"--nooverwrite"</span>);
+<a class="jxr_linenumber" name="L1283" href="#L1283">1283</a>         }
+<a class="jxr_linenumber" name="L1284" href="#L1284">1284</a> 
+<a class="jxr_linenumber" name="L1285" href="#L1285">1285</a>         <em class="jxr_comment">// --help-header file : Add a header to the archive's --help output.</em>
+<a class="jxr_linenumber" name="L1286" href="#L1286">1286</a>         <strong class="jxr_keyword">if</strong> (helpHeaderFile != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1287" href="#L1287">1287</a>             args.add(<span class="jxr_string">"--help-header"</span>);
+<a class="jxr_linenumber" name="L1288" href="#L1288">1288</a>             args.add(helpHeaderFile);
+<a class="jxr_linenumber" name="L1289" href="#L1289">1289</a>         }
 <a class="jxr_linenumber" name="L1290" href="#L1290">1290</a> 
-<a class="jxr_linenumber" name="L1291" href="#L1291">1291</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isTrue(Boolean value) {
-<a class="jxr_linenumber" name="L1292" href="#L1292">1292</a>         <strong class="jxr_keyword">if</strong> (value != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L1293" href="#L1293">1293</a>             <strong class="jxr_keyword">return</strong> value.booleanValue();
-<a class="jxr_linenumber" name="L1294" href="#L1294">1294</a>         }
-<a class="jxr_linenumber" name="L1295" href="#L1295">1295</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L1296" href="#L1296">1296</a>     }
-<a class="jxr_linenumber" name="L1297" href="#L1297">1297</a> 
-<a class="jxr_linenumber" name="L1298" href="#L1298">1298</a> }
+<a class="jxr_linenumber" name="L1291" href="#L1291">1291</a>         <strong class="jxr_keyword">return</strong> args;
+<a class="jxr_linenumber" name="L1292" href="#L1292">1292</a>     }
+<a class="jxr_linenumber" name="L1293" href="#L1293">1293</a> 
+<a class="jxr_linenumber" name="L1294" href="#L1294">1294</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isTrue(Boolean value) {
+<a class="jxr_linenumber" name="L1295" href="#L1295">1295</a>         <strong class="jxr_keyword">if</strong> (value != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L1296" href="#L1296">1296</a>             <strong class="jxr_keyword">return</strong> value.booleanValue();
+<a class="jxr_linenumber" name="L1297" href="#L1297">1297</a>         }
+<a class="jxr_linenumber" name="L1298" href="#L1298">1298</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L1299" href="#L1299">1299</a>     }
+<a class="jxr_linenumber" name="L1300" href="#L1300">1300</a> 
+<a class="jxr_linenumber" name="L1301" href="#L1301">1301</a> }
 </pre>
 <hr/>
 <div id="footer">© 2011–2025 <a href="https://github.com/hazendaz/">hazendaz</a></div>
