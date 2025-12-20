@@ -324,6 +324,7 @@
                                     <postBuildHookScript>verify</postBuildHookScript>
                                     <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
                                     <settingsFile>${project.basedir}/src/it/settings.xml</settingsFile>
+                                    <streamLogsOnFailures>true</streamLogsOnFailures>
                                 </configuration>
                             </execution>
                         </executions>
