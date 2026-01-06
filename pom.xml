@@ -102,7 +102,7 @@
         <git.version>2.52.0.1</git.version>
 
         <!-- Junit -->
-        <junit.version>6.0.1</junit.version>
+        <junit.version>6.0.2</junit.version>
 
         <!-- Targeted patches -->
         <io.version>2.21.0</io.version>
