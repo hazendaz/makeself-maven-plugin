@@ -91,7 +91,7 @@
         <resolver.version>1.9.25</resolver.version>
 
         <!-- Maven Plugins -->
-        <download-plugin.version>2.0.0</download-plugin.version>
+        <download-plugin.version>2.1.0</download-plugin.version>
         <invoker-plugin.version>3.9.1</invoker-plugin.version>
         <maven-plugin.version>3.15.2</maven-plugin.version>
 
