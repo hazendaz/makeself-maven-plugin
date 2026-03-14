@@ -29,12 +29,12 @@
     </parent>
 
     <groupId>com.github.hazendaz</groupId>
-    <artifactId>makeself-sample</artifactId>
+    <artifactId>makeself-git</artifactId>
     <version>testing</version>
     <packaging>pom</packaging>
 
-    <name>makeself-sample</name>
-    <description>Makeself Sample Integration Test</description>
+    <name>makeself-git</name>
+    <description>Makeself Git Integration Test</description>
     <url>https://hazendaz.github.io/makeself-maven-plugin/</url>
 
     <scm>
@@ -50,44 +50,16 @@
     </properties>
 
     <build>
-        <finalName>makeself-sample</finalName>
         <plugins>
-            <!-- Assembly -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>com.github.hazendaz.maven</groupId>
                 <artifactId>makeself-maven-plugin</artifactId>
                 <version>@pom.version@</version>
-                <configuration>
-                    <archiveDir>makeself-sample-distro</archiveDir>
-                    <fileName>makeself-sample.sh</fileName>
-                    <label>Makeself Sample Self Extraction</label>
-                    <startupScript>./deploy.sh</startupScript>
-                    <sha256>true</sha256>
-                    <autoRun>true</autoRun>
-                </configuration>
                 <executions>
                     <execution>
-                        <id>makeself</id>
+                        <id>makeself-git</id>
                         <goals>
-                            <goal>makeself</goal>
+                            <goal>git</goal>
                         </goals>
                     </execution>
                 </executions>

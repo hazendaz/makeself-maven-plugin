@@ -1,5 +1,5 @@
 /*
- *    Copyright 2011-2025 the original author or authors.
+ *    Copyright 2011-2026 the original author or authors.
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
  */
 package com.hazendaz.maven.makeself;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +25,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
@@ -37,13 +35,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -51,39 +43,18 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
-import org.eclipse.aether.RepositorySystem;
-import org.eclipse.aether.RepositorySystemSession;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.ArtifactRequest;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.ArtifactResult;
 
 /**
  * The Class MakeselfMojo.
  */
 @Mojo(name = "makeself", defaultPhase = LifecyclePhase.VERIFY, requiresProject = false)
-public class MakeselfMojo extends AbstractMojo {
-
-    /** isWindows is detected at start of plugin to ensure windows needs. */
-    private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Windows");
+public class MakeselfMojo extends AbstractGitMojo {
 
     /** Permissions for makeself script results. */
     private static final String PERMISSIONS = "rwxr-xr--";
 
     /** Static ATTACH_ARTIFACT to maven lifecycle. */
     private static final boolean ATTACH_ARTIFACT = true;
-
-    /** The Constant GIT_USER_BIN. */
-    private static final String GIT_USER_BIN = "/usr/bin/";
-
-    /**
-     * The path to existing git install for windows usage. If left blank per default, portable git will be used.
-     * Location should be something like 'C:/Program Files/Git'. When set and not windows, it will be treated as blank.
-     */
-    @Parameter(defaultValue = "", property = "gitPath")
-    private String gitPath;
 
     /**
      * archive_dir is the name of the directory that contains the files to be archived.
@@ -567,27 +538,12 @@ public class MakeselfMojo extends AbstractMojo {
     @Inject
     private MavenProjectHelper projectHelper;
 
-    /** Maven Artifact Factory. */
-    @Inject
-    private RepositorySystem repositorySystem;
-
     /** Maven Project. */
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
-    /** Maven Repository System Session. */
-    @Parameter(defaultValue = "${repositorySystemSession}", readonly = true, required = true)
-    private RepositorySystemSession repoSession;
-
-    /** Maven Remote Repositories. */
-    @Parameter(defaultValue = "${project.remoteProjectRepositories}", readonly = true, required = true)
-    protected List<RemoteRepository> remoteRepositories;
-
     /** The makeself. */
     private Path makeself;
-
-    /** Portable Git. */
-    private PortableGit portableGit;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -822,111 +778,6 @@ public class MakeselfMojo extends AbstractMojo {
             } catch (IOException e) {
                 getLog().error("", e);
             }
-        }
-    }
-
-    /**
-     * Check Git Setup.
-     *
-     * @throws MojoFailureException
-     *             the mojo failure exception
-     */
-    private void checkGitSetup() throws MojoFailureException {
-        // Get Portable Git Maven Information
-        this.portableGit = new PortableGit(getLog());
-
-        // Extract Portable Git
-        this.extractPortableGit();
-    }
-
-    /**
-     * Extract Portable Git.
-     *
-     * @throws MojoFailureException
-     *             failure retrieving portable git
-     */
-    private void extractPortableGit() throws MojoFailureException {
-        final String location = repoSession.getLocalRepository().getBasedir() + File.separator
-                + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
-        if (Files.exists(Path.of(location))) {
-            getLog().debug("Existing 'PortableGit' folder found at " + location);
-            gitPath = location + GIT_USER_BIN;
-            return;
-        }
-
-        getLog().info("Loading portable git");
-        final Artifact artifact = new DefaultArtifact(this.portableGit.getGroupId(), this.portableGit.getArtifactId(),
-                this.portableGit.getClassifier(), this.portableGit.getExtension(), this.portableGit.getVersion());
-        final ArtifactRequest artifactRequest = new ArtifactRequest().setRepositories(this.remoteRepositories)
-                .setArtifact(artifact);
-        ArtifactResult resolutionResult = null;
-        try {
-            resolutionResult = repositorySystem.resolveArtifact(repoSession, artifactRequest);
-            if (!resolutionResult.isResolved()) {
-                throw new MojoFailureException("Unable to resolve artifact: " + artifact.getGroupId() + ":"
-                        + artifact.getArtifactId() + ":" + artifact.getVersion() + ":" + artifact.getClassifier() + ":"
-                        + artifact.getExtension());
-            }
-        } catch (ArtifactResolutionException e) {
-            throw new MojoFailureException(
-                    "Unable to resolve artifact: " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":"
-                            + artifact.getVersion() + ":" + artifact.getClassifier() + ":" + artifact.getExtension());
-        }
-        this.installGit(resolutionResult.getArtifact(), location);
-    }
-
-    /**
-     * Install Git extracts git to .m2/repository under PortableGit.
-     *
-     * @param artifact
-     *            the maven artifact representation for git
-     * @param location
-     *            the location in maven repository to store portable git
-     */
-    private void installGit(final Artifact artifact, final String location) {
-        Path currentFile = null;
-
-        // Unzip 'git-for-windows-*-portable.tar.gz' from '.m2/repository/com/github/hazendaz/git/git-for-windows'
-        // into '.m2/repository/PortableGit'
-        try (InputStream inputStream = Files.newInputStream(artifact.getFile().toPath());
-                InputStream bufferedStream = new BufferedInputStream(inputStream);
-                InputStream gzipStream = new GzipCompressorInputStream(bufferedStream);
-                ArchiveInputStream<TarArchiveEntry> tarStream = new TarArchiveInputStream(gzipStream)) {
-            ArchiveEntry entry;
-            String directory = repoSession.getLocalRepository().getBasedir() + File.separator
-                    + this.portableGit.getName();
-            while ((entry = tarStream.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
-                    continue;
-                }
-                currentFile = Path.of(directory, entry.getName());
-                if (!currentFile.normalize().startsWith(directory)) {
-                    throw new IOException("Bad zip entry, possible directory traversal");
-                }
-                Path parent = currentFile.getParent();
-                if (!Files.exists(parent)) {
-                    Files.createDirectory(parent);
-                }
-                getLog().debug("Current file: " + currentFile.getFileName());
-                Files.copy(tarStream, currentFile, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            getLog().error("", e);
-        }
-
-        try {
-            if (currentFile != null) {
-                // Extract Portable Git
-                getLog().debug("Extract Portable Git");
-                execute(Arrays.asList(currentFile.toString(), "-y", "-o", location), !ATTACH_ARTIFACT);
-                gitPath = location + GIT_USER_BIN;
-            }
-        } catch (IOException e) {
-            getLog().error("", e);
-        } catch (InterruptedException e) {
-            getLog().error("", e);
-            // restore interruption status of the corresponding thread
-            Thread.currentThread().interrupt();
         }
     }
 
