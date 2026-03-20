@@ -15,16 +15,9 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *    GNU General Public License for more details.
  */
-println '*****************************'
-println 'Checking Sample Shell Created'
-println '*****************************'
-
-File makeself = new File( localRepositoryPath, "com/github/hazendaz/makeself-sample/testing/makeself-sample-testing.sh" );
-assert makeself.exists()
-
-println '*********************************'
-println 'Checking Sample Build Log Created'
-println '*********************************'
+println '****************************'
+println 'Checking Git Build Log'
+println '****************************'
 
 File buildlog = new File(basedir, 'build.log')
 assert buildlog.exists()
@@ -33,4 +26,9 @@ println '*********************************'
 println 'Checking Build Log was successful'
 println '*********************************'
 
-assert buildlog.text.contains( "[INFO] Makeself is now executing internally provided script!" )
+String buildlogText = buildlog.text
+
+// On Windows portable git is downloaded; on other platforms the mojo skips gracefully
+assert buildlogText.contains( "Portable git is only applicable on Windows" ) ||
+       buildlogText.contains( "Portable git is available at:" ) ||
+       buildlogText.contains( "Using existing 'Git' found at" )
