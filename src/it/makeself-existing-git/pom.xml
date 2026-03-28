@@ -49,7 +49,7 @@
         <maven.min-version>3.6.3</maven.min-version>
 
         <!-- Git -->
-        <git.version>2.52.0.1</git.version>
+        <git.version>2.53.0.2</git.version>
     </properties>
 
     <dependencyManagement>
