@@ -47,31 +47,31 @@ public class GitMojo extends AbstractGitMojo {
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         // Ensure gitPath is never null
-        if (gitPath == null) {
-            gitPath = "";
+        if (this.gitPath == null) {
+            this.gitPath = "";
         }
 
         // Check if plugin run should be skipped
         if (this.skip) {
-            getLog().info("Makeself git is skipped");
+            this.getLog().info("Makeself git is skipped");
             return;
         }
 
         if (!AbstractGitMojo.WINDOWS) {
-            getLog().info("Portable git is only applicable on Windows; skipping on this platform");
+            this.getLog().info("Portable git is only applicable on Windows; skipping on this platform");
             return;
         }
 
         // Use existing git if a valid path was provided
-        if (!gitPath.isEmpty() && Files.exists(Path.of(gitPath))) {
-            getLog().info("Using existing 'Git' found at " + gitPath);
-            gitPath = gitPath + GIT_USER_BIN;
+        if (!this.gitPath.isEmpty() && Files.exists(Path.of(this.gitPath))) {
+            this.getLog().info("Using existing 'Git' found at " + this.gitPath);
+            this.gitPath = this.gitPath + AbstractGitMojo.GIT_USER_BIN;
         } else {
             // Download and install portable git
             this.checkGitSetup();
         }
 
-        getLog().info("Portable git is available at: " + gitPath);
+        this.getLog().info("Portable git is available at: " + this.gitPath);
     }
 
 }

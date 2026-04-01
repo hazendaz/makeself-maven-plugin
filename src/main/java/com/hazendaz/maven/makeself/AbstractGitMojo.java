@@ -90,7 +90,7 @@ public abstract class AbstractGitMojo extends AbstractMojo {
      */
     protected void checkGitSetup() throws MojoFailureException {
         // Get Portable Git Maven Information
-        this.portableGit = new PortableGit(getLog());
+        this.portableGit = new PortableGit(this.getLog());
 
         // Extract Portable Git
         this.extractPortableGit();
@@ -103,28 +103,28 @@ public abstract class AbstractGitMojo extends AbstractMojo {
      *             failure retrieving portable git
      */
     protected void extractPortableGit() throws MojoFailureException {
-        final String location = repoSession.getLocalRepository().getBasedir() + File.separator
+        final String location = this.repoSession.getLocalRepository().getBasedir() + File.separator
                 + this.portableGit.getName() + File.separator + this.portableGit.getVersion();
         if (Files.exists(Path.of(location))) {
-            getLog().debug("Existing 'PortableGit' folder found at " + location);
-            gitPath = location + GIT_USER_BIN;
+            this.getLog().debug("Existing 'PortableGit' folder found at " + location);
+            this.gitPath = location + AbstractGitMojo.GIT_USER_BIN;
             return;
         }
 
-        getLog().info("Loading portable git");
+        this.getLog().info("Loading portable git");
         final Artifact artifact = new DefaultArtifact(this.portableGit.getGroupId(), this.portableGit.getArtifactId(),
                 this.portableGit.getClassifier(), this.portableGit.getExtension(), this.portableGit.getVersion());
         final ArtifactRequest artifactRequest = new ArtifactRequest().setRepositories(this.remoteRepositories)
                 .setArtifact(artifact);
         ArtifactResult resolutionResult = null;
         try {
-            resolutionResult = repositorySystem.resolveArtifact(repoSession, artifactRequest);
+            resolutionResult = this.repositorySystem.resolveArtifact(this.repoSession, artifactRequest);
             if (!resolutionResult.isResolved()) {
                 throw new MojoFailureException("Unable to resolve artifact: " + artifact.getGroupId() + ":"
                         + artifact.getArtifactId() + ":" + artifact.getVersion() + ":" + artifact.getClassifier() + ":"
                         + artifact.getExtension());
             }
-        } catch (ArtifactResolutionException e) {
+        } catch (final ArtifactResolutionException e) {
             throw new MojoFailureException(
                     "Unable to resolve artifact: " + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":"
                             + artifact.getVersion() + ":" + artifact.getClassifier() + ":" + artifact.getExtension());
@@ -150,7 +150,7 @@ public abstract class AbstractGitMojo extends AbstractMojo {
                 InputStream gzipStream = new GzipCompressorInputStream(bufferedStream);
                 ArchiveInputStream<TarArchiveEntry> tarStream = new TarArchiveInputStream(gzipStream)) {
             ArchiveEntry entry;
-            String directory = repoSession.getLocalRepository().getBasedir() + File.separator
+            final String directory = this.repoSession.getLocalRepository().getBasedir() + File.separator
                     + this.portableGit.getName();
             while ((entry = tarStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
@@ -160,28 +160,28 @@ public abstract class AbstractGitMojo extends AbstractMojo {
                 if (!currentFile.normalize().startsWith(directory)) {
                     throw new IOException("Bad zip entry, possible directory traversal");
                 }
-                Path parent = currentFile.getParent();
+                final Path parent = currentFile.getParent();
                 if (!Files.exists(parent)) {
                     Files.createDirectories(parent);
                 }
-                getLog().debug("Current file: " + currentFile.getFileName());
+                this.getLog().debug("Current file: " + currentFile.getFileName());
                 Files.copy(tarStream, currentFile, StandardCopyOption.REPLACE_EXISTING);
             }
-        } catch (IOException e) {
-            getLog().error("", e);
+        } catch (final IOException e) {
+            this.getLog().error("", e);
         }
 
         try {
             if (currentFile != null) {
                 // Extract Portable Git
-                getLog().debug("Extract Portable Git");
-                runInstaller(Arrays.asList(currentFile.toString(), "-y", "-o", location));
-                gitPath = location + GIT_USER_BIN;
+                this.getLog().debug("Extract Portable Git");
+                this.runInstaller(Arrays.asList(currentFile.toString(), "-y", "-o", location));
+                this.gitPath = location + AbstractGitMojo.GIT_USER_BIN;
             }
-        } catch (IOException e) {
-            getLog().error("", e);
-        } catch (InterruptedException e) {
-            getLog().error("", e);
+        } catch (final IOException e) {
+            this.getLog().error("", e);
+        } catch (final InterruptedException e) {
+            this.getLog().error("", e);
             // restore interruption status of the corresponding thread
             Thread.currentThread().interrupt();
         }
@@ -199,7 +199,7 @@ public abstract class AbstractGitMojo extends AbstractMojo {
      *             the interrupted exception
      */
     protected void runInstaller(final List<String> command) throws IOException, InterruptedException {
-        getLog().debug("Execution commands: " + command);
+        this.getLog().debug("Execution commands: " + command);
 
         final ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
@@ -209,14 +209,14 @@ public abstract class AbstractGitMojo extends AbstractMojo {
                 new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
             String line = "";
             while ((line = reader.readLine()) != null) {
-                getLog().info(line);
+                this.getLog().info(line);
             }
-            getLog().info("");
+            this.getLog().info("");
         }
 
         final int status = process.waitFor();
         if (status > 0) {
-            getLog().error(String.join(" ", "Process failed with error status:", String.valueOf(status)));
+            this.getLog().error(String.join(" ", "Process failed with error status:", String.valueOf(status)));
         }
     }
 
