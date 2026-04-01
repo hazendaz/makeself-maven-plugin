@@ -104,6 +104,12 @@
         <!-- Junit -->
         <junit.version>6.0.3</junit.version>
 
+        <!-- Mockito -->
+        <mockito.version>5.23.0</mockito.version>
+
+        <!-- Maven Plugin Testing Harness -->
+        <plugin-testing-harness.version>3.5.1</plugin-testing-harness.version>
+
         <!-- Targeted patches -->
         <io.version>2.21.0</io.version>
         <lang3.version>3.20.0</lang3.version>
@@ -123,7 +129,7 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.21.0</version>
             </dependency>
-       
+
             <!-- Force Commons Lang3 version -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -183,6 +189,28 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Maven Plugin Testing Harness -->
+        <dependency>
+            <groupId>org.apache.maven.plugin-testing</groupId>
+            <artifactId>maven-plugin-testing-harness</artifactId>
+            <version>${plugin-testing-harness.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
 
