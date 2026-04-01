@@ -17,8 +17,8 @@
 # Self-extracting archives created with this script are explictly NOT released under the term of the GPL
 #
 
-MS_VERSION=2.7.2.snapshot.2025-12-11
-MS_PLUGIN_VERSION=1.11.0
+MS_VERSION=2.7.2.snapshot.2026-01-13
+MS_PLUGIN_VERSION=1.12.0
 MS_COMMAND="$0"
 MS_SIGN_NEXT=n
 unset CDPATH

@@ -53,7 +53,7 @@ public class PortableGit {
      * @return the group id
      */
     public String getGroupId() {
-        return groupId;
+        return this.groupId;
     }
 
     /**
@@ -62,7 +62,7 @@ public class PortableGit {
      * @return the artifact id
      */
     public String getArtifactId() {
-        return artifactId;
+        return this.artifactId;
     }
 
     /**
@@ -71,7 +71,7 @@ public class PortableGit {
      * @return the version
      */
     public String getVersion() {
-        return version;
+        return this.version;
     }
 
     /**
@@ -80,7 +80,7 @@ public class PortableGit {
      * @return the extension
      */
     public String getExtension() {
-        return extension;
+        return this.extension;
     }
 
     /**
@@ -89,7 +89,7 @@ public class PortableGit {
      * @return the classifier
      */
     public String getClassifier() {
-        return classifier;
+        return this.classifier;
     }
 
     /**
@@ -98,7 +98,7 @@ public class PortableGit {
      * @return the name
      */
     public String getName() {
-        return name;
+        return this.name;
     }
 
     /**

@@ -30,4 +30,4 @@ jobs:
       - name: Set 'project.basedir' to 'basedir' for more broad maven ${{ env.maven-version }} support
         run: sed -i "s|project.basedir|basedir|" pom.xml
       - name: Integration Test with Maven ${{ env.maven-version }}
-        run: ./mvnw verify --batch-mode --no-transfer-progress --show-version -Dlicense.skip=true -Dmaven.min-version=${{ env.maven-version }} -Prun-it
+        run: ./mvnw verify --batch-mode --no-transfer-progress --show-version -Dlicense.skip=true -Dmaven.min-version=${{ env.maven-version }} -Prun-it -Dwrapper.validate=false
