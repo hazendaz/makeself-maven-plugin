@@ -27,4 +27,4 @@ jobs:
       - name: Set Maven Wrapper version ${{ env.maven-version }}
         run: sed -i "s|^distributionUrl=.*|distributionUrl=https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/${{ env.maven-version }}/apache-maven-${{ env.maven-version }}-bin.zip|" .mvn/wrapper/maven-wrapper.properties
       - name: Integration Test with Maven ${{ env.maven-version }}
-        run: ./mvnw verify --batch-mode --no-transfer-progress --show-version -Dlicense.skip=true -Dmaven.min-version=${{ env.maven-version }} -Prun-it
+        run: ./mvnw verify --batch-mode --no-transfer-progress --show-version -Dlicense.skip=true -Dmaven.min-version=${{ env.maven-version }} -Prun-it -Dwrapper.validate=false
