@@ -17,6 +17,7 @@
  */
 package com.hazendaz.maven.makeself;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -352,6 +353,94 @@ class MakeselfMojoTest {
         Assertions.assertAll(() -> Assertions.assertFalse(callIsTrue(mojo, null)),
                 () -> Assertions.assertTrue(callIsTrue(mojo, Boolean.TRUE)),
                 () -> Assertions.assertFalse(callIsTrue(mojo, Boolean.FALSE)));
+    }
+
+    /**
+     * Test extractMakeself creates the makeself.sh and makeself-header.sh files in the configured temp directory.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExtractMakeself() throws Exception {
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+        setField(mojo, "makeselfTempDirectory", tempDir.toFile());
+
+        final Method method = MakeselfMojo.class.getDeclaredMethod("extractMakeself");
+        method.setAccessible(true);
+        method.invoke(mojo);
+
+        Assertions.assertTrue(Files.exists(tempDir.resolve("makeself.sh")),
+                "makeself.sh should be extracted to temp directory");
+        Assertions.assertTrue(Files.exists(tempDir.resolve("makeself-header.sh")),
+                "makeself-header.sh should be extracted to temp directory");
+    }
+
+    /**
+     * Test extractMakeself is idempotent: a second call when files already exist does not overwrite them.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExtractMakeselfIdempotent() throws Exception {
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+        setField(mojo, "makeselfTempDirectory", tempDir.toFile());
+
+        final Method method = MakeselfMojo.class.getDeclaredMethod("extractMakeself");
+        method.setAccessible(true);
+
+        // First call – extracts files
+        method.invoke(mojo);
+        final long modifiedFirst = tempDir.resolve("makeself.sh").toFile().lastModified();
+
+        // Second call – files already exist, should be skipped
+        method.invoke(mojo);
+        final long modifiedSecond = tempDir.resolve("makeself.sh").toFile().lastModified();
+
+        Assertions.assertEquals(modifiedFirst, modifiedSecond, "makeself.sh should not be overwritten on second call");
+    }
+
+    /**
+     * Test setFilePermissions makes the file executable and logs the outcome.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testSetFilePermissions() throws Exception {
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+
+        final File tempFile = Files.createTempFile(tempDir, "test", ".sh").toFile();
+
+        final Method method = MakeselfMojo.class.getDeclaredMethod("setFilePermissions", File.class);
+        method.setAccessible(true);
+        method.invoke(mojo, tempFile);
+
+        Assertions.assertTrue(tempFile.canExecute(), "File should be executable after setFilePermissions");
+    }
+
+    /**
+     * Test setPosixFilePermissions applies permissions to a regular file on a POSIX-capable filesystem. On systems
+     * where POSIX attributes are unsupported the call is expected to be a silent no-op.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testSetPosixFilePermissions() throws Exception {
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+
+        final Path tempFile = Files.createTempFile(tempDir, "test", ".sh");
+
+        final Method method = MakeselfMojo.class.getDeclaredMethod("setPosixFilePermissions", Path.class);
+        method.setAccessible(true);
+        // Should not throw, either sets permissions or logs the unsupported-operation debug message
+        method.invoke(mojo, tempFile);
     }
 
 }
