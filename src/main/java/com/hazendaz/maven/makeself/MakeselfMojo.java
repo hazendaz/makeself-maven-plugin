@@ -1015,7 +1015,7 @@ public class MakeselfMojo extends AbstractGitMojo {
         // --preextract : Specify a pre-extraction script. The script is executed with the same environment and initial
         // `script_args` as `startup_script`.
         if (this.preextractScript != null) {
-            args.add("--reextract");
+            args.add("--preextract");
             args.add(this.preextractScript);
         }
 
