@@ -417,5 +417,32 @@
             </build>
         </profile>
 
+        <profile>
+            <id>maven4</id>
+            <activation>
+                <property>
+                    <name>maven.version</name>
+                    <value>4.0.0-rc-5</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <!-- Maven 4 compiler plugin 4.x requires release only; source/target conflict with release -->
+                            <source/>
+                            <target/>
+                            <!-- Maven 4: useIncrementalCompilation=false replaced by incrementalCompilation=classes (recompile changed classes only, no incremental dependency tracking) -->
+                            <incrementalCompilation>classes</incrementalCompilation>
+                            <!-- Maven 4: annotationProcessorPaths deprecated; project does not use ErrorProne/Lombok/Hibernate -->
+                            <annotationProcessorPaths combine.self="override"/>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 </project>
