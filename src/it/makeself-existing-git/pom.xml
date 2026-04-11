@@ -174,7 +174,7 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <executable>${project.build.directory}/PortableGit-2.52.0-64-bit.7z.exe</executable>
+                                    <executable>${project.build.directory}/PortableGit-${git.version}-64-bit.7z.exe</executable>
                                     <arguments>
                                         <argument>-o${project.build.directory}/git</argument>
                                         <argument>-y</argument>
