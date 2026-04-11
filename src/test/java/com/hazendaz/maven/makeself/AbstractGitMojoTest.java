@@ -392,4 +392,131 @@ class AbstractGitMojoTest {
         Mockito.verify(log).error(Mockito.eq(""), Mockito.any(Exception.class));
     }
 
+    /**
+     * Test installGit detects a directory-traversal attempt and throws an IOException that is caught internally.
+     * Verifies that the error is logged and no exception escapes.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testInstallGitDirectoryTraversal() throws Exception {
+        final GitMojo mojo = new GitMojo();
+        mojo.setLog(log);
+
+        final PortableGit portableGit = new PortableGit(log);
+        setField(mojo, "portableGit", portableGit);
+
+        final LocalRepository localRepository = new LocalRepository(tempDir.toFile());
+        Mockito.when(repoSession.getLocalRepository()).thenReturn(localRepository);
+        setField(mojo, "repoSession", repoSession);
+
+        // Create a tar.gz with a path-traversal entry (../../evil.sh)
+        final Path tarGzPath = tempDir.resolve("traversal.tar.gz");
+        final byte[] content = "evil content".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try (java.io.OutputStream fos = Files.newOutputStream(tarGzPath);
+                GzipCompressorOutputStream gzos = new GzipCompressorOutputStream(fos);
+                TarArchiveOutputStream taos = new TarArchiveOutputStream(gzos)) {
+            final TarArchiveEntry fileEntry = new TarArchiveEntry("../../evil.sh");
+            fileEntry.setSize(content.length);
+            taos.putArchiveEntry(fileEntry);
+            taos.write(content);
+            taos.closeArchiveEntry();
+        }
+
+        final Artifact artifact = Mockito.mock(Artifact.class);
+        Mockito.when(artifact.getFile()).thenReturn(tarGzPath.toFile());
+
+        final String location = tempDir.toFile().getAbsolutePath() + java.io.File.separator + portableGit.getName()
+                + java.io.File.separator + portableGit.getVersion();
+
+        // Should not throw – the traversal IOException is caught and logged
+        Assertions.assertDoesNotThrow(() -> mojo.installGit(artifact, location));
+        Mockito.verify(log, Mockito.atLeastOnce()).error(Mockito.eq(""), Mockito.any(Exception.class));
+    }
+
+    /**
+     * Test installGit runs the installer and sets gitPath when a valid archive is provided and the installer succeeds.
+     * The runInstaller method is overridden to avoid spawning a real process.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testInstallGitRunsInstaller() throws Exception {
+        final GitMojo mojo = new GitMojo() {
+            @Override
+            protected void runInstaller(final java.util.List<String> command)
+                    throws java.io.IOException, InterruptedException {
+                // Simulate successful installer execution without spawning a process
+            }
+        };
+        mojo.setLog(log);
+
+        final PortableGit portableGit = new PortableGit(log);
+        setField(mojo, "portableGit", portableGit);
+
+        final LocalRepository localRepository = new LocalRepository(tempDir.toFile());
+        Mockito.when(repoSession.getLocalRepository()).thenReturn(localRepository);
+        setField(mojo, "repoSession", repoSession);
+
+        // Create a minimal tar.gz with a file entry
+        final Path tarGzPath = tempDir.resolve("portable-git-installer.tar.gz");
+        final byte[] scriptContent = "#!/bin/sh\nexit 0\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        createTarGz(tarGzPath, portableGit.getName() + "/install.sh", scriptContent);
+
+        final Artifact artifact = Mockito.mock(Artifact.class);
+        Mockito.when(artifact.getFile()).thenReturn(tarGzPath.toFile());
+
+        final String location = tempDir.toFile().getAbsolutePath() + java.io.File.separator + portableGit.getName()
+                + java.io.File.separator + portableGit.getVersion();
+
+        mojo.installGit(artifact, location);
+
+        // After successful installation gitPath should be set to location + GIT_USER_BIN
+        final String gitPath = getField(mojo, "gitPath");
+        Assertions.assertTrue(gitPath.contains(portableGit.getName()), "gitPath should reference the PortableGit name");
+    }
+
+    /**
+     * Test extractPortableGit calls installGit when the artifact is successfully resolved. Verifies that the code path
+     * after isResolved()=true is exercised (lines that call installGit).
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExtractPortableGitResolvedAndInstalled() throws Exception {
+        final GitMojo mojo = new GitMojo();
+        mojo.setLog(log);
+
+        final PortableGit portableGit = new PortableGit(log);
+        setField(mojo, "portableGit", portableGit);
+        setField(mojo, "remoteRepositories", Collections.emptyList());
+
+        // Point to tempDir so the "already exists" fast-path is NOT taken
+        final LocalRepository localRepository = new LocalRepository(tempDir.toFile());
+        Mockito.when(repoSession.getLocalRepository()).thenReturn(localRepository);
+        setField(mojo, "repoSession", repoSession);
+
+        // Create a real tar.gz so installGit can open it
+        final Path tarGzPath = tempDir.resolve("resolved-portable-git.tar.gz");
+        final byte[] scriptContent = "#!/bin/sh\nexit 0\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        createTarGz(tarGzPath, portableGit.getName() + "/install.sh", scriptContent);
+
+        // Mock a fully resolved artifact result
+        final Artifact resolvedArtifact = Mockito.mock(Artifact.class);
+        Mockito.when(resolvedArtifact.getFile()).thenReturn(tarGzPath.toFile());
+
+        final ArtifactResult resolvedResult = Mockito.mock(ArtifactResult.class);
+        Mockito.when(resolvedResult.isResolved()).thenReturn(true);
+        Mockito.when(resolvedResult.getArtifact()).thenReturn(resolvedArtifact);
+
+        Mockito.when(repositorySystem.resolveArtifact(Mockito.any(), Mockito.any())).thenReturn(resolvedResult);
+        setField(mojo, "repositorySystem", repositorySystem);
+
+        // extractPortableGit should call installGit without throwing
+        Assertions.assertDoesNotThrow(mojo::extractPortableGit);
+    }
+
 }

@@ -333,7 +333,31 @@ class HelpMojoTest {
                 // One tab
                 () -> Assertions.assertEquals(1, method.invoke(null, "\tsingle")),
                 // Two tabs
-                () -> Assertions.assertEquals(2, method.invoke(null, "\t\tdouble")));
+                () -> Assertions.assertEquals(2, method.invoke(null, "\t\tdouble")),
+                // One tab followed by a space then another tab: second loop detects the extra tab → level+1
+                () -> Assertions.assertEquals(2, method.invoke(null, "\t \t")));
+    }
+
+    /**
+     * Test that toLines correctly replaces non-breaking spaces (U+00A0) with regular spaces during line-wrapping.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testToLinesNonBreakingSpace() throws Exception {
+        final Method method = HelpMojo.class.getDeclaredMethod("toLines", java.util.List.class, String.class, int.class,
+                int.class);
+        method.setAccessible(true);
+
+        final java.util.List<String> lines = new java.util.ArrayList<>();
+        // A line containing a non-breaking space (U+00A0) between words
+        method.invoke(null, lines, "hello\u00A0world", 2, 80);
+
+        Assertions.assertFalse(lines.isEmpty(), "toLines should produce at least one output line");
+        // The non-breaking space should have been converted to a regular space
+        Assertions.assertTrue(lines.stream().anyMatch(l -> l.contains(" ")),
+                "Output should contain a regular space where the non-breaking space was");
     }
 
 }

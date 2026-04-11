@@ -61,6 +61,16 @@ public abstract class AbstractGitMojo extends AbstractMojo {
     static final String GIT_USER_BIN = "/usr/bin/";
 
     /**
+     * Returns true if the current platform is Windows. Extracted as a method to allow test subclasses to override the
+     * platform detection without modifying production code.
+     *
+     * @return true if running on Windows
+     */
+    protected boolean isWindows() {
+        return WINDOWS;
+    }
+
+    /**
      * The path to existing git install for windows usage. If left blank per default, portable git will be used.
      * Location should be something like 'C:/Program Files/Git'. When set and not windows, it will be treated as blank.
      */
