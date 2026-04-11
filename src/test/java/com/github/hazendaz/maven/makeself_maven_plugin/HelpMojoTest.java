@@ -272,6 +272,8 @@ class HelpMojoTest {
         Assertions.assertAll(
                 // Standard expression
                 () -> Assertions.assertEquals("myProp", method.invoke(null, "${myProp}")),
+                // Dotted expression (common Maven property like ${project.version})
+                () -> Assertions.assertEquals("project.version", method.invoke(null, "${project.version}")),
                 // Null input
                 () -> Assertions.assertNull(method.invoke(null, (Object) null)),
                 // No ${} wrapper
