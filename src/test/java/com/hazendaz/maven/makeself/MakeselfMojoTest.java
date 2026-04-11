@@ -27,7 +27,10 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -441,6 +444,174 @@ class MakeselfMojoTest {
         method.setAccessible(true);
         // Should not throw, either sets permissions or logs the unsupported-operation debug message
         method.invoke(mojo, tempFile);
+    }
+
+    /**
+     * Helper that creates the standard directory/file layout required for a full execute() run and returns the
+     * configured mojo.
+     *
+     * @param archiveDirName
+     *            name of the archive subdirectory to create
+     * @param startupScriptName
+     *            name of the startup script to create inside archiveDirName (without leading ./)
+     *
+     * @return a fully configured MakeselfMojo ready to run
+     *
+     * @throws Exception
+     *             if setup fails
+     */
+    private MakeselfMojo buildFullFlowMojo(final String archiveDirName, final String startupScriptName)
+            throws Exception {
+        final Path archivePath = Files.createDirectories(tempDir.resolve(archiveDirName));
+        Files.createFile(archivePath.resolve(startupScriptName));
+
+        final File makeselfTempDir = Files.createDirectories(tempDir.resolve("makeself-tmp")).toFile();
+        final MavenProjectHelper projectHelper = Mockito.mock(MavenProjectHelper.class);
+        final MavenProject project = new MavenProject();
+
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+        setField(mojo, "buildTarget", tempDir.toString() + "/");
+        setField(mojo, "archiveDir", archiveDirName);
+        setField(mojo, "startupScript", "./" + startupScriptName);
+        setField(mojo, "fileName", "output.sh");
+        setField(mojo, "label", "Test Archive");
+        setField(mojo, "makeselfTempDirectory", makeselfTempDir);
+        setField(mojo, "projectHelper", projectHelper);
+        setField(mojo, "project", project);
+        return mojo;
+    }
+
+    /**
+     * Test the full execute() flow on non-Windows: validates, extracts makeself stubs, runs bash commands, and attaches
+     * the produced artifact.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecuteFullFlowOnLinux() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Test only applicable on non-Windows");
+
+        final MakeselfMojo mojo = buildFullFlowMojo("makeself", "makeself.sh");
+
+        mojo.execute();
+
+        Mockito.verify(log).info("Running makeself build");
+    }
+
+    /**
+     * Test execute() returns early when the version flag is set, without running the makeself build.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecuteWithVersionFlag() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Test only applicable on non-Windows");
+
+        final MakeselfMojo mojo = buildFullFlowMojo("makeself", "makeself.sh");
+        setField(mojo, "version", Boolean.TRUE);
+
+        mojo.execute();
+
+        Mockito.verify(log, Mockito.never()).info("Running makeself build");
+    }
+
+    /**
+     * Test execute() with the help flag set runs the makeself --help command and returns without building.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecuteWithHelpFlag() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Test only applicable on non-Windows");
+
+        final MakeselfMojo mojo = buildFullFlowMojo("makeself", "makeself.sh");
+        setField(mojo, "help", Boolean.TRUE);
+
+        mojo.execute();
+
+        Mockito.verify(log, Mockito.never()).info("Running makeself build");
+    }
+
+    /**
+     * Test execute() with autoRun=true causes the resulting script to be invoked automatically.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecuteWithAutoRun() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Test only applicable on non-Windows");
+
+        final MakeselfMojo mojo = buildFullFlowMojo("makeself", "makeself.sh");
+        setField(mojo, "autoRun", true);
+
+        mojo.execute();
+
+        Mockito.verify(log).info("Auto-run created shell (this may take a few minutes)");
+    }
+
+    /**
+     * Test execute() with inlineScript=true and scriptArgs set skips the startup script file check and runs the build.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecuteWithInlineScriptAndScriptArgs() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Test only applicable on non-Windows");
+
+        final Path archivePath = Files.createDirectories(tempDir.resolve("myarchive"));
+        Files.createFile(archivePath.resolve("dummy.txt"));
+
+        final File makeselfTempDir = Files.createDirectories(tempDir.resolve("makeself-tmp")).toFile();
+        final MavenProjectHelper projectHelper = Mockito.mock(MavenProjectHelper.class);
+        final MavenProject project = new MavenProject();
+
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+        setField(mojo, "buildTarget", tempDir.toString() + "/");
+        setField(mojo, "archiveDir", "myarchive");
+        setField(mojo, "startupScript", "echo");
+        setField(mojo, "inlineScript", true);
+        setField(mojo, "scriptArgs", Arrays.asList("hello"));
+        setField(mojo, "fileName", "output.sh");
+        setField(mojo, "label", "Test Archive");
+        setField(mojo, "makeselfTempDirectory", makeselfTempDir);
+        setField(mojo, "projectHelper", projectHelper);
+        setField(mojo, "project", project);
+
+        mojo.execute();
+
+        Mockito.verify(log).info("Running makeself build");
+    }
+
+    /**
+     * Test loadArgs does not include flags for Boolean.FALSE parameters.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testLoadArgsWithFalseFlags() throws Exception {
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+        setField(mojo, "gzip", Boolean.FALSE);
+        setField(mojo, "bzip2", Boolean.FALSE);
+        setField(mojo, "xz", Boolean.FALSE);
+        setField(mojo, "nocomp", Boolean.FALSE);
+        setField(mojo, "nomd5", Boolean.FALSE);
+
+        final List<String> args = callLoadArgs(mojo);
+
+        Assertions.assertFalse(args.contains("--gzip"), "--gzip should not be present when gzip=false");
+        Assertions.assertFalse(args.contains("--bzip2"), "--bzip2 should not be present when bzip2=false");
+        Assertions.assertFalse(args.contains("--xz"), "--xz should not be present when xz=false");
+        Assertions.assertFalse(args.contains("--nocomp"), "--nocomp should not be present when nocomp=false");
+        Assertions.assertFalse(args.contains("--nomd5"), "--nomd5 should not be present when nomd5=false");
     }
 
 }

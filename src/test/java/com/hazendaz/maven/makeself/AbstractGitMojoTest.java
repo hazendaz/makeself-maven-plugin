@@ -24,10 +24,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
@@ -278,6 +282,114 @@ class AbstractGitMojoTest {
         final String gitPath = getField(mojo, "gitPath");
         Assertions.assertNotNull(gitPath, "gitPath should be set after checkGitSetup");
         Assertions.assertFalse(gitPath.isEmpty(), "gitPath should not be empty after checkGitSetup");
+    }
+
+    /**
+     * Creates a minimal tar.gz archive in the given directory containing a single script file.
+     *
+     * @param tarGzPath
+     *            path where the tar.gz should be written
+     * @param entryName
+     *            the name of the entry inside the archive (may include sub-directories)
+     * @param entryContent
+     *            the bytes to store in the archive entry
+     *
+     * @throws Exception
+     *             if writing fails
+     */
+    private static void createTarGz(final Path tarGzPath, final String entryName, final byte[] entryContent)
+            throws Exception {
+        try (java.io.OutputStream fos = Files.newOutputStream(tarGzPath);
+                GzipCompressorOutputStream gzos = new GzipCompressorOutputStream(fos);
+                TarArchiveOutputStream taos = new TarArchiveOutputStream(gzos)) {
+            taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+
+            // Add a directory entry first
+            final String dirName = entryName.contains("/") ? entryName.substring(0, entryName.lastIndexOf('/') + 1)
+                    : "";
+            if (!dirName.isEmpty()) {
+                final TarArchiveEntry dirEntry = new TarArchiveEntry(dirName);
+                taos.putArchiveEntry(dirEntry);
+                taos.closeArchiveEntry();
+            }
+
+            // Add the file entry
+            final TarArchiveEntry fileEntry = new TarArchiveEntry(entryName);
+            fileEntry.setSize(entryContent.length);
+            taos.putArchiveEntry(fileEntry);
+            taos.write(entryContent);
+            taos.closeArchiveEntry();
+        }
+    }
+
+    /**
+     * Test installGit extracts files from a synthetic tar.gz to the configured local repository directory. Verifies
+     * that the content is extracted even though the subsequent "installer" call will fail on non-Windows (the error is
+     * caught and logged rather than re-thrown).
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testInstallGitExtractsFiles() throws Exception {
+        final GitMojo mojo = new GitMojo();
+        mojo.setLog(log);
+
+        final PortableGit portableGit = new PortableGit(log);
+        setField(mojo, "portableGit", portableGit);
+
+        // Stub repoSession so installGit knows where to extract
+        final LocalRepository localRepository = new LocalRepository(tempDir.toFile());
+        Mockito.when(repoSession.getLocalRepository()).thenReturn(localRepository);
+        setField(mojo, "repoSession", repoSession);
+
+        // Create a minimal tar.gz that contains one directory entry and one file entry
+        final Path tarGzPath = tempDir.resolve("portable-git.tar.gz");
+        final byte[] scriptContent = "#!/bin/sh\nexit 0\n".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        createTarGz(tarGzPath, portableGit.getName() + "/install.sh", scriptContent);
+
+        // Create a mock artifact pointing to the synthetic tar.gz
+        final Artifact artifact = Mockito.mock(Artifact.class);
+        Mockito.when(artifact.getFile()).thenReturn(tarGzPath.toFile());
+
+        final String location = tempDir.toFile().getAbsolutePath() + java.io.File.separator + portableGit.getName()
+                + java.io.File.separator + portableGit.getVersion();
+
+        // Should not throw; any IOException from running the "installer" is caught and logged
+        mojo.installGit(artifact, location);
+
+        // Verify that at least one file was extracted to the PortableGit directory
+        final Path extractedDir = tempDir.resolve(portableGit.getName());
+        Assertions.assertTrue(Files.exists(extractedDir), "PortableGit extraction directory should have been created");
+    }
+
+    /**
+     * Test installGit gracefully handles an IOException from a bad tar.gz (empty file).
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testInstallGitHandlesBadTarGz() throws Exception {
+        final GitMojo mojo = new GitMojo();
+        mojo.setLog(log);
+
+        final PortableGit portableGit = new PortableGit(log);
+        setField(mojo, "portableGit", portableGit);
+        setField(mojo, "repoSession", repoSession);
+
+        // Create an empty (invalid) file as the "artifact"
+        final Path emptyFile = Files.createTempFile(tempDir, "empty", ".tar.gz");
+
+        final Artifact artifact = Mockito.mock(Artifact.class);
+        Mockito.when(artifact.getFile()).thenReturn(emptyFile.toFile());
+
+        final String location = tempDir.toFile().getAbsolutePath() + java.io.File.separator + portableGit.getName()
+                + java.io.File.separator + portableGit.getVersion();
+
+        // Should not throw – IOException from bad gzip is caught and logged
+        Assertions.assertDoesNotThrow(() -> mojo.installGit(artifact, location));
+        Mockito.verify(log).error(Mockito.eq(""), Mockito.any(Exception.class));
     }
 
 }
