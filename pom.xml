@@ -425,15 +425,20 @@
                     <value>4.0.0-rc-5</value>
                 </property>
             </activation>
+            <properties>
+                <!-- Maven 4 compiler plugin 4.x rejects javac source/target when release is also set.
+                     Clear the user properties so only release is forwarded to javac. -->
+                <maven.compiler.source/>
+                <maven.compiler.target/>
+                <maven.compiler.testSource/>
+                <maven.compiler.testTarget/>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
-                            <!-- Maven 4 compiler plugin 4.x requires release only; source/target conflict with release -->
-                            <source/>
-                            <target/>
                             <!-- Maven 4: useIncrementalCompilation=false replaced by incrementalCompilation=classes (recompile changed classes only, no incremental dependency tracking) -->
                             <incrementalCompilation>classes</incrementalCompilation>
                             <!-- Maven 4: annotationProcessorPaths deprecated; project does not use ErrorProne/Lombok/Hibernate -->
