@@ -834,8 +834,8 @@ class MakeselfMojoTest {
         mojo.setLog(log);
 
         // /dev/null is a character device on Unix; mkdirs() on a path inside it always fails
-        final File impossibleDir = new File("/dev/null/impossible-makeself-dir");
-        setField(mojo, "makeselfTempDirectory", impossibleDir);
+        final Path impossibleDir = Path.of("/dev/null/impossible-makeself-dir");
+        setField(mojo, "makeselfTempDirectory", impossibleDir.toFile());
 
         final Method method = MakeselfMojo.class.getDeclaredMethod("extractMakeself");
         method.setAccessible(true);
