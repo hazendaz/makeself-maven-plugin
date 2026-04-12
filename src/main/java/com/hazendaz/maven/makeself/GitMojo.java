@@ -57,7 +57,7 @@ public class GitMojo extends AbstractGitMojo {
             return;
         }
 
-        if (!AbstractGitMojo.WINDOWS) {
+        if (!this.isWindows()) {
             this.getLog().info("Portable git is only applicable on Windows; skipping on this platform");
             return;
         }

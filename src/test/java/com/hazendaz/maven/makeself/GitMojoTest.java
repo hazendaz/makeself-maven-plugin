@@ -18,11 +18,13 @@
 package com.hazendaz.maven.makeself;
 
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 
 import org.apache.maven.plugin.logging.Log;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,6 +34,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
  */
 @ExtendWith(MockitoExtension.class)
 class GitMojoTest {
+
+    /** Temporary directory for test files. */
+    @TempDir
+    Path tempDir;
 
     /** Mock Maven log. */
     @Mock
@@ -113,6 +119,35 @@ class GitMojoTest {
         mojo.execute();
 
         Mockito.verify(log).info("Portable git is only applicable on Windows; skipping on this platform");
+    }
+
+    /**
+     * Test execute on a simulated Windows platform with an existing git installation at gitPath. Verifies that the
+     * existing git path is used without downloading portable git, and the final gitPath is logged.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testWindowsSimulatedExistingGitPath() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Windows-simulation test is only run on non-Windows");
+
+        // Anonymous subclass that simulates Windows platform detection
+        final GitMojo mojo = new GitMojo() {
+            @Override
+            protected boolean isWindows() {
+                return true;
+            }
+        };
+        mojo.setLog(log);
+
+        // Set gitPath to tempDir which is guaranteed to exist
+        setField(mojo, "gitPath", tempDir.toString());
+
+        mojo.execute();
+
+        Mockito.verify(log).info(Mockito.startsWith("Using existing 'Git' found at "));
+        Mockito.verify(log).info(Mockito.startsWith("Portable git is available at: "));
     }
 
 }

@@ -588,7 +588,7 @@ public class MakeselfMojo extends AbstractGitMojo {
         this.extractMakeself();
 
         // Check git setup
-        if (AbstractGitMojo.WINDOWS) {
+        if (this.isWindows()) {
             if (!this.gitPath.isEmpty() && Files.exists(Path.of(this.gitPath))) {
                 this.getLog().debug("Using existing 'Git' found at " + this.gitPath);
                 this.gitPath = this.gitPath + AbstractGitMojo.GIT_USER_BIN;
@@ -649,7 +649,7 @@ public class MakeselfMojo extends AbstractGitMojo {
                     !MakeselfMojo.ATTACH_ARTIFACT);
 
             // Output list on file makeself created (non windows need)
-            if (!AbstractGitMojo.WINDOWS) {
+            if (!this.isWindows()) {
                 this.getLog().debug("Execute Makeself List on Resulting Shell Script");
                 this.execute(Arrays.asList(this.gitPath + "bash", this.buildTarget.concat(this.fileName), "--list"),
                         !MakeselfMojo.ATTACH_ARTIFACT);
@@ -680,7 +680,7 @@ public class MakeselfMojo extends AbstractGitMojo {
         processBuilder.redirectErrorStream(true);
 
         // Add portable git to windows environment
-        if (AbstractGitMojo.WINDOWS) {
+        if (this.isWindows()) {
             final Map<String, String> envs = processBuilder.environment();
             this.getLog().debug("Environment Variables: " + envs);
 

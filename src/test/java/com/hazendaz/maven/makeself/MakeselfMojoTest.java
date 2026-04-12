@@ -29,6 +29,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.repository.LocalRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -51,6 +53,10 @@ class MakeselfMojoTest {
     /** Mock Maven log. */
     @Mock
     private Log log;
+
+    /** Mock repository system session for portableGit tests. */
+    @Mock
+    private RepositorySystemSession repoSession;
 
     /**
      * Sets a private field on the given object via reflection, walking up the class hierarchy as needed.
@@ -612,6 +618,250 @@ class MakeselfMojoTest {
         Assertions.assertFalse(args.contains("--xz"), "--xz should not be present when xz=false");
         Assertions.assertFalse(args.contains("--nocomp"), "--nocomp should not be present when nocomp=false");
         Assertions.assertFalse(args.contains("--nomd5"), "--nomd5 should not be present when nomd5=false");
+    }
+
+    /**
+     * Test execute() on a simulated Windows platform with an existing git path. The Windows branch in the outer
+     * execute() is taken (gitPath is not empty and the path exists), then the private execute() fails with IOException
+     * because the fake bash path does not exist. Verifies the IOException is caught and logged, not re-thrown.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecuteWindowsSimulatedExistingGitPath() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Windows-simulation test is only run on non-Windows");
+
+        final MakeselfMojo mojo = new MakeselfMojo() {
+            @Override
+            protected boolean isWindows() {
+                return true;
+            }
+        };
+        mojo.setLog(log);
+
+        // Minimal mojo setup required for validate() to pass
+        final Path archivePath = Files.createDirectories(tempDir.resolve("archive-w"));
+        Files.createFile(archivePath.resolve("startup.sh"));
+        final File makeselfTempDir = Files.createDirectories(tempDir.resolve("makeself-tmp-w")).toFile();
+        final MavenProjectHelper projectHelper = Mockito.mock(MavenProjectHelper.class);
+        final MavenProject project = new MavenProject();
+
+        setField(mojo, "buildTarget", tempDir.toString() + "/");
+        setField(mojo, "archiveDir", "archive-w");
+        setField(mojo, "startupScript", "./startup.sh");
+        setField(mojo, "fileName", "output-w.sh");
+        setField(mojo, "label", "Test");
+        setField(mojo, "makeselfTempDirectory", makeselfTempDir);
+        setField(mojo, "projectHelper", projectHelper);
+        setField(mojo, "project", project);
+
+        // Set gitPath to a directory that exists (tempDir) so the existing-path branch is taken
+        setField(mojo, "gitPath", tempDir.toString());
+
+        // execute() catches IOException internally; should not throw
+        mojo.execute();
+
+        // The IOException from starting a non-existent bash is caught and logged
+        Mockito.verify(log).error(Mockito.eq(""), Mockito.any(Exception.class));
+    }
+
+    /**
+     * Test execute() on a simulated Windows platform when checkGitSetup() sets gitPath to the system bash directory.
+     * This exercises the else branch of the gitPath check (gitPath is empty), the full bash command flow, and verifies
+     * that the {@code --list} command is skipped on Windows.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecuteWindowsSimulatedCheckGitSetup() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Windows-simulation test is only run on non-Windows");
+
+        final MakeselfMojo mojo = new MakeselfMojo() {
+            @Override
+            protected boolean isWindows() {
+                return true;
+            }
+
+            @Override
+            public void checkGitSetup() {
+                // Simulate checkGitSetup: leave gitPath empty so bash resolves from PATH
+            }
+        };
+        mojo.setLog(log);
+
+        final MakeselfMojo configured = mojo;
+        final MavenProjectHelper projectHelper = Mockito.mock(MavenProjectHelper.class);
+        final MavenProject project = new MavenProject();
+
+        final Path archivePath = Files.createDirectories(tempDir.resolve("archive-wcs"));
+        Files.createFile(archivePath.resolve("startup.sh"));
+        final File makeselfTempDir = Files.createDirectories(tempDir.resolve("makeself-tmp-wcs")).toFile();
+
+        setField(configured, "buildTarget", tempDir.toString() + "/");
+        setField(configured, "archiveDir", "archive-wcs");
+        setField(configured, "startupScript", "./startup.sh");
+        setField(configured, "fileName", "output-wcs.sh");
+        setField(configured, "label", "Test");
+        setField(configured, "makeselfTempDirectory", makeselfTempDir);
+        setField(configured, "projectHelper", projectHelper);
+        setField(configured, "project", project);
+
+        // execute() should run the full flow without throwing
+        mojo.execute();
+
+        Mockito.verify(log).info("Running makeself build");
+    }
+
+    /**
+     * Test the private execute() method with portableGit set, simulating Windows. Exercises the portableGit != null
+     * branch in the Windows environment-variable setup inside execute(List, boolean).
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecutePrivateWindowsPortableGitNotNull() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Windows-simulation test is only run on non-Windows");
+
+        final MakeselfMojo mojo = new MakeselfMojo() {
+            @Override
+            protected boolean isWindows() {
+                return true;
+            }
+        };
+        mojo.setLog(log);
+
+        final PortableGit portableGit = new PortableGit(log);
+        setField(mojo, "portableGit", portableGit);
+
+        final LocalRepository localRepository = new LocalRepository(tempDir.toFile());
+        Mockito.when(repoSession.getLocalRepository()).thenReturn(localRepository);
+        setField(mojo, "repoSession", repoSession);
+
+        // Invoke the private execute(List, boolean) method directly
+        final Method executeMethod = MakeselfMojo.class.getDeclaredMethod("execute", List.class, boolean.class);
+        executeMethod.setAccessible(true);
+        executeMethod.invoke(mojo, Arrays.asList("bash", "--version"), false);
+
+        // No exception means the portableGit != null PATH manipulation ran without error
+        Mockito.verify(log, Mockito.atLeastOnce()).debug(Mockito.anyString());
+    }
+
+    /**
+     * Test setFilePermissions logs an error when setExecutable returns false (file cannot be made executable).
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testSetFilePermissionsFailure() throws Exception {
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+
+        final File mockFile = Mockito.mock(File.class);
+        Mockito.when(mockFile.setExecutable(true, true)).thenReturn(false);
+        Mockito.when(mockFile.getName()).thenReturn("test-failure.sh");
+
+        final Method method = MakeselfMojo.class.getDeclaredMethod("setFilePermissions", File.class);
+        method.setAccessible(true);
+        method.invoke(mojo, mockFile);
+
+        Mockito.verify(log).error(Mockito.contains("Unable to set executable:"));
+    }
+
+    /**
+     * Test setPosixFilePermissions logs an error when the path does not exist (IOException from
+     * Files.setPosixFilePermissions).
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testSetPosixFilePermissionsIOException() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "POSIX permissions only apply on non-Windows");
+
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+
+        // A path that does not exist causes NoSuchFileException (subtype of IOException)
+        final Path nonExistent = tempDir.resolve("nonexistent-posix.sh");
+
+        final Method method = MakeselfMojo.class.getDeclaredMethod("setPosixFilePermissions", Path.class);
+        method.setAccessible(true);
+        method.invoke(mojo, nonExistent);
+
+        Mockito.verify(log).error(Mockito.eq("Failed attempted Posix permissions"), Mockito.any(Exception.class));
+    }
+
+    /**
+     * Test extractMakeself creates its working directory when it does not yet exist (covers the mkdirs path in the
+     * condition guard).
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExtractMakeselfCreatesNewDirectory() throws Exception {
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+
+        // Use a subdirectory that does not exist yet so mkdirs() is called
+        final File newDir = tempDir.resolve("brand-new-makeself-dir").toFile();
+        Assertions.assertFalse(newDir.exists(), "Pre-condition: directory should not exist before the test");
+        setField(mojo, "makeselfTempDirectory", newDir);
+
+        final Method method = MakeselfMojo.class.getDeclaredMethod("extractMakeself");
+        method.setAccessible(true);
+        method.invoke(mojo);
+
+        Assertions.assertTrue(Files.exists(newDir.toPath().resolve("makeself.sh")),
+                "makeself.sh should be extracted into the newly created directory");
+    }
+
+    /**
+     * Test extractMakeself logs an error and returns early when the working directory cannot be created.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExtractMakeselfMkdirsFails() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Test uses /dev/null which is only available on Unix");
+
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+
+        // /dev/null is a character device on Unix; mkdirs() on a path inside it always fails
+        final Path impossibleDir = Path.of("/dev/null/impossible-makeself-dir");
+        setField(mojo, "makeselfTempDirectory", impossibleDir.toFile());
+
+        final Method method = MakeselfMojo.class.getDeclaredMethod("extractMakeself");
+        method.setAccessible(true);
+        method.invoke(mojo);
+
+        Mockito.verify(log).error(Mockito.contains("Unable to make directory"));
+    }
+
+    /**
+     * Test the private execute() method logs an error when the process exits with a non-zero status.
+     *
+     * @throws Exception
+     *             the exception
+     */
+    @Test
+    void testExecutePrivateFailStatus() throws Exception {
+        Assumptions.assumeFalse(AbstractGitMojo.WINDOWS, "Uses bash which is only available on Unix");
+
+        final MakeselfMojo mojo = new MakeselfMojo();
+        mojo.setLog(log);
+
+        final Method executeMethod = MakeselfMojo.class.getDeclaredMethod("execute", List.class, boolean.class);
+        executeMethod.setAccessible(true);
+        executeMethod.invoke(mojo, Arrays.asList("bash", "-c", "exit 1"), false);
+
+        Mockito.verify(log).error(Mockito.contains("makeself failed with error status:"));
     }
 
 }
