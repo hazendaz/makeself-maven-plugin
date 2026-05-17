@@ -21,7 +21,6 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -181,7 +180,7 @@ class AbstractGitMojoTest {
 
         final PortableGit portableGit = new PortableGit(log);
         setField(mojo, "portableGit", portableGit);
-        setField(mojo, "remoteRepositories", Collections.emptyList());
+        setField(mojo, "remoteRepositories", List.of());
 
         // Create the directory that extractPortableGit looks for
         final Path existingLocation = tempDir.resolve(portableGit.getName()).resolve(portableGit.getVersion());
@@ -212,7 +211,7 @@ class AbstractGitMojoTest {
 
         final PortableGit portableGit = new PortableGit(log);
         setField(mojo, "portableGit", portableGit);
-        setField(mojo, "remoteRepositories", Collections.emptyList());
+        setField(mojo, "remoteRepositories", List.of());
 
         // Point to tempDir so the "already exists" branch is NOT taken (directory does not exist)
         final LocalRepository localRepository = new LocalRepository(tempDir.toFile());
@@ -220,7 +219,7 @@ class AbstractGitMojoTest {
         setField(mojo, "repoSession", repoSession);
 
         Mockito.when(repositorySystem.resolveArtifact(Mockito.any(), Mockito.any()))
-                .thenThrow(new ArtifactResolutionException(Collections.emptyList(), "resolution failed in test"));
+                .thenThrow(new ArtifactResolutionException(List.of(), "resolution failed in test"));
         setField(mojo, "repositorySystem", repositorySystem);
 
         Assertions.assertThrows(MojoFailureException.class, mojo::extractPortableGit);
@@ -240,7 +239,7 @@ class AbstractGitMojoTest {
 
         final PortableGit portableGit = new PortableGit(log);
         setField(mojo, "portableGit", portableGit);
-        setField(mojo, "remoteRepositories", Collections.emptyList());
+        setField(mojo, "remoteRepositories", List.of());
 
         // Point to tempDir so the "already exists" branch is NOT taken
         final LocalRepository localRepository = new LocalRepository(tempDir.toFile());
@@ -266,7 +265,7 @@ class AbstractGitMojoTest {
     void testCheckGitSetupWithExistingLocation() throws Exception {
         final GitMojo mojo = new GitMojo();
         mojo.setLog(log);
-        setField(mojo, "remoteRepositories", Collections.emptyList());
+        setField(mojo, "remoteRepositories", List.of());
 
         // Pre-create the directory so extractPortableGit takes the fast path
         final PortableGit portableGit = new PortableGit(log);
@@ -492,7 +491,7 @@ class AbstractGitMojoTest {
 
         final PortableGit portableGit = new PortableGit(log);
         setField(mojo, "portableGit", portableGit);
-        setField(mojo, "remoteRepositories", Collections.emptyList());
+        setField(mojo, "remoteRepositories", List.of());
 
         // Point to tempDir so the "already exists" fast-path is NOT taken
         final LocalRepository localRepository = new LocalRepository(tempDir.toFile());
