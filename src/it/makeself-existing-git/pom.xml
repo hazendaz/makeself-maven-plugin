@@ -50,6 +50,8 @@
 
         <!-- Git -->
         <git.version>2.54.0.1</git.version>
+        <!-- The actual git binary version inside the portable tar.gz uses a 3-part version without the Maven revision suffix -->
+        <git.portable.version>2.54.0</git.portable.version>
     </properties>
 
     <dependencyManagement>
@@ -174,7 +176,7 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
-                                    <executable>${project.build.directory}/PortableGit-${git.version}-64-bit.7z.exe</executable>
+                                    <executable>${project.build.directory}/PortableGit-${git.portable.version}-64-bit.7z.exe</executable>
                                     <arguments>
                                         <argument>-o${project.build.directory}/git</argument>
                                         <argument>-y</argument>
