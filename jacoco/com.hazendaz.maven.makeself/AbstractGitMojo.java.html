@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractGitMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">makeself-maven-plugin</a> &gt; <a href="index.source.html" class="el_package">com.hazendaz.maven.makeself</a> &gt; <span class="el_source">AbstractGitMojo.java</span></div><h1>AbstractGitMojo.java</h1><pre class="source lang-java linenums">/*
+ *    Copyright 2011-2026 the original author or authors.
+ *
+ *    This program is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public License
+ *    as published by the Free Software Foundation; either version 2
+ *    of the License, or (at your option) any later version.
+ *
+ *    You may obtain a copy of the License at
+ *
+ *       https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ */
+package com.hazendaz.maven.makeself;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactRequest;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.resolution.ArtifactResult;
+
+/**
+ * Abstract base class providing portable Git download and installation support for Windows.
+ */
+<span class="fc" id="L55">public abstract class AbstractGitMojo extends AbstractMojo {</span>
+
+    /** isWindows is detected at start of plugin to ensure windows needs. */
+<span class="fc" id="L58">    static final boolean WINDOWS = System.getProperty(&quot;os.name&quot;).startsWith(&quot;Windows&quot;);</span>
+
+    /** The Constant GIT_USER_BIN. */
+    static final String GIT_USER_BIN = &quot;/usr/bin/&quot;;
+
+    /**
+     * Returns true if the current platform is Windows. Extracted as a method to allow test subclasses to override the
+     * platform detection without modifying production code.
+     *
+     * @return true if running on Windows
+     */
+    protected boolean isWindows() {
+<span class="nc" id="L70">        return WINDOWS;</span>
+    }
+
+    /**
+     * The path to existing git install for windows usage. If left blank per default, portable git will be used.
+     * Location should be something like 'C:/Program Files/Git'. When set and not windows, it will be treated as blank.
+     */
+    @Parameter(defaultValue = &quot;&quot;, property = &quot;gitPath&quot;)
+    protected String gitPath;
+
+    /** Maven Artifact Factory. */
+    @Inject
+    protected RepositorySystem repositorySystem;
+
+    /** Maven Repository System Session. */
+    @Parameter(defaultValue = &quot;${repositorySystemSession}&quot;, readonly = true, required = true)
+    protected RepositorySystemSession repoSession;
+
+    /** Maven Remote Repositories. */
+    @Parameter(defaultValue = &quot;${project.remoteProjectRepositories}&quot;, readonly = true, required = true)
+    protected List&lt;RemoteRepository&gt; remoteRepositories;
+
+    /** Portable Git. */
+    protected PortableGit portableGit;
+
+    /**
+     * Check Git Setup.
+     *
+     * @throws MojoFailureException
+     *             the mojo failure exception
+     */
+    protected void checkGitSetup() throws MojoFailureException {
+        // Get Portable Git Maven Information
+<span class="fc" id="L103">        this.portableGit = new PortableGit(this.getLog());</span>
+
+        // Extract Portable Git
+<span class="fc" id="L106">        this.extractPortableGit();</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * Extract Portable Git.
+     *
+     * @throws MojoFailureException
+     *             failure retrieving portable git
+     */
+    protected void extractPortableGit() throws MojoFailureException {
+<span class="fc" id="L116">        final String location = this.repoSession.getLocalRepository().getBasedir() + File.separator</span>
+<span class="fc" id="L117">                + this.portableGit.getName() + File.separator + this.portableGit.getVersion();</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (Files.exists(Path.of(location))) {</span>
+<span class="fc" id="L119">            this.getLog().debug(&quot;Existing 'PortableGit' folder found at &quot; + location);</span>
+<span class="fc" id="L120">            this.gitPath = location + AbstractGitMojo.GIT_USER_BIN;</span>
+<span class="fc" id="L121">            return;</span>
+        }
+
+<span class="fc" id="L124">        this.getLog().info(&quot;Loading portable git&quot;);</span>
+<span class="fc" id="L125">        final Artifact artifact = new DefaultArtifact(this.portableGit.getGroupId(), this.portableGit.getArtifactId(),</span>
+<span class="fc" id="L126">                this.portableGit.getClassifier(), this.portableGit.getExtension(), this.portableGit.getVersion());</span>
+<span class="fc" id="L127">        final ArtifactRequest artifactRequest = new ArtifactRequest().setRepositories(this.remoteRepositories)</span>
+<span class="fc" id="L128">                .setArtifact(artifact);</span>
+<span class="fc" id="L129">        ArtifactResult resolutionResult = null;</span>
+        try {
+<span class="fc" id="L131">            resolutionResult = this.repositorySystem.resolveArtifact(this.repoSession, artifactRequest);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">            if (!resolutionResult.isResolved()) {</span>
+<span class="fc" id="L133">                throw new MojoFailureException(&quot;Unable to resolve artifact: &quot; + artifact.getGroupId() + &quot;:&quot;</span>
+<span class="fc" id="L134">                        + artifact.getArtifactId() + &quot;:&quot; + artifact.getVersion() + &quot;:&quot; + artifact.getClassifier() + &quot;:&quot;</span>
+<span class="fc" id="L135">                        + artifact.getExtension());</span>
+            }
+<span class="fc" id="L137">        } catch (final ArtifactResolutionException e) {</span>
+<span class="fc" id="L138">            throw new MojoFailureException(</span>
+<span class="fc" id="L139">                    &quot;Unable to resolve artifact: &quot; + artifact.getGroupId() + &quot;:&quot; + artifact.getArtifactId() + &quot;:&quot;</span>
+<span class="fc" id="L140">                            + artifact.getVersion() + &quot;:&quot; + artifact.getClassifier() + &quot;:&quot; + artifact.getExtension());</span>
+<span class="fc" id="L141">        }</span>
+<span class="fc" id="L142">        this.installGit(resolutionResult.getArtifact(), location);</span>
+<span class="fc" id="L143">    }</span>
+
+    /**
+     * Install Git extracts git to .m2/repository under PortableGit.
+     *
+     * @param artifact
+     *            the maven artifact representation for git
+     * @param location
+     *            the location in maven repository to store portable git
+     */
+    protected void installGit(final Artifact artifact, final String location) {
+<span class="fc" id="L154">        Path currentFile = null;</span>
+
+        // Unzip 'git-for-windows-*-portable.tar.gz' from '.m2/repository/com/github/hazendaz/git/git-for-windows'
+        // into '.m2/repository/PortableGit'
+<span class="fc" id="L158">        try (InputStream inputStream = Files.newInputStream(artifact.getFile().toPath());</span>
+<span class="fc" id="L159">                InputStream bufferedStream = new BufferedInputStream(inputStream);</span>
+<span class="fc" id="L160">                InputStream gzipStream = new GzipCompressorInputStream(bufferedStream);</span>
+<span class="fc" id="L161">                ArchiveInputStream&lt;TarArchiveEntry&gt; tarStream = new TarArchiveInputStream(gzipStream)) {</span>
+            ArchiveEntry entry;
+<span class="fc" id="L163">            final String directory = this.repoSession.getLocalRepository().getBasedir() + File.separator</span>
+<span class="fc" id="L164">                    + this.portableGit.getName();</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">            while ((entry = tarStream.getNextEntry()) != null) {</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">                if (entry.isDirectory()) {</span>
+<span class="fc" id="L167">                    continue;</span>
+                }
+<span class="fc" id="L169">                currentFile = Path.of(directory, entry.getName());</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">                if (!currentFile.normalize().startsWith(directory)) {</span>
+<span class="fc" id="L171">                    throw new IOException(&quot;Bad zip entry, possible directory traversal&quot;);</span>
+                }
+<span class="fc" id="L173">                final Path parent = currentFile.getParent();</span>
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">                if (!Files.exists(parent)) {</span>
+<span class="fc" id="L175">                    Files.createDirectories(parent);</span>
+                }
+<span class="fc" id="L177">                this.getLog().debug(&quot;Current file: &quot; + currentFile.getFileName());</span>
+<span class="fc" id="L178">                Files.copy(tarStream, currentFile, StandardCopyOption.REPLACE_EXISTING);</span>
+<span class="fc" id="L179">            }</span>
+<span class="fc" id="L180">        } catch (final IOException e) {</span>
+<span class="fc" id="L181">            this.getLog().error(&quot;&quot;, e);</span>
+<span class="fc" id="L182">        }</span>
+
+        try {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">            if (currentFile != null) {</span>
+                // Extract Portable Git
+<span class="fc" id="L187">                this.getLog().debug(&quot;Extract Portable Git&quot;);</span>
+<span class="fc" id="L188">                this.runInstaller(Arrays.asList(currentFile.toString(), &quot;-y&quot;, &quot;-o&quot;, location));</span>
+<span class="fc" id="L189">                this.gitPath = location + AbstractGitMojo.GIT_USER_BIN;</span>
+            }
+<span class="fc" id="L191">        } catch (final IOException e) {</span>
+<span class="fc" id="L192">            this.getLog().error(&quot;&quot;, e);</span>
+<span class="nc" id="L193">        } catch (final InterruptedException e) {</span>
+<span class="nc" id="L194">            this.getLog().error(&quot;&quot;, e);</span>
+            // restore interruption status of the corresponding thread
+<span class="nc" id="L196">            Thread.currentThread().interrupt();</span>
+<span class="fc" id="L197">        }</span>
+<span class="fc" id="L198">    }</span>
+
+    /**
+     * Run installer executes a process and logs its output.
+     *
+     * @param command
+     *            the command to run
+     *
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws InterruptedException
+     *             the interrupted exception
+     */
+    protected void runInstaller(final List&lt;String&gt; command) throws IOException, InterruptedException {
+<span class="fc" id="L212">        this.getLog().debug(&quot;Execution commands: &quot; + command);</span>
+
+<span class="fc" id="L214">        final ProcessBuilder processBuilder = new ProcessBuilder(command);</span>
+<span class="fc" id="L215">        processBuilder.redirectErrorStream(true);</span>
+
+<span class="fc" id="L217">        final Process process = processBuilder.start();</span>
+<span class="fc" id="L218">        try (BufferedReader reader = new BufferedReader(</span>
+<span class="fc" id="L219">                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {</span>
+<span class="fc" id="L220">            String line = &quot;&quot;;</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">            while ((line = reader.readLine()) != null) {</span>
+<span class="fc" id="L222">                this.getLog().info(line);</span>
+            }
+<span class="fc" id="L224">            this.getLog().info(&quot;&quot;);</span>
+        }
+
+<span class="fc" id="L227">        final int status = process.waitFor();</span>
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">        if (status &gt; 0) {</span>
+<span class="nc" id="L229">            this.getLog().error(String.join(&quot; &quot;, &quot;Process failed with error status:&quot;, String.valueOf(status)));</span>
+        }
+<span class="fc" id="L231">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
