@@ -49,7 +49,7 @@
         <maven.min-version>3.6.3</maven.min-version>
 
         <!-- Git -->
-        <git.version>2.54.0.1</git.version>
+        <git.version>2.55.0.2</git.version>
         <!-- The actual git binary version inside the portable tar.gz uses a 3-part version without the Maven revision suffix -->
         <git.portable.version>2.54.0</git.portable.version>
     </properties>
