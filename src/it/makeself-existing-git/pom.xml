@@ -51,7 +51,7 @@
         <!-- Git -->
         <git.version>2.55.0.2</git.version>
         <!-- The actual git binary version inside the portable tar.gz uses a 3-part version without the Maven revision suffix -->
-        <git.portable.version>2.55.0</git.portable.version>
+        <git.portable.version>2.55.0.2</git.portable.version>
     </properties>
 
     <dependencyManagement>
