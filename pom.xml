@@ -93,7 +93,7 @@
         <!-- Maven Plugins -->
         <download-plugin.version>2.1.0</download-plugin.version>
         <invoker-plugin.version>3.10.1</invoker-plugin.version>
-        <maven-plugin.version>3.15.2</maven-plugin.version>
+        <maven-plugin.version>3.16.0</maven-plugin.version>
 
         <!-- Compress -->
         <compress.version>1.28.0</compress.version>
