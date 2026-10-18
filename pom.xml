@@ -79,6 +79,9 @@
         <!-- Checkstyle -->
         <checkstyle.config>checkstyle-4space.xml</checkstyle.config>
 
+        <!-- Jacoco minimum code coverage -->
+        <jacoco.minimum.coverage>0.71</jacoco.minimum.coverage>
+
         <!-- Automatic Module Name -->
         <module.name>com.github.hazendaz.maven.makeself</module.name>
 
