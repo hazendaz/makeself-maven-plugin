@@ -95,8 +95,9 @@
         <invoker-plugin.version>3.10.1</invoker-plugin.version>
         <maven-plugin.version>3.16.0</maven-plugin.version>
 
-        <!-- Compress -->
+        <!-- Commons -->
         <compress.version>1.28.0</compress.version>
+        <logging.version>1.4.0</logging.version>
 
         <!-- Git -->
         <git.version>2.55.0.2</git.version>
@@ -146,6 +147,12 @@
             <artifactId>maven-core</artifactId>
             <version>${maven.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -176,12 +183,18 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Commons Compress -->
+        <!-- Commons -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>${compress.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${logging.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Junit -->
