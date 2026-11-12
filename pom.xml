@@ -117,7 +117,7 @@
 
         <!-- Targeted patches -->
         <io.version>2.22.0</io.version>
-        <lang3.version>3.21.0</lang3.version>
+        <lang3.version>3.22.0</lang3.version>
 
         <argLine>-javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/${byte-buddy.version}/byte-buddy-agent-${byte-buddy.version}.jar -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
     </properties>
