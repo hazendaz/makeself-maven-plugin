@@ -110,7 +110,7 @@
 
         <!-- Mockito -->
         <byte-buddy.version>1.18.17</byte-buddy.version>
-        <mockito.version>5.24.0</mockito.version>
+        <mockito.version>5.25.0</mockito.version>
 
         <!-- Maven Plugin Testing Harness -->
         <plugin-testing-harness.version>3.5.1</plugin-testing-harness.version>
